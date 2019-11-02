@@ -9,7 +9,7 @@ public class UIManager : MonoBehaviour {
 	// Use this for initialization
 	double fuelTank;
 	double fuelCount;
-	void Start () {
+	void Awake () {
 		fuelBar = GameObject.Find ("FuelBar");
 		player = GameObject.Find ("Player");
 		fuelTank = player.GetComponent<Player> ().fuelTank;
