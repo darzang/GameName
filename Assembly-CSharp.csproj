@@ -55,14 +55,9 @@
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\PlayerLook.cs" />
      <Compile Include="Assets\Scripts\PlayerMove.cs" />
+     <Compile Include="Assets\Scripts\TileManager.cs" />
      <Compile Include="Assets\Scripts\UIManager.cs" />
      <None Include="Assets\EffectExamples\Shared\Shaders\SurfaceShader_VC.shader" />
- <Reference Include="Unity.TextMeshPro.Editor">
- <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
- </Reference>
- <Reference Include="Unity.TextMeshPro">
- <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
- </Reference>
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>
@@ -71,6 +66,9 @@
  </Reference>
  <Reference Include="Unity.VSCode.Editor">
  <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.TextMeshPro.Editor">
+ <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
@@ -101,6 +99,9 @@
  </Reference>
  <Reference Include="UnityEngine.SpatialTracking">
  <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/UnityEngine.SpatialTracking.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.TextMeshPro">
+ <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Analytics.DataPrivacy">
  <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
@@ -651,20 +652,6 @@
  <Reference Include="System.Xml.Serialization">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2019.2.11f1/Editor/Data/NetStandard/compat/2.0.0/shims/netfx/System.Xml.Serialization.dll</HintPath>
  </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="Unity.Recorder.Editor.csproj">
-      <Project>{0587FAE6-7A4A-A5C3-0EB2-97C49E831E5E}</Project>
-      <Name>Unity.Recorder.Editor</Name>
-    </ProjectReference>
-    <ProjectReference Include="Unity.Recorder.csproj">
-      <Project>{B872B6E2-AC76-E7A1-75BF-0CBBEBE17642}</Project>
-      <Name>Unity.Recorder</Name>
-    </ProjectReference>
-    <ProjectReference Include="Unity.Recorder.Samples.csproj">
-      <Project>{FB7CEC15-AE68-A5B6-CCF0-6EC071569D03}</Project>
-      <Name>Unity.Recorder.Samples</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
