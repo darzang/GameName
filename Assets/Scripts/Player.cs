@@ -12,11 +12,10 @@ public class Player : MonoBehaviour {
 
 	bool lampActive;
 
-	void Start () {
+	void Awake () {
 		fuelCount = fuelTank;
 		player = GameObject.Find("Player");
 		lamp = GameObject.Find("PlayerLamp");
-		Debug.Log(lamp);
 	}
 
 	void Update () {

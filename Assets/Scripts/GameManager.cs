@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour {
 
 	private GameObject player;
 	private GameObject environment;
-	void Start () {
+	void Awake () {
 		player = GameObject.Find ("Player");
 		environment = GameObject.Find ("Environment");
 		InstantiateSpawnTile ();
