@@ -11,9 +11,6 @@ public class TileManager : MonoBehaviour {
     private GameObject player;
     private GameObject environment;
     void Awake () {
-        GameObject[] mapElements = GetMapElements ();
-        GameObject[, ] map = Get3DMap (mapElements);
-
     }
 
     void Update () { }
@@ -22,20 +19,20 @@ public class TileManager : MonoBehaviour {
         GameObject[] WallTiles = GameObject.FindGameObjectsWithTag ("Wall");
         GameObject[] ObstacleTiles = GameObject.FindGameObjectsWithTag ("Obstacle");
         GameObject[] FloorTiles = GameObject.FindGameObjectsWithTag ("Floor");
-        GameObject[] MapElements = WallTiles.Concat (ObstacleTiles).Concat (FloorTiles).ToArray ();
-        // foreach (GameObject element in MapElements) {
+        GameObject[] mapElements = WallTiles.Concat (ObstacleTiles).Concat (FloorTiles).ToArray ();
+        // foreach (GameObject element in mapElements) {
         //     Debug.Log (element.transform.position);
         // }
-        return MapElements;
+        return mapElements;
     }
 
-    GameObject[, ] Get3DMap (GameObject[] MapElements) {
-        int mapSize = (int) Math.Sqrt (MapElements.Length);
+    public GameObject[, ] Get3DMap () {
+        GameObject[] mapElements = GetMapElements();
+        int mapSize = (int) Math.Sqrt (mapElements.Length);
         GameObject[, ] map = new GameObject[mapSize, mapSize];
         for (int x = 0; x < mapSize; x++) {
             for (int z = 0; z < mapSize; z++) {
-                map[x, z] = Array.Find (MapElements, element => ((int) element.transform.position.x == x && (int) element.transform.position.z == z));
-                // Debug.Log ("X: " + x + " Z: " + z + ": " + map[x, z].tag);
+                map[x, z] = Array.Find (mapElements, element => ((int) element.transform.position.x == x && (int) element.transform.position.z == z));
             }
         }
         return map;
