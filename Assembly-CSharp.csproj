@@ -115,6 +115,12 @@
  <Reference Include="com.unity.multiplayer-hlapi.Runtime">
  <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/com.unity.multiplayer-hlapi.Runtime.dll</HintPath>
  </Reference>
+ <Reference Include="Unity.Recorder.Editor">
+ <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.Recorder.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Recorder">
+ <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.Recorder.dll</HintPath>
+ </Reference>
  <Reference Include="UnityEngine">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2019.2.11f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
  </Reference>
@@ -652,6 +658,12 @@
  <Reference Include="System.Xml.Serialization">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2019.2.11f1/Editor/Data/NetStandard/compat/2.0.0/shims/netfx/System.Xml.Serialization.dll</HintPath>
  </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Unity.Recorder.Samples.Editor.csproj">
+      <Project>{1AE3AB75-5412-42BB-07AC-F4185B2E21C3}</Project>
+      <Name>Unity.Recorder.Samples.Editor</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

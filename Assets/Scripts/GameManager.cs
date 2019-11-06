@@ -10,33 +10,24 @@ public class GameManager : MonoBehaviour {
 	void Awake () {
 		player = GameObject.Find ("Player");
 		environment = GameObject.Find ("Environment");
-		InstantiateSpawnTile ();
+		// InstantiateSpawnTile ();
 	}
 
 	void Update () { }
 
-	void InstantiateSpawnTile () {
-		GameObject floorTile = GetTileUnderPlayer ();
-		Instantiate (
-			spawnTile,
-			new Vector3 (
-				floorTile.transform.position.x,
-				floorTile.transform.position.y + 0.001f,
-				floorTile.transform.position.z
-				),
-			floorTile.transform.rotation,
-			environment.transform
-		);
+	// void InstantiateSpawnTile () {
+	// 	GameObject floorTile = GetTileUnderPlayer ();
+	// 	Instantiate (
+	// 		spawnTile,
+	// 		new Vector3 (
+	// 			floorTile.transform.position.x,
+	// 			floorTile.transform.position.y + 0.001f,
+	// 			floorTile.transform.position.z
+	// 			),
+	// 		floorTile.transform.rotation,
+	// 		environment.transform
+	// 	);
 
-	}
-	GameObject GetTileUnderPlayer () {
-		RaycastHit hit;
-		Ray ray = new Ray (player.transform.position, Vector3.down);
-		if (Physics.Raycast (ray, out hit, 10)) {
-			Debug.Log ("Player is above " + hit.collider.gameObject);
-			return hit.collider.gameObject;
-		} else {
-			return null;
-		}
-	}
+	// }
+
 }

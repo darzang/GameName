@@ -44,8 +44,8 @@
     <ImplicitlyExpandNETStandardFacades>false</ImplicitlyExpandNETStandardFacades>
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
-  <ItemGroup>     <Compile Include="Assets\TZ_Futuristic Panel Textures Lite\Unity Recorder\Runtime\RecorderBindings.cs" />
-     <Compile Include="Assets\TZ_Futuristic Panel Textures Lite\Unity Recorder\Runtime\SerializedDictionnary.cs" />
+  <ItemGroup>     <Compile Include="Assets\Unity Recorder\Runtime\RecorderBindings.cs" />
+     <Compile Include="Assets\Unity Recorder\Runtime\SerializedDictionnary.cs" />
  <Reference Include="UnityEditor.UI">
  <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
  </Reference>
