@@ -5,15 +5,25 @@ using UnityEngine;
 public class GameManager : MonoBehaviour {
 	public Transform spawnTile;
 
-	private GameObject player;
-	private GameObject environment;
+	public GameObject player;
+	public GameObject playerLamp;
+
+	private AudioSource lightAudio;
+	public AudioClip[] lightSounds;
 	void Awake () {
 		player = GameObject.Find ("Player");
-		environment = GameObject.Find ("Environment");
+		lightAudio = playerLamp.GetComponent<AudioSource> ();
 		// InstantiateSpawnTile ();
 	}
 
-	void Update () { }
+	void Update () {
+		if (Input.GetMouseButtonDown (0)) { // Left click
+			Light light = playerLamp.GetComponent<Light> ();
+			lightAudio.clip = light.enabled ? lightSounds[1] : lightSounds[0];
+			lightAudio.Play ();
+			light.enabled = (!light.enabled);
+		}
+	}
 
 	// void InstantiateSpawnTile () {
 	// 	GameObject floorTile = GetTileUnderPlayer ();

@@ -67,8 +67,14 @@
  <Reference Include="Unity.VSCode.Editor">
  <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.VSCode.Editor.dll</HintPath>
  </Reference>
+ <Reference Include="Unity.Recorder.Editor">
+ <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.Recorder.Editor.dll</HintPath>
+ </Reference>
  <Reference Include="Unity.TextMeshPro.Editor">
  <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+ </Reference>
+ <Reference Include="Unity.Recorder">
+ <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.Recorder.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
@@ -114,12 +120,6 @@
  </Reference>
  <Reference Include="com.unity.multiplayer-hlapi.Runtime">
  <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/com.unity.multiplayer-hlapi.Runtime.dll</HintPath>
- </Reference>
- <Reference Include="Unity.Recorder.Editor">
- <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.Recorder.Editor.dll</HintPath>
- </Reference>
- <Reference Include="Unity.Recorder">
- <HintPath>D:/Documents/m.boez/Desktop/UnityPerso/GameName/GameName/Library/ScriptAssemblies/Unity.Recorder.dll</HintPath>
  </Reference>
  <Reference Include="UnityEngine">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2019.2.11f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

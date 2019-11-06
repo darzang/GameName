@@ -10,13 +10,15 @@ public class PlayerMove : MonoBehaviour {
 
 	private CharacterController charController;
 	private GameObject player;
+	private GameObject playerLamp;
 	private void Awake () {
 		charController = GetComponent<CharacterController> ();
 		player = GameObject.Find ("Player");
 	}
 
 	private void Update () {
-		PlayerMovement();
+
+		PlayerMovement ();
 		// player.GetComponent<Player>().fuelCount -= fuelconsumption;
 		// if (Input.GetKey ("z") || Input.GetKey ("q") || Input.GetKey ("s") || Input.GetKey ("d")) {
 		// 	if (player.GetComponent<Player> ().fuelCount > 0) {
