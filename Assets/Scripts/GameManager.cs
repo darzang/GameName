@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour {
 	public Transform spawnTile;
+	public TileManager tileManager;
 
 	public GameObject player;
 	public GameObject playerLamp;
@@ -20,24 +21,23 @@ public class GameManager : MonoBehaviour {
 		if (Input.GetMouseButtonDown (0)) { // Left click
 			Light light = playerLamp.GetComponent<Light> ();
 			lightAudio.clip = light.enabled ? lightSounds[1] : lightSounds[0];
+			Debug.Log("Playing audio");
 			lightAudio.Play ();
 			light.enabled = (!light.enabled);
 		}
 	}
 
-	// void InstantiateSpawnTile () {
-	// 	GameObject floorTile = GetTileUnderPlayer ();
-	// 	Instantiate (
-	// 		spawnTile,
-	// 		new Vector3 (
-	// 			floorTile.transform.position.x,
-	// 			floorTile.transform.position.y + 0.001f,
-	// 			floorTile.transform.position.z
-	// 			),
-	// 		floorTile.transform.rotation,
-	// 		environment.transform
-	// 	);
-
-	// }
+	void InstantiateSpawnTile ()
+	{
+		GameObject floorTile = tileManager.GetTileUnderPlayer();
+		Instantiate (spawnTile, new Vector3 (
+					floorTile.transform.position.x,
+					floorTile.transform.position.y + 0.001f,
+					floorTile.transform.position.z
+					),
+			floorTile.transform.rotation,
+			GameObject.Find("Environment").transform
+		);
+	}
 
 }

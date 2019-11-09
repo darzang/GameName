@@ -1,20 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerLook : MonoBehaviour {
     [SerializeField] private string mouseXInputName, mouseYInputName;
     [SerializeField] private float mouseSensitivity;
-
     [SerializeField] private Transform playerBody;
-    private GameObject player;
 
     private float xAxisClamp;
 
     private void Awake () {
         LockCursor ();
         xAxisClamp = 0.0f;
-        player = GameObject.Find ("Player");
     }
 
     private void LockCursor () {
@@ -22,11 +17,7 @@ public class PlayerLook : MonoBehaviour {
     }
 
     private void Update () {
-        // if (player.GetComponent<Player> ().fuelCount > 0) {
-        //     CameraRotation ();
-        // }
         CameraRotation ();
-
     }
 
     private void CameraRotation () {

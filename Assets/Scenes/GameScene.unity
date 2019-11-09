@@ -1081,7 +1081,6 @@ GameObject:
   m_Component:
   - component: {fileID: 102978747}
   - component: {fileID: 102978746}
-  - component: {fileID: 102978745}
   - component: {fileID: 102978748}
   - component: {fileID: 102978749}
   m_Layer: 0
@@ -1091,22 +1090,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &102978745
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 102978744}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e3049144e69d5a246a7d89dd635d4be9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  horizontalInputName: Horizontal
-  verticalInputName: Vertical
-  movementSpeed: 1
-  fuelconsumption: 0.5
 --- !u!143 &102978746
 CharacterController:
   m_ObjectHideFlags: 0
@@ -4674,6 +4657,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnTile: {fileID: 4426104816686214, guid: 2ea4b51c056934249a4dbb5c1141af59, type: 3}
+  tileManager: {fileID: 1942737561}
   player: {fileID: 102978744}
   playerLamp: {fileID: 551836158}
   lightSounds:
@@ -9403,7 +9387,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mouseXInputName: Mouse X
   mouseYInputName: Mouse Y
-  mouseSensitivity: 85.16
+  mouseSensitivity: 40.12
   playerBody: {fileID: 102978747}
 --- !u!81 &918992902
 AudioListener:

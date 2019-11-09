@@ -12,13 +12,11 @@ public class UIManager : MonoBehaviour {
 	Color32 wallColor = new Color32 (25, 25, 25, 255);
 	Color32 obstacleColor = new Color32 (50, 50, 50, 255);
 	Color32 playerColor = new Color32 (0, 0, 255, 255);
-	// Use this for initialization
 	double fuelTank;
 	double fuelCount;
 	GameObject currentTile;
+
 	void Awake () {
-		// StartCoroutine (WaitForXSeconds (5));
-		Debug.Log ("Starting Awake UI");
 		fuelBar = GameObject.Find ("FuelBar");
 		miniMapPanel = GameObject.Find ("MiniMapPanel");
 		player = GameObject.Find ("Player");
@@ -26,21 +24,12 @@ public class UIManager : MonoBehaviour {
 		currentTile = tileManager.GetTileUnderPlayer ();
 		DrawStartingMiniMap ();
 	}
-	IEnumerator WaitForXSeconds (int x) {
-		Debug.Log (Time.time);
-		yield return new WaitForSeconds (x);
-		Debug.Log (Time.time);
-	}
-	// Update is called once per frame
 	void Update () {
-		// UpdateHealthBar ();
-		// UpdateMiniMap ();
 		if (tileManager.GetTileUnderPlayer () != currentTile) {
 			currentTile = tileManager.GetTileUnderPlayer ();
-			// AddTileToMiniMap (currentTile);
 			UpdateMiniMap ();
 		}
-
+		UpdateHealthBar();
 	}
 
 	void UpdateMiniMap () {
@@ -66,21 +55,21 @@ public class UIManager : MonoBehaviour {
 			fuelBar.transform.localScale.y,
 			fuelBar.transform.localScale.z
 		);
-
 		// Update color
 		if (fuelCount > fuelTank / 2) {
 			fuelBar.GetComponent<Image> ().color = new Color32 ((byte) (fuelTank - fuelCount), 255, 0, 255);
 		} else {
 			fuelBar.GetComponent<Image> ().color = new Color32 (255, (byte) fuelCount, 0, 255);
 		}
-
 	}
 
 	void DrawStartingMiniMap () {
 		GameObject currentTile = tileManager.GetTileUnderPlayer ();
 		AddTileToMiniMap (currentTile);
-		Debug.Log ("DrawStartMiniMap from " + currentTile.transform.position.x + " | " + currentTile.transform.position.z);
-		List<GameObject> neighborTiles = tileManager.GetNeighborsTiles ((int) currentTile.transform.position.x, (int) currentTile.transform.position.z);
+		List<GameObject> neighborTiles = tileManager.GetNeighborsTiles (
+			(int) currentTile.transform.position.x,
+			(int) currentTile.transform.position.z
+			);
 
 		foreach (GameObject tile in neighborTiles) {
 			AddTileToMiniMap (tile);
@@ -88,13 +77,23 @@ public class UIManager : MonoBehaviour {
 	}
 	void AddTileToMiniMap (GameObject tile) {
 
-		if (tileManager.HasBeenRevealed (tile)) Destroy (GameObject.Find (tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag));
-		Color32 tileColor = GetTileColor (tile.tag);
+		// Regenerate previously drawn tiles
+		if (tileManager.HasBeenRevealed(tile)){
+			Destroy (GameObject.Find (tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag));
+		}
+		if (!tileManager.HasBeenRevealed (tile)) {
+			tileManager.AddToRevealedTiles (tile);
+		}
+		// Instantiate new tile and anchor it in the middle of the panel
 		GameObject newTile = new GameObject (tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag);
 		Image newImage = newTile.AddComponent<Image> ();
+		Color32 tileColor = GetTileColor (tile.tag);
+
 		newTile.GetComponent<RectTransform> ().SetParent (miniMapPanel.transform);
 		newTile.GetComponent<RectTransform> ().anchorMin = new Vector2 (0.5f, 0.5f);
 		newTile.GetComponent<RectTransform> ().anchorMax = new Vector2 (0.5f, 0.5f);
+
+		// Set the position of the new tile
 		if (tile == tileManager.GetTileUnderPlayer ()) {
 			newTile.GetComponent<RectTransform> ().anchoredPosition = new Vector3 (0, 0, 0);
 			tileColor = playerColor;
@@ -105,47 +104,44 @@ public class UIManager : MonoBehaviour {
 				0);
 		}
 
+		// Set the size and scale of the tile
 		newTile.GetComponent<RectTransform> ().sizeDelta = new Vector2 (10, 10);
 		newTile.GetComponent<RectTransform> ().localScale = new Vector3 (1.0f, 1.0f, 1.0f);
 		newImage.color = tileColor;
 		newTile.SetActive (true);
-		if (!tileManager.HasBeenRevealed (tile)) {
-			tileManager.AddToRevealedTiles (tile);
-		}
+
 	}
 
-	void AddTileToMap (GameObject tile, bool drawInMiddle) {
+	void AddTileToMap (GameObject tile) {
 		/*
-		Outdated
+		Was used when drawing the whole map at once,
+		Basically only the anchor is different
 		 */
 		Color32 tileColor = GetTileColor (tile.tag);
 		GameObject newTile = new GameObject (tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag);
 		Image newImage = newTile.AddComponent<Image> ();
 		newTile.GetComponent<RectTransform> ().SetParent (miniMapPanel.transform);
 
-		if (drawInMiddle) {
-			newTile.GetComponent<RectTransform> ().anchorMin = new Vector2 (0.5f, 0.5f);
-			newTile.GetComponent<RectTransform> ().anchorMax = new Vector2 (0.5f, 0.5f);
-			newTile.GetComponent<RectTransform> ().anchoredPosition = new Vector3 (0, 0, 0);
-		} else {
-			newTile.GetComponent<RectTransform> ().anchorMin = new Vector2 (0, 0);
-			newTile.GetComponent<RectTransform> ().anchorMax = new Vector2 (0, 0);
-			newTile.GetComponent<RectTransform> ().anchoredPosition = new Vector3 (
-				tile.transform.position.x * 10 + 5,
-				tile.transform.position.z * 10 + 5,
-				0
+		newTile.GetComponent<RectTransform> ().anchorMin = new Vector2 (0, 0);
+		newTile.GetComponent<RectTransform> ().anchorMax = new Vector2 (0, 0);
+		newTile.GetComponent<RectTransform> ().anchoredPosition = new Vector3 (
+			tile.transform.position.x * 10 + 5,
+			tile.transform.position.z * 10 + 5,
+			0
 			);
-		}
 		newTile.GetComponent<RectTransform> ().sizeDelta = new Vector2 (10, 10);
 		newImage.color = tileColor;
 		newTile.SetActive (true);
-		/*
-		Outdated
-		 */
 	}
-
-	Color32 GetTileColor (string tileTag) {
-		switch (tileTag) {
+	public void DrawWholeMap (GameObject[, ] map3D) {
+		for (int i = 0; i < map3D.GetLength (0); i++) {
+			for (int j = 0; j < map3D.GetLength (1); j++) {
+				AddTileToMap (map3D[i, j]);
+			}
+		}
+	}
+	Color32 GetTileColor (string Tag) {
+		switch (Tag) {
 			case "Wall":
 				return wallColor;
 			case "Floor":
@@ -160,15 +156,6 @@ public class UIManager : MonoBehaviour {
 		}
 	}
 
-	public void DrawWholeMap (GameObject[, ] map3D) {
-		for (int i = 0; i < map3D.GetLength (0); i++) {
-			for (int j = 0; j < map3D.GetLength (1); j++) {
-				AddTileToMap (
-					map3D[i, j],
-					false
-				);
-			}
-		}
-	}
+
 
 }
