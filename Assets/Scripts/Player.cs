@@ -19,12 +19,9 @@ public class Player : MonoBehaviour {
 	{
 		if (Input.GetKey ("z") || Input.GetKey ("q") || Input.GetKey ("s") || Input.GetKey ("d"))
 		{
-			Debug.Log("Input");
 			if (fuelCount > 0) {
 				PlayerMovement ();
 				fuelCount -= fuelConsumption;
-			} else {
-				Debug.Log ("Player doesn't have fuel left");
 			}
 		}
 	}
