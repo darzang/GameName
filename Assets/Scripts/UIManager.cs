@@ -34,7 +34,6 @@ public class UIManager : MonoBehaviour {
 			currentTile = tileManager.GetTileUnderPlayer ();
 			UpdateMiniMap ();
 		}
-		UpdateHealthBar();
 		if (player.GetComponent<Player>().fuelCount > 0){
 			UpdateHealthBar();
 		}
@@ -46,6 +45,13 @@ public class UIManager : MonoBehaviour {
 		if (fuelCount <= fuelTank * 0.5 ){
 			if (!batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel());
 		}
+
+		Debug.Log("rotationMap: " + miniMapPanel.GetComponent<RectTransform>().rotation.ToString());
+		Debug.Log("rotationPlayer: " + player.transform.rotation);
+//		miniMapPanel.GetComponent<RectTransform>().rotation = Quaternion.Euler(0f,player.transform.rotation.y,0f);
+miniMapPanel.transform.rotation = new Quaternion(0,0,player.transform.rotation.y, 0);
+//miniMapPanel.transform.Rotate(0,0,player.transform.rotation.y);
+		Debug.Log("rotationAfter: " + miniMapPanel.GetComponent<RectTransform>().rotation.ToString());
 	}
 
 	void UpdateMiniMap () {
@@ -62,6 +68,8 @@ public class UIManager : MonoBehaviour {
 		foreach (GameObject tile in tilesToDraw) {
 			AddTileToMiniMap (tile);
 		}
+
+
 	}
 	void UpdateHealthBar () {
 		// Update scale
@@ -126,7 +134,6 @@ public class UIManager : MonoBehaviour {
 		newTile.GetComponent<RectTransform> ().localScale = new Vector3 (1.0f, 1.0f, 1.0f);
 		newImage.color = tileColor;
 		newTile.SetActive (true);
-
 	}
 
 	void AddTileToMap (GameObject tile) {
