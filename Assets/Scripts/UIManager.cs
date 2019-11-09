@@ -7,6 +7,7 @@ public class UIManager : MonoBehaviour {
 
 	public TileManager tileManager;
 	public GameObject batteryDead;
+	public GameObject batteryLevel;
 	GameObject fuelBar;
 	GameObject miniMapPanel;
 	GameObject player;
@@ -17,6 +18,7 @@ public class UIManager : MonoBehaviour {
 	double fuelTank;
 	double fuelCount;
 	GameObject currentTile;
+	private bool batteryLevelBlinking = false;
 
 	void Awake () {
 		fuelBar = GameObject.Find ("FuelBar");
@@ -27,6 +29,7 @@ public class UIManager : MonoBehaviour {
 		DrawStartingMiniMap ();
 	}
 	void Update () {
+		fuelCount = player.GetComponent<Player> ().fuelCount;
 		if (tileManager.GetTileUnderPlayer () != currentTile) {
 			currentTile = tileManager.GetTileUnderPlayer ();
 			UpdateMiniMap ();
@@ -34,8 +37,14 @@ public class UIManager : MonoBehaviour {
 		UpdateHealthBar();
 		if (player.GetComponent<Player>().fuelCount > 0){
 			UpdateHealthBar();
-		}else{
+		}
+		else
+		{
 			if (!batteryDead.gameObject.activeSelf) batteryDead.SetActive(true);
+			StopCoroutine("BlinkBatteryLevel");
+		}
+		if (fuelCount <= fuelTank * 0.5 ){
+			if (!batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel());
 		}
 	}
 
@@ -55,7 +64,6 @@ public class UIManager : MonoBehaviour {
 		}
 	}
 	void UpdateHealthBar () {
-		fuelCount = player.GetComponent<Player> ().fuelCount;
 		// Update scale
 		fuelBar.transform.localScale = new Vector3 (
 			(float) (fuelCount / fuelTank),
@@ -68,6 +76,8 @@ public class UIManager : MonoBehaviour {
 		} else {
 			fuelBar.GetComponent<Image> ().color = new Color32 (255, (byte) fuelCount, 0, 255);
 		}
+
+
 	}
 
 	void DrawStartingMiniMap () {
@@ -163,6 +173,27 @@ public class UIManager : MonoBehaviour {
 		}
 	}
 
+	IEnumerator BlinkBatteryLevel()
+	{
+		batteryLevelBlinking = true;
+		TextMeshProUGUI batteryText = batteryLevel.GetComponent<TextMeshProUGUI>();
+		while (true)
+		{
+			if (fuelCount > fuelTank * 0.2){
+				batteryText.text = "BATTERY LEVEL LOW";
+				batteryLevel.SetActive(true);
+				yield return new WaitForSeconds(0.4f);
+				batteryLevel.SetActive(false);
+				yield return new WaitForSeconds(0.4f);
+			}else{
+				batteryText.text = "BATTERY LEVEL CRITICAL";
+				batteryLevel.SetActive(true);
+				yield return new WaitForSeconds(0.2f);
+				batteryLevel.SetActive(false);
+				yield return new WaitForSeconds(0.2f);
+			}
+		}
+	}
 
 
 }
