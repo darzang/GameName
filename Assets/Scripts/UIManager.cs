@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 public class UIManager : MonoBehaviour {
 
 	public TileManager tileManager;
+	public GameObject batteryDead;
 	GameObject fuelBar;
 	GameObject miniMapPanel;
 	GameObject player;
@@ -30,6 +32,11 @@ public class UIManager : MonoBehaviour {
 			UpdateMiniMap ();
 		}
 		UpdateHealthBar();
+		if (player.GetComponent<Player>().fuelCount > 0){
+			UpdateHealthBar();
+		}else{
+			if (!batteryDead.gameObject.activeSelf) batteryDead.SetActive(true);
+		}
 	}
 
 	void UpdateMiniMap () {
