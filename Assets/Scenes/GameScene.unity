@@ -1115,14 +1115,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 102978744}
-  m_LocalRotation: {x: -0, y: -0.9999995, z: -0, w: 0.0010155886}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 7.12, y: 0.13, z: 8.2560005}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 918992900}
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: -179.884, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &102978748
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1141,6 +1141,7 @@ MonoBehaviour:
   fuelConsumption: 0.8
   fuelCount: 500
   fuelTank: 500
+  player: {fileID: 0}
 --- !u!82 &102978749
 AudioSource:
   m_ObjectHideFlags: 0
