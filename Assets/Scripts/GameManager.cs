@@ -67,7 +67,6 @@ public class GameManager : MonoBehaviour {
 
 	public void Retry()
 	{
-
 		mapFragments.Add(tileManager.getRevealedTilesNames());
 		GameDataManager.SaveFile(new GameData(tileManager.revealedTiles, tryCount, mapFragments));
 		SceneManager.LoadScene("GameScene");

@@ -1141,7 +1141,7 @@ MonoBehaviour:
   fuelConsumption: 0.8
   fuelCount: 500
   fuelTank: 500
-  player: {fileID: 0}
+  player: {fileID: 102978744}
 --- !u!82 &102978749
 AudioSource:
   m_ObjectHideFlags: 0
@@ -4832,6 +4832,7 @@ MonoBehaviour:
   lightSounds:
   - {fileID: 8300000, guid: aa6e66827baa5014e985b00727cc0559, type: 3}
   - {fileID: 8300000, guid: 0b4daed8fcca1054e9a78803540fddcc, type: 3}
+  tryCount: 0
 --- !u!1001 &471737965
 PrefabInstance:
   m_ObjectHideFlags: 0
