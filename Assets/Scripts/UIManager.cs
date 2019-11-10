@@ -6,11 +6,15 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour {
 
 	public TileManager tileManager;
+	public GameManager gameManager;
 	public GameObject batteryDead;
 	public GameObject batteryLevel;
-	GameObject fuelBar;
-	GameObject miniMapPanel;
-	GameObject player;
+	public Button retryButton;
+    public Button giveUpButton;
+    public GameObject fuelBar;
+	public GameObject miniMapPanel;
+	public GameObject buttonPanel;
+	public GameObject player;
 	Color32 floorColor = new Color32 (255, 255, 255, 255);
 	Color32 wallColor = new Color32 (25, 25, 25, 255);
 	Color32 obstacleColor = new Color32 (50, 50, 50, 255);
@@ -20,13 +24,13 @@ public class UIManager : MonoBehaviour {
 	GameObject currentTile;
 	private bool batteryLevelBlinking = false;
 
+
 	void Awake () {
-		fuelBar = GameObject.Find ("FuelBar");
-		miniMapPanel = GameObject.Find ("MiniMapPanel");
-		player = GameObject.Find ("Player");
 		fuelTank = player.GetComponent<Player> ().fuelTank;
 		currentTile = tileManager.GetTileUnderPlayer ();
 		DrawStartingMiniMap ();
+		retryButton.onClick.AddListener(gameManager.Retry);
+		giveUpButton.onClick.AddListener(gameManager.GiveUp);
 	}
 	void Update () {
 		fuelCount = player.GetComponent<Player> ().fuelCount;
@@ -41,6 +45,9 @@ public class UIManager : MonoBehaviour {
 		{
 			if (!batteryDead.gameObject.activeSelf) batteryDead.SetActive(true);
 			StopCoroutine("BlinkBatteryLevel");
+			buttonPanel.SetActive(true);
+			Cursor.visible = true;
+			Cursor.lockState = CursorLockMode.None;
 		}
 		if (fuelCount <= fuelTank * 0.5 ){
 			if (!batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel());

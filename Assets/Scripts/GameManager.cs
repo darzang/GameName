@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 	public Transform spawnTile;
@@ -38,6 +39,16 @@ public class GameManager : MonoBehaviour {
 			floorTile.transform.rotation,
 			GameObject.Find("Environment").transform
 		);
+	}
+
+	public void Retry()
+	{
+		SceneManager.LoadScene("GameScene");
+	}
+
+	public void GiveUp()
+	{
+		Application.Quit(); // This quit the game entirely and therefore doesn't work while testing in the Unity editor
 	}
 
 }
