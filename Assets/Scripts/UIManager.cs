@@ -21,20 +21,25 @@ public class UIManager : MonoBehaviour {
 	Color32 wallColor = new Color32 (25, 25, 25, 255);
 	Color32 obstacleColor = new Color32 (50, 50, 50, 255);
 	Color32 playerColor = new Color32 (0, 0, 255, 255);
+	Color32 spawnTextColor = new Color32(0,0,0,255);
 	double fuelTank;
 	double fuelCount;
 	GameObject currentTile;
 	private bool batteryLevelBlinking = false;
 
 
-	void Awake () {
+	void Awake ()
+	{
+		Debug.Log("Awake UI");
 		fuelTank = player.GetComponent<Player> ().fuelTank;
 		currentTile = tileManager.GetTileUnderPlayer ();
-		DrawStartingMiniMap ();
 		retryButton.onClick.AddListener(gameManager.Retry);
 		giveUpButton.onClick.AddListener(gameManager.GiveUp);
-		Debug.Log(miniMapPanel.ToString());
-		Debug.Log(miniMapPanel);
+	}
+
+	void Start()
+	{
+		DrawStartingMiniMap ();
 	}
 	void Update () {
 		fuelCount = player.GetComponent<Player> ().fuelCount;
@@ -97,6 +102,7 @@ public class UIManager : MonoBehaviour {
 	}
 
 	void DrawStartingMiniMap () {
+		Debug.Log(gameManager.startingTile);
 		GameObject currentTile = tileManager.GetTileUnderPlayer ();
 		AddTileToMiniMap (currentTile);
 		List<GameObject> neighborTiles = tileManager.GetNeighborsTiles (
@@ -141,9 +147,33 @@ public class UIManager : MonoBehaviour {
 		newTile.GetComponent<RectTransform> ().sizeDelta = new Vector2 (10, 10);
 		newTile.GetComponent<RectTransform> ().localScale = new Vector3 (1.0f, 1.0f, 1.0f);
 		newImage.color = tileColor;
+
+		if (tile == gameManager.startingTile)
+		{
+			DrawSpawnTile(newTile);
+		}
 		newTile.SetActive (true);
 	}
 
+	void DrawSpawnTile(GameObject tile)
+	{
+
+			GameObject spawnTile = new GameObject("SpawnTile");
+			spawnTile.transform.parent = tile.transform;
+			spawnTile.AddComponent<TextMeshProUGUI>();
+			TextMeshProUGUI spawnText = spawnTile.GetComponent<TextMeshProUGUI>();
+			spawnText.text = "S"+gameManager.tryCount;
+			spawnText.GetComponent<RectTransform>().pivot = new Vector2(0.5f,0.5f);
+			spawnText.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f,0.5f);
+			spawnText.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f,0.5f);
+			spawnText.GetComponent<RectTransform>().anchoredPosition = new Vector3(0,0,0);
+			spawnText.GetComponent<RectTransform>().sizeDelta = tile.GetComponent<RectTransform>().sizeDelta;
+			spawnText.GetComponent<RectTransform>().localScale = new Vector3(1,1,1);
+			spawnText.fontSize = 8 * tile.GetComponent<RectTransform>().sizeDelta.x / 10;
+			spawnText.color = spawnTextColor;
+			spawnText.alignment = TextAlignmentOptions.MidlineJustified;
+
+	}
 	void AddTileToMap (GameObject tile) {
 		/*
 		Was used when drawing the whole map at once,
@@ -293,6 +323,11 @@ public class UIManager : MonoBehaviour {
 		newTile.GetComponent<RectTransform> ().sizeDelta = new Vector2 (5, 5);
 		newTile.GetComponent<RectTransform> ().localScale = new Vector3 (1.0f, 1.0f, 1.0f);
 		newImage.color = tileColor;
+		if (tile == gameManager.startingTile)
+		{
+			Debug.Log("Found spawn tile in fragment");
+			DrawSpawnTile(newTile);
+		}
 		newTile.SetActive (true);
 	}
 

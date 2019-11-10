@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour {
 
 	public GameObject player;
 	public GameObject playerLamp;
+	public GameObject startingTile;
 
 	private AudioSource lightAudio;
 	public AudioClip[] lightSounds;
@@ -19,21 +20,27 @@ public class GameManager : MonoBehaviour {
 
 	void Awake () {
 		player = GameObject.Find ("Player");
+		startingTile = tileManager.GetTileUnderPlayer();
 		lightAudio = playerLamp.GetComponent<AudioSource> ();
-		GameData gameData = GameDataManager.LoadFile();
-		if (gameData == null){
-			Debug.Log("No data to load");
-			tryCount = 1;
-			mapFragments = new  List<List<string>>();
-		}else{
-			Debug.Log("Data loaded");
-			mapFragments = gameData.mapFragments;
-			tryCount = gameData.tryCount  + 1;
-			uiManager.DrawMapFragments(mapFragments);
-		}
 
-		Debug.Log("Try #" + tryCount);
 		// InstantiateSpawnTile ();
+	}
+
+	void Start()
+	{
+        GameData gameData = GameDataManager.LoadFile();
+        tryCount = 1;
+        if (gameData == null){
+        	Debug.Log("No data to load");
+        	mapFragments = new  List<List<string>>();
+        }else{
+        	Debug.Log("Data loaded");
+        	mapFragments = gameData.mapFragments;
+        	tryCount = gameData.tryCount  + 1;
+        	uiManager.DrawMapFragments(mapFragments);
+        }
+
+        Debug.Log("Try #" + tryCount);
 	}
 
 	void Update () {

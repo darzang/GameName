@@ -1121,7 +1121,7 @@ Transform:
   m_Children:
   - {fileID: 918992900}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &102978748
 MonoBehaviour:
@@ -4654,7 +4654,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &435763045
 MonoBehaviour:
@@ -4887,7 +4887,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &462854107
 MonoBehaviour:
@@ -4906,6 +4906,7 @@ MonoBehaviour:
   uiManager: {fileID: 435763045}
   player: {fileID: 102978744}
   playerLamp: {fileID: 551836158}
+  startingTile: {fileID: 0}
   lightSounds:
   - {fileID: 8300000, guid: aa6e66827baa5014e985b00727cc0559, type: 3}
   - {fileID: 8300000, guid: 0b4daed8fcca1054e9a78803540fddcc, type: 3}
@@ -7728,7 +7729,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &739336823 stripped
 Transform:
@@ -10224,7 +10225,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4352767789387340, guid: 8787fc26b23e01546a5c668996b3a203, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 4352767789387340, guid: 8787fc26b23e01546a5c668996b3a203, type: 3}
       propertyPath: m_LocalScale.x
@@ -11830,7 +11831,7 @@ Transform:
   - {fileID: 61169180}
   - {fileID: 2138817282}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1147488633 stripped
 Transform:
@@ -13751,7 +13752,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1353377186
 PrefabInstance:
@@ -19174,7 +19175,7 @@ RectTransform:
   - {fileID: 1292358108}
   - {fileID: 181004325}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -19991,7 +19992,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1942737561
 MonoBehaviour:
