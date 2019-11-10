@@ -12,9 +12,19 @@ public class GameManager : MonoBehaviour {
 
 	private AudioSource lightAudio;
 	public AudioClip[] lightSounds;
+
 	void Awake () {
 		player = GameObject.Find ("Player");
 		lightAudio = playerLamp.GetComponent<AudioSource> ();
+		string gameData = GameDataSaver.LoadFile();
+		if (gameData == null)
+		{
+			Debug.Log("No data to load");
+		}
+		else
+		{
+			Debug.Log("Loaded data: " + gameData);
+		}
 		// InstantiateSpawnTile ();
 	}
 
@@ -43,6 +53,7 @@ public class GameManager : MonoBehaviour {
 
 	public void Retry()
 	{
+		GameDataSaver.SaveFile(new GameData(tileManager.revealedTiles));
 		SceneManager.LoadScene("GameScene");
 	}
 
