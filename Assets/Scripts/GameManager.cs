@@ -12,19 +12,34 @@ public class GameManager : MonoBehaviour {
 
 	private AudioSource lightAudio;
 	public AudioClip[] lightSounds;
+	public int tryCount;
+
+	public List<List<string>> mapFragments = new List<List<string>>();
 
 	void Awake () {
 		player = GameObject.Find ("Player");
+//		GameDataManager.EraseFile();
 		lightAudio = playerLamp.GetComponent<AudioSource> ();
-		string gameData = GameDataSaver.LoadFile();
-		if (gameData == null)
-		{
+		GameData gameData = GameDataManager.LoadFile();
+		if (gameData == null){
 			Debug.Log("No data to load");
+			tryCount = 1;
+			mapFragments = new  List<List<string>>();
+		}else{
+			mapFragments = gameData.mapFragments;
+	        foreach (List<string> fragment in mapFragments)
+	        {
+	            Debug.Log("New Fragment:");
+	            foreach (string tileName in fragment)
+	            {
+		            Debug.Log(tileName);
+	            }
+            }
+            Debug.Log("Data loaded");
+			tryCount = gameData.tryCount  + 1;
 		}
-		else
-		{
-			Debug.Log("Loaded data: " + gameData);
-		}
+
+		Debug.Log("Try #" + tryCount);
 		// InstantiateSpawnTile ();
 	}
 
@@ -32,7 +47,6 @@ public class GameManager : MonoBehaviour {
 		if (Input.GetMouseButtonDown (0)) { // Left click
 			Light light = playerLamp.GetComponent<Light> ();
 			lightAudio.clip = light.enabled ? lightSounds[1] : lightSounds[0];
-			Debug.Log("Playing audio");
 			lightAudio.Play ();
 			light.enabled = (!light.enabled);
 		}
@@ -53,13 +67,17 @@ public class GameManager : MonoBehaviour {
 
 	public void Retry()
 	{
-		GameDataSaver.SaveFile(new GameData(tileManager.revealedTiles));
+
+		mapFragments.Add(tileManager.getRevealedTilesNames());
+		GameDataManager.SaveFile(new GameData(tileManager.revealedTiles, tryCount, mapFragments));
 		SceneManager.LoadScene("GameScene");
 	}
 
 	public void GiveUp()
 	{
-		Application.Quit(); // This quit the game entirely and therefore doesn't work while testing in the Unity editor
+		GameDataManager.EraseFile();
+		//TODO: Load Menu
+		Application.Quit(); // Doesn't work with Unity editor
 	}
 
 }

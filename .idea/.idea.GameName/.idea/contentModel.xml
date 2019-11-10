@@ -33,7 +33,7 @@
         </e>
         <e p="Scripts" t="Include">
           <e p="GameData.cs" t="Include" />
-          <e p="GameDataSaver.cs" t="Include" />
+          <e p="GameDataManager.cs" t="Include" />
           <e p="GameManager.cs" t="Include" />
           <e p="Player.cs" t="Include" />
           <e p="PlayerLook.cs" t="Include" />

@@ -78,5 +78,16 @@ public class TileManager : MonoBehaviour {
         return new float[] { x, z };
     }
 
+    public List<string> getRevealedTilesNames()
+    {
+        List<string> tilesNames = new List<string>();
+        foreach (GameObject tile in revealedTiles)
+        {
+            tilesNames.Add(tile.name);
+        }
+
+        return tilesNames;
+    }
+
 
 }

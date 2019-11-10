@@ -1,13 +1,14 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
-public class GameDataSaver : MonoBehaviour
+public class GameDataManager : MonoBehaviour
 {
-   public string discoveredTiles;
+   public List<string> discoveredTiles;
+   static string path = Application.persistentDataPath + "/save.dat"; // points to %userprofile%\AppData\Local\Packages\<productname>\LocalState.
    public static void SaveFile(GameData gameData)
    {
-      string path = Application.persistentDataPath + "/save.dat";
       FileStream file;
       if (File.Exists(path)) file = File.OpenWrite(path);
       else file = File.Create(path);
@@ -15,9 +16,8 @@ public class GameDataSaver : MonoBehaviour
       bf.Serialize(file, gameData);
       file.Close();
    }
-   public static string LoadFile()
+   public static GameData LoadFile()
    {
-      string path = Application.persistentDataPath + "/save.dat";
       FileStream file;
 
       if(File.Exists(path)) file = File.OpenRead(path);
@@ -31,7 +31,13 @@ public class GameDataSaver : MonoBehaviour
       GameData data = (GameData) bf.Deserialize(file);
 
       file.Close();
-      return data.tilesDiscovered;
+      return data;
 
+   }
+
+   public static void EraseFile()
+   {
+      if(File.Exists(path)) File.Delete(path);
+      Debug.Log("File Erased");
    }
 }
