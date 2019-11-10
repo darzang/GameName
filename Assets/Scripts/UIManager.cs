@@ -13,8 +13,10 @@ public class UIManager : MonoBehaviour {
     public Button giveUpButton;
     public GameObject fuelBar;
 	public GameObject miniMapPanel;
+	public GameObject mapFragmentsPanel;
 	public GameObject buttonPanel;
 	public GameObject player;
+	public GameObject fragmentPanelPrefab;
 	Color32 floorColor = new Color32 (255, 255, 255, 255);
 	Color32 wallColor = new Color32 (25, 25, 25, 255);
 	Color32 obstacleColor = new Color32 (50, 50, 50, 255);
@@ -31,6 +33,8 @@ public class UIManager : MonoBehaviour {
 		DrawStartingMiniMap ();
 		retryButton.onClick.AddListener(gameManager.Retry);
 		giveUpButton.onClick.AddListener(gameManager.GiveUp);
+		Debug.Log(miniMapPanel.ToString());
+		Debug.Log(miniMapPanel);
 	}
 	void Update () {
 		fuelCount = player.GetComponent<Player> ().fuelCount;
@@ -204,6 +208,92 @@ public class UIManager : MonoBehaviour {
 				yield return new WaitForSeconds(0.2f);
 			}
 		}
+	}
+
+	public void DrawMapFragments(List<List<string>> mapFragments)
+	{
+		int fragmentNumber = 1;
+		foreach (List<string> fragment in mapFragments)
+		{
+			DrawMapFragment(fragment, fragmentNumber);
+			fragmentNumber++;
+		}
+	}
+	public void DrawMapFragment(List<string> fragment, int fragmentNumber)
+	{
+		// Instantiate fragment panel
+		GameObject fragmentPanel = Instantiate (fragmentPanelPrefab, new Vector3 (0,0,0),mapFragmentsPanel.transform.rotation,mapFragmentsPanel.transform);
+
+//		GameObject fragmentPanel = new GameObject ("Fragment_"+fragmentNumber+"_Panel");
+		fragmentPanel.GetComponent<RectTransform> ().SetParent (mapFragmentsPanel.transform);
+		switch (fragmentNumber)
+		{
+			case 1:
+				fragmentPanel.GetComponent<RectTransform> ().anchorMin = new Vector2 (0, 1);
+				fragmentPanel.GetComponent<RectTransform> ().anchorMax = new Vector2 (0, 1);
+				fragmentPanel.GetComponent<RectTransform> ().pivot = new Vector2 (0, 1);
+				break;
+			case 2:
+				fragmentPanel.GetComponent<RectTransform> ().anchorMin = new Vector2 (1, 1);
+				fragmentPanel.GetComponent<RectTransform> ().anchorMax = new Vector2 (1, 1);
+				fragmentPanel.GetComponent<RectTransform> ().pivot = new Vector2 (1, 1);
+				break;
+			case 3:
+				fragmentPanel.GetComponent<RectTransform> ().anchorMin = new Vector2 (0, 0.5f);
+				fragmentPanel.GetComponent<RectTransform> ().anchorMax = new Vector2 (0, 0.5f);
+				fragmentPanel.GetComponent<RectTransform> ().pivot = new Vector2 (0, 0.5f);
+				break;
+			case 4:
+				fragmentPanel.GetComponent<RectTransform> ().anchorMin = new Vector2 (1, 0.5f);
+				fragmentPanel.GetComponent<RectTransform> ().anchorMax = new Vector2 (1, 0.5f);
+				fragmentPanel.GetComponent<RectTransform> ().pivot = new Vector2 (1, 0.5f);
+				break;
+			case 5:
+				fragmentPanel.GetComponent<RectTransform> ().anchorMin = new Vector2 (0, 0);
+				fragmentPanel.GetComponent<RectTransform> ().anchorMax = new Vector2 (0, 0);
+				fragmentPanel.GetComponent<RectTransform> ().pivot = new Vector2 (0, 0);
+				break;
+			case 6:
+				fragmentPanel.GetComponent<RectTransform> ().anchorMin = new Vector2 (1, 0);
+				fragmentPanel.GetComponent<RectTransform> ().anchorMax = new Vector2 (1, 0);
+				fragmentPanel.GetComponent<RectTransform> ().pivot = new Vector2 (1, 0);
+				break;
+			default:
+				Debug.LogError("Fragment number case not found for " + fragmentNumber);
+				break;
+		}
+		fragmentPanel.GetComponent<RectTransform> ().anchoredPosition = new Vector3 (0,0,0);
+		fragmentPanel.GetComponent<RectTransform> ().sizeDelta = new Vector2 (60, 60);
+		fragmentPanel.GetComponent<RectTransform> ().localScale = new Vector3 (1.0f, 1.0f, 1.0f);
+		foreach (string tileName in fragment)
+		{
+			AddTileToFragment(GameObject.Find(tileName), fragmentPanel);
+		}
+
+
+	}
+
+	public void AddTileToFragment(GameObject tile, GameObject panel)
+	{
+		// Instantiate new tile and anchor it in the middle of the panel
+		GameObject newTile = new GameObject ("Fragment_" + tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag);
+
+		Image newImage = newTile.AddComponent<Image> ();
+		Color32 tileColor = GetTileColor (tile.tag);
+
+		newTile.GetComponent<RectTransform> ().SetParent (panel.transform);
+		newTile.GetComponent<RectTransform> ().anchorMin = new Vector2 (0.5f, 0.5f);
+		newTile.GetComponent<RectTransform> ().anchorMax = new Vector2 (0.5f, 0.5f);
+		newTile.GetComponent<RectTransform> ().anchoredPosition = new Vector3 (
+			tileManager.GetRelativePosition (tileManager.GetTileUnderPlayer (), tile) [0] * 5,
+			tileManager.GetRelativePosition (tileManager.GetTileUnderPlayer (), tile) [1] * 5,
+			0);
+
+		// Set the size and scale of the tile
+		newTile.GetComponent<RectTransform> ().sizeDelta = new Vector2 (5, 5);
+		newTile.GetComponent<RectTransform> ().localScale = new Vector3 (1.0f, 1.0f, 1.0f);
+		newImage.color = tileColor;
+		newTile.SetActive (true);
 	}
 
 

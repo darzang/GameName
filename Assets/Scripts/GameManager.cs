@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour {
 	public Transform spawnTile;
 	public TileManager tileManager;
+	public UIManager uiManager;
 
 	public GameObject player;
 	public GameObject playerLamp;
@@ -18,7 +19,6 @@ public class GameManager : MonoBehaviour {
 
 	void Awake () {
 		player = GameObject.Find ("Player");
-//		GameDataManager.EraseFile();
 		lightAudio = playerLamp.GetComponent<AudioSource> ();
 		GameData gameData = GameDataManager.LoadFile();
 		if (gameData == null){
@@ -26,17 +26,10 @@ public class GameManager : MonoBehaviour {
 			tryCount = 1;
 			mapFragments = new  List<List<string>>();
 		}else{
+			Debug.Log("Data loaded");
 			mapFragments = gameData.mapFragments;
-	        foreach (List<string> fragment in mapFragments)
-	        {
-	            Debug.Log("New Fragment:");
-	            foreach (string tileName in fragment)
-	            {
-		            Debug.Log(tileName);
-	            }
-            }
-            Debug.Log("Data loaded");
 			tryCount = gameData.tryCount  + 1;
+			uiManager.DrawMapFragments(mapFragments);
 		}
 
 		Debug.Log("Try #" + tryCount);
@@ -50,6 +43,7 @@ public class GameManager : MonoBehaviour {
 			lightAudio.Play ();
 			light.enabled = (!light.enabled);
 		}
+		if(Input.GetKey("p")) GameDataManager.EraseFile();
 	}
 
 	void InstantiateSpawnTile ()
@@ -68,7 +62,7 @@ public class GameManager : MonoBehaviour {
 	public void Retry()
 	{
 		mapFragments.Add(tileManager.getRevealedTilesNames());
-		GameDataManager.SaveFile(new GameData(tileManager.revealedTiles, tryCount, mapFragments));
+		GameDataManager.SaveFile(new GameData(tryCount, mapFragments));
 		SceneManager.LoadScene("GameScene");
 	}
 
