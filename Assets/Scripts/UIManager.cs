@@ -45,15 +45,14 @@ public class UIManager : MonoBehaviour {
 		if (fuelCount <= fuelTank * 0.5 ){
 			if (!batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel());
 		}
-
-		Debug.Log("rotationMap: " + miniMapPanel.GetComponent<RectTransform>().rotation.ToString());
-		Debug.Log("rotationPlayer: " + player.transform.rotation);
-//		miniMapPanel.GetComponent<RectTransform>().rotation = Quaternion.Euler(0f,player.transform.rotation.y,0f);
-miniMapPanel.transform.rotation = new Quaternion(0,0,player.transform.rotation.y, 0);
-//miniMapPanel.transform.Rotate(0,0,player.transform.rotation.y);
-		Debug.Log("rotationAfter: " + miniMapPanel.GetComponent<RectTransform>().rotation.ToString());
+		RotateMiniMap();
 	}
 
+	void RotateMiniMap()
+	{
+		float angle  = player.transform.eulerAngles.y+180;
+		miniMapPanel.transform.rotation = Quaternion.Euler(0, 0, angle);
+	}
 	void UpdateMiniMap () {
 		List<GameObject> neighborsTiles = tileManager.GetNeighborsTiles ((int) currentTile.transform.position.x, (int) currentTile.transform.position.z);
 		List<GameObject> tilesToDraw = new List<GameObject> ();
@@ -68,8 +67,6 @@ miniMapPanel.transform.rotation = new Quaternion(0,0,player.transform.rotation.y
 		foreach (GameObject tile in tilesToDraw) {
 			AddTileToMiniMap (tile);
 		}
-
-
 	}
 	void UpdateHealthBar () {
 		// Update scale
