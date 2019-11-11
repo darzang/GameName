@@ -6,12 +6,16 @@ public class TileManager : MonoBehaviour {
     public Transform obstacleTile;
     public Transform floorTile;
     public Transform wallTile;
-
+    public GameManager gameManager;
     public GameObject player;
     private GameObject environment;
 
     public List<GameObject> revealedTiles;
 
+    void Start()
+    {
+        player = gameManager.player;
+    }
     GameObject[] GetMapArray () {
         GameObject[] WallTiles = GameObject.FindGameObjectsWithTag ("Wall");
         GameObject[] ObstacleTiles = GameObject.FindGameObjectsWithTag ("Obstacle");
@@ -53,9 +57,13 @@ public class TileManager : MonoBehaviour {
         };
     }
 
+    public List<GameObject> GetTilesByType(string type)
+    {
+        return new List<GameObject>(GameObject.FindGameObjectsWithTag (type));
+    }
     public GameObject GetTileUnderPlayer () {
         RaycastHit hit;
-        Ray ray = new Ray (player.transform.position, Vector3.down);
+        Ray ray = new Ray (gameManager.player.transform.position, Vector3.down);
         if (Physics.Raycast (ray, out hit, 10)) {
             return hit.collider.gameObject;
         }

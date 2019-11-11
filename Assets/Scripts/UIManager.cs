@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -24,27 +25,27 @@ public class UIManager : MonoBehaviour {
 	Color32 spawnTextColor = new Color32(0,0,0,255);
 	double fuelTank;
 	double fuelCount;
-	GameObject currentTile;
 	private bool batteryLevelBlinking = false;
 
 
 	void Awake ()
 	{
 		Debug.Log("Awake UI");
-		fuelTank = player.GetComponent<Player> ().fuelTank;
-		currentTile = tileManager.GetTileUnderPlayer ();
 		retryButton.onClick.AddListener(gameManager.Retry);
 		giveUpButton.onClick.AddListener(gameManager.GiveUp);
 	}
 
 	void Start()
 	{
+		player = gameManager.player;
+//		currentTile = tileManager.GetTileUnderPlayer ();
+		fuelTank = player.GetComponent<Player> ().fuelTank;
 		DrawStartingMiniMap ();
 	}
 	void Update () {
 		fuelCount = player.GetComponent<Player> ().fuelCount;
-		if (tileManager.GetTileUnderPlayer () != currentTile) {
-			currentTile = tileManager.GetTileUnderPlayer ();
+		if (tileManager.GetTileUnderPlayer () != gameManager.currentTile) {
+			gameManager.currentTile = tileManager.GetTileUnderPlayer ();
 			UpdateMiniMap ();
 		}
 		if (player.GetComponent<Player>().fuelCount > 0){
@@ -70,7 +71,7 @@ public class UIManager : MonoBehaviour {
 		miniMapPanel.transform.rotation = Quaternion.Euler(0, 0, angle);
 	}
 	void UpdateMiniMap () {
-		List<GameObject> neighborsTiles = tileManager.GetNeighborsTiles ((int) currentTile.transform.position.x, (int) currentTile.transform.position.z);
+		List<GameObject> neighborsTiles = tileManager.GetNeighborsTiles ((int) gameManager.currentTile.transform.position.x, (int) gameManager.currentTile.transform.position.z);
 		List<GameObject> tilesToDraw = new List<GameObject> ();
 		foreach (GameObject neighbor in neighborsTiles) {
 			if (!tileManager.HasBeenRevealed (neighbor)) {
@@ -102,12 +103,12 @@ public class UIManager : MonoBehaviour {
 	}
 
 	void DrawStartingMiniMap () {
-		Debug.Log(gameManager.startingTile);
-		GameObject currentTile = tileManager.GetTileUnderPlayer ();
-		AddTileToMiniMap (currentTile);
+//		Debug.Log(gameManager.startingTile);
+//		GameObject currentTile = tileManager.GetTileUnderPlayer ();
+		AddTileToMiniMap (gameManager.startingTile);
 		List<GameObject> neighborTiles = tileManager.GetNeighborsTiles (
-			(int) currentTile.transform.position.x,
-			(int) currentTile.transform.position.z
+			(int) gameManager.startingTile.transform.position.x,
+			(int) gameManager.startingTile.transform.position.z
 			);
 
 		foreach (GameObject tile in neighborTiles) {
@@ -315,16 +316,20 @@ public class UIManager : MonoBehaviour {
 		newTile.GetComponent<RectTransform> ().SetParent (panel.transform);
 		newTile.GetComponent<RectTransform> ().anchorMin = new Vector2 (0.5f, 0.5f);
 		newTile.GetComponent<RectTransform> ().anchorMax = new Vector2 (0.5f, 0.5f);
+		// Get spawn tile associated to fragment number
+		GameManager gm = gameManager;
+
+		GameObject spawnTileOfFragment = GameObject.Find(gameManager.spawnTiles.ElementAt(fragmentNumber-1));
 		newTile.GetComponent<RectTransform> ().anchoredPosition = new Vector3 (
-			tileManager.GetRelativePosition (tileManager.GetTileUnderPlayer (), tile) [0] * 5,
-			tileManager.GetRelativePosition (tileManager.GetTileUnderPlayer (), tile) [1] * 5,
+			tileManager.GetRelativePosition (spawnTileOfFragment, tile) [0] * 5,
+			tileManager.GetRelativePosition (spawnTileOfFragment, tile) [1] * 5,
 			0);
 
 		// Set the size and scale of the tile
 		newTile.GetComponent<RectTransform> ().sizeDelta = new Vector2 (5, 5);
 		newTile.GetComponent<RectTransform> ().localScale = new Vector3 (1.0f, 1.0f, 1.0f);
 		newImage.color = tileColor;
-		if (tile == gameManager.startingTile)
+		if (tile == spawnTileOfFragment)
 		{
 			Debug.Log("Found spawn tile in fragment");
 			DrawSpawnTileInFragment(newTile, fragmentNumber);

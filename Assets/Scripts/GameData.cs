@@ -1,13 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 [System.Serializable]
 public class GameData
 {
     public int tryCount;
     public List<List<string>> mapFragments;
-    public GameData(int tryNumber,  List<List<string>> mapFragmentsIn ) {
+    public List<string> spawnTiles;
+    public GameData(int tryNumber,  List<List<string>> mapFragmentsIn, List<string> spawnTilesIn ) {
          tryCount = tryNumber;
          mapFragments = mapFragmentsIn;
+         spawnTiles = spawnTilesIn;
     }
 }
