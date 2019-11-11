@@ -150,19 +150,20 @@ public class UIManager : MonoBehaviour {
 
 		if (tile == gameManager.startingTile)
 		{
-			DrawSpawnTile(newTile);
+			DrawSpawnTileInFragment(newTile);
 		}
 		newTile.SetActive (true);
 	}
 
-	void DrawSpawnTile(GameObject tile)
+	void DrawSpawnTileInFragment(GameObject tile, int fragmentNumber = 0)
 	{
 
 			GameObject spawnTile = new GameObject("SpawnTile");
 			spawnTile.transform.parent = tile.transform;
 			spawnTile.AddComponent<TextMeshProUGUI>();
 			TextMeshProUGUI spawnText = spawnTile.GetComponent<TextMeshProUGUI>();
-			spawnText.text = "S"+gameManager.tryCount;
+			spawnText.text = "S";
+			if (fragmentNumber > 0) spawnText.text += fragmentNumber;
 			spawnText.GetComponent<RectTransform>().pivot = new Vector2(0.5f,0.5f);
 			spawnText.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f,0.5f);
 			spawnText.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f,0.5f);
@@ -297,13 +298,13 @@ public class UIManager : MonoBehaviour {
 		fragmentPanel.GetComponent<RectTransform> ().localScale = new Vector3 (1.0f, 1.0f, 1.0f);
 		foreach (string tileName in fragment)
 		{
-			AddTileToFragment(GameObject.Find(tileName), fragmentPanel);
+			AddTileToFragment(GameObject.Find(tileName), fragmentPanel, fragmentNumber);
 		}
 
 
 	}
 
-	public void AddTileToFragment(GameObject tile, GameObject panel)
+	public void AddTileToFragment(GameObject tile, GameObject panel, int fragmentNumber)
 	{
 		// Instantiate new tile and anchor it in the middle of the panel
 		GameObject newTile = new GameObject ("Fragment_" + tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag);
@@ -326,7 +327,7 @@ public class UIManager : MonoBehaviour {
 		if (tile == gameManager.startingTile)
 		{
 			Debug.Log("Found spawn tile in fragment");
-			DrawSpawnTile(newTile);
+			DrawSpawnTileInFragment(newTile, fragmentNumber);
 		}
 		newTile.SetActive (true);
 	}

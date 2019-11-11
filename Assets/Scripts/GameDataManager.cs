@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
 public class GameDataManager : MonoBehaviour
 {
-   public List<string> discoveredTiles;
    static string path = Application.persistentDataPath + "/save.dat"; // points to %userprofile%\AppData\Local\Packages\<productname>\LocalState.
    public static void SaveFile(GameData gameData)
    {

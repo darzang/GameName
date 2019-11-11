@@ -22,8 +22,6 @@ public class GameManager : MonoBehaviour {
 		player = GameObject.Find ("Player");
 		startingTile = tileManager.GetTileUnderPlayer();
 		lightAudio = playerLamp.GetComponent<AudioSource> ();
-
-		// InstantiateSpawnTile ();
 	}
 
 	void Start()
