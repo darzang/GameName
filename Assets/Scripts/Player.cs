@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Player : MonoBehaviour {
 	[SerializeField] private string horizontalInputName;
@@ -9,7 +8,6 @@ public class Player : MonoBehaviour {
 	private CharacterController charController;
 	public double fuelCount;
 	[SerializeField] public double fuelTank = 500;
-	public GameObject player;
 
 	void Awake () {
 		fuelCount = fuelTank;

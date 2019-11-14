@@ -1,32 +1,37 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 public class GameManager : MonoBehaviour {
-	public Transform spawnTile;
-	public Transform playerPrefab;
+	// Managers
 	public TileManager tileManager;
 	public UIManager uiManager;
 
+	// Player components
+	public Transform playerPrefab;
 	public GameObject player;
 	private Light playerLamp;
-	public GameObject startingTile;
-	public GameObject currentTile;
-
 	private AudioSource lightAudio;
 	public AudioClip[] lightSounds;
+
+	// Tiles
+	public GameObject startingTile;
+	public GameObject currentTile;
 	public int tryCount;
-
 	public List<List<string>> mapFragments = new List<List<string>>();
-	[FormerlySerializedAs("spawnTiles")] public List<string> spawnTilesString = new List<string>();
+	public List<string> spawnTilesString = new List<string>();
 	public List<GameObject> spawnTiles = new List<GameObject>();
+	public List<GameObject> revealedTiles;
 
-	void Awake () {
+	// Environment
+	public GameObject ceiling;
+
+
+	void Awake ()
+	{
+		ceiling.SetActive(true);
 		InstantiatePlayer();
-//		playerLamp = GameObject.Find("playerLamp");
 		playerLamp = player.GetComponentInChildren<Light>();
 		Debug.Log(playerLamp);
 		lightAudio = playerLamp.GetComponent<AudioSource> ();
@@ -65,13 +70,13 @@ public class GameManager : MonoBehaviour {
 			GameObject recognizedTile = spawnTiles.Find(tile => tile.name == currentTile.name);
 			if (recognizedTile)
 			{
-				Debug.Log("Hey, I've been here already");
 				int index = spawnTiles.IndexOf(recognizedTile);
+				uiManager.ActivatePlayerThoughts();
 				Debug.Log("Yes, it's from fragment # " + (index + 1));
+				uiManager.MergeFragmentInMiniMap(mapFragments.ElementAt(index));
 			}
 		}
 		if (Input.GetMouseButtonDown (0)) { // Left click
-//			Light light = playerLamp.GetComponent<Light> ();
 			lightAudio.clip = playerLamp.enabled ? lightSounds[1] : lightSounds[0];
 			lightAudio.Play ();
 			playerLamp.enabled = (!playerLamp.enabled);
@@ -79,22 +84,9 @@ public class GameManager : MonoBehaviour {
 		if(Input.GetKey("p")) GameDataManager.EraseFile();
 	}
 
-//	void InstantiateSpawnTile ()
-//	{
-//		GameObject floorTile = tileManager.GetTileUnderPlayer();
-//		Instantiate (spawnTile, new Vector3 (
-//					floorTile.transform.position.x,
-//					floorTile.transform.position.y + 0.001f,
-//					floorTile.transform.position.z
-//					),
-//			floorTile.transform.rotation,
-//			GameObject.Find("Environment").transform
-//		);
-//	}
-
 	public void Retry()
 	{
-		mapFragments.Add(tileManager.getRevealedTilesNames());
+		mapFragments.Add(tileManager.GetTilesNames(revealedTiles));
 		GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString));
 		SceneManager.LoadScene("GameScene");
 	}

@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour {
 	public GameManager gameManager;
 	public GameObject batteryDead;
 	public GameObject batteryLevel;
+	public GameObject playerThoughts;
 	public Button retryButton;
     public Button giveUpButton;
     public GameObject fuelBar;
@@ -37,14 +38,13 @@ public class UIManager : MonoBehaviour {
 	void Start()
 	{
 		player = gameManager.player;
-//		currentTile = tileManager.GetTileUnderPlayer ();
 		fuelTank = player.GetComponent<Player> ().fuelTank;
 		DrawStartingMiniMap ();
 	}
 	void Update () {
 		fuelCount = player.GetComponent<Player> ().fuelCount;
 		if (player.GetComponent<Player>().fuelCount > 0){
-			UpdateHealthBar();
+			UpdateBatteryLevel();
 		}
 		else
 		{
@@ -69,18 +69,18 @@ public class UIManager : MonoBehaviour {
 		List<GameObject> neighborsTiles = tileManager.GetNeighborsTiles ((int) gameManager.currentTile.transform.position.x, (int) gameManager.currentTile.transform.position.z);
 		List<GameObject> tilesToDraw = new List<GameObject> ();
 		foreach (GameObject neighbor in neighborsTiles) {
-			if (!tileManager.HasBeenRevealed (neighbor)) {
+			if (!tileManager.HasBeenRevealed (neighbor, gameManager.revealedTiles)) {
 				tilesToDraw.Add (neighbor);
 			}
 		}
-		foreach (GameObject revealedTile in tileManager.revealedTiles) {
+		foreach (GameObject revealedTile in gameManager.revealedTiles) {
 			tilesToDraw.Add (revealedTile);
 		}
 		foreach (GameObject tile in tilesToDraw) {
 			AddTileToMiniMap (tile);
 		}
 	}
-	void UpdateHealthBar () {
+	void UpdateBatteryLevel () {
 		// Update scale
 		fuelBar.transform.localScale = new Vector3 (
 			(float) (fuelCount / fuelTank),
@@ -98,8 +98,6 @@ public class UIManager : MonoBehaviour {
 	}
 
 	void DrawStartingMiniMap () {
-//		Debug.Log(gameManager.startingTile);
-//		GameObject currentTile = tileManager.GetTileUnderPlayer ();
 		AddTileToMiniMap (gameManager.startingTile);
 		List<GameObject> neighborTiles = tileManager.GetNeighborsTiles (
 			(int) gameManager.startingTile.transform.position.x,
@@ -113,11 +111,11 @@ public class UIManager : MonoBehaviour {
 	void AddTileToMiniMap (GameObject tile) {
 
 		// Regenerate previously drawn tiles
-		if (tileManager.HasBeenRevealed(tile)){
+		if (tileManager.HasBeenRevealed(tile, gameManager.revealedTiles)){
 			Destroy (GameObject.Find (tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag));
 		}
-		if (!tileManager.HasBeenRevealed (tile)) {
-			tileManager.AddToRevealedTiles (tile);
+		if (!tileManager.HasBeenRevealed (tile, gameManager.revealedTiles)) {
+			tileManager.AddToRevealedTiles (tile, gameManager.revealedTiles);
 		}
 		// Instantiate new tile and anchor it in the middle of the panel
 		GameObject newTile = new GameObject (tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag);
@@ -251,7 +249,6 @@ public class UIManager : MonoBehaviour {
 		// Instantiate fragment panel
 		GameObject fragmentPanel = Instantiate (fragmentPanelPrefab, new Vector3 (0,0,0),mapFragmentsPanel.transform.rotation,mapFragmentsPanel.transform);
 
-//		GameObject fragmentPanel = new GameObject ("Fragment_"+fragmentNumber+"_Panel");
 		fragmentPanel.GetComponent<RectTransform> ().SetParent (mapFragmentsPanel.transform);
 		switch (fragmentNumber)
 		{
@@ -329,6 +326,30 @@ public class UIManager : MonoBehaviour {
 			DrawSpawnTileInFragment(newTile, fragmentNumber);
 		}
 		newTile.SetActive (true);
+	}
+
+	public void MergeFragmentInMiniMap(List<string> mapFragment)
+	{
+		List<string> minimap = tileManager.GetTilesNames(gameManager.revealedTiles);
+		foreach (string tile in mapFragment)
+		{
+			if(!tileManager.HasBeenRevealed(GameObject.Find(tile), gameManager.revealedTiles))
+			{
+				gameManager.revealedTiles.Add(GameObject.Find(tile));
+			}
+		}
+	}
+
+	public void ActivatePlayerThoughts()
+	{
+		StartCoroutine(ShowPlayerThoughts(5));
+	}
+
+	IEnumerator ShowPlayerThoughts(float sec)
+	{
+		playerThoughts.SetActive(true);
+		yield return new WaitForSeconds(sec);
+		playerThoughts.SetActive(false);
 	}
 
 
