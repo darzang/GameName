@@ -4747,6 +4747,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: aa6e66827baa5014e985b00727cc0559, type: 3}
   - {fileID: 8300000, guid: 0b4daed8fcca1054e9a78803540fddcc, type: 3}
   tryCount: 0
+  spawnTilesString: []
   spawnTiles: []
 --- !u!1001 &471737965
 PrefabInstance:
@@ -13509,7 +13510,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1363304165
 Transform:
   m_ObjectHideFlags: 0

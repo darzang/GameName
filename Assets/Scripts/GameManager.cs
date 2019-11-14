@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class GameManager : MonoBehaviour {
 	public Transform spawnTile;
@@ -11,7 +12,7 @@ public class GameManager : MonoBehaviour {
 	public UIManager uiManager;
 
 	public GameObject player;
-	public GameObject playerLamp;
+	private Light playerLamp;
 	public GameObject startingTile;
 	public GameObject currentTile;
 
@@ -20,12 +21,16 @@ public class GameManager : MonoBehaviour {
 	public int tryCount;
 
 	public List<List<string>> mapFragments = new List<List<string>>();
-	public List<string> spawnTiles = new List<string>();
+	[FormerlySerializedAs("spawnTiles")] public List<string> spawnTilesString = new List<string>();
+	public List<GameObject> spawnTiles = new List<GameObject>();
 
 	void Awake () {
-//		lightAudio = playerLamp.GetComponent<AudioSource> ();
-			InstantiatePlayer();
-}
+		InstantiatePlayer();
+//		playerLamp = GameObject.Find("playerLamp");
+		playerLamp = player.GetComponentInChildren<Light>();
+		Debug.Log(playerLamp);
+		lightAudio = playerLamp.GetComponent<AudioSource> ();
+	}
 
 	void Start()
 	{
@@ -38,23 +43,38 @@ public class GameManager : MonoBehaviour {
         }else{
         	Debug.Log("Data loaded, " + gameData.mapFragments.Count + " fragments collected");
         	mapFragments = gameData.mapFragments;
-            spawnTiles = gameData.spawnTiles;
+            spawnTilesString = gameData.spawnTiles;
         	tryCount = gameData.tryCount  + 1;
         	uiManager.DrawMapFragments(mapFragments);
+            foreach (string tileName in spawnTilesString)
+            {
+	            spawnTiles.Add(GameObject.Find(tileName));
+            }
         }
 
-        spawnTiles.Add(currentTile.gameObject.name);
+        spawnTilesString.Add(currentTile.gameObject.name);
         Debug.Log("Try #" + tryCount);
 	}
 
 	void Update ()
 	{
-		if (tileManager.GetTileUnderPlayer() != currentTile) currentTile = tileManager.GetTileUnderPlayer();
+		if (tileManager.GetTileUnderPlayer() != currentTile.gameObject)
+		{
+			currentTile = tileManager.GetTileUnderPlayer();
+			uiManager.UpdateMiniMap();
+			GameObject recognizedTile = spawnTiles.Find(tile => tile.name == currentTile.name);
+			if (recognizedTile)
+			{
+				Debug.Log("Hey, I've been here already");
+				int index = spawnTiles.IndexOf(recognizedTile);
+				Debug.Log("Yes, it's from fragment # " + (index + 1));
+			}
+		}
 		if (Input.GetMouseButtonDown (0)) { // Left click
 //			Light light = playerLamp.GetComponent<Light> ();
-//			lightAudio.clip = light.enabled ? lightSounds[1] : lightSounds[0];
-//			lightAudio.Play ();
-//			light.enabled = (!light.enabled);
+			lightAudio.clip = playerLamp.enabled ? lightSounds[1] : lightSounds[0];
+			lightAudio.Play ();
+			playerLamp.enabled = (!playerLamp.enabled);
 		}
 		if(Input.GetKey("p")) GameDataManager.EraseFile();
 	}
@@ -75,7 +95,7 @@ public class GameManager : MonoBehaviour {
 	public void Retry()
 	{
 		mapFragments.Add(tileManager.getRevealedTilesNames());
-		GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTiles));
+		GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString));
 		SceneManager.LoadScene("GameScene");
 	}
 

@@ -30,7 +30,6 @@ public class UIManager : MonoBehaviour {
 
 	void Awake ()
 	{
-		Debug.Log("Awake UI");
 		retryButton.onClick.AddListener(gameManager.Retry);
 		giveUpButton.onClick.AddListener(gameManager.GiveUp);
 	}
@@ -44,10 +43,6 @@ public class UIManager : MonoBehaviour {
 	}
 	void Update () {
 		fuelCount = player.GetComponent<Player> ().fuelCount;
-		if (tileManager.GetTileUnderPlayer () != gameManager.currentTile) {
-			gameManager.currentTile = tileManager.GetTileUnderPlayer ();
-			UpdateMiniMap ();
-		}
 		if (player.GetComponent<Player>().fuelCount > 0){
 			UpdateHealthBar();
 		}
@@ -70,7 +65,7 @@ public class UIManager : MonoBehaviour {
 		float angle  = player.transform.eulerAngles.y+180;
 		miniMapPanel.transform.rotation = Quaternion.Euler(0, 0, angle);
 	}
-	void UpdateMiniMap () {
+	public void UpdateMiniMap () {
 		List<GameObject> neighborsTiles = tileManager.GetNeighborsTiles ((int) gameManager.currentTile.transform.position.x, (int) gameManager.currentTile.transform.position.z);
 		List<GameObject> tilesToDraw = new List<GameObject> ();
 		foreach (GameObject neighbor in neighborsTiles) {
@@ -319,7 +314,7 @@ public class UIManager : MonoBehaviour {
 		// Get spawn tile associated to fragment number
 		GameManager gm = gameManager;
 
-		GameObject spawnTileOfFragment = GameObject.Find(gameManager.spawnTiles.ElementAt(fragmentNumber-1));
+		GameObject spawnTileOfFragment = GameObject.Find(gameManager.spawnTilesString.ElementAt(fragmentNumber-1));
 		newTile.GetComponent<RectTransform> ().anchoredPosition = new Vector3 (
 			tileManager.GetRelativePosition (spawnTileOfFragment, tile) [0] * 5,
 			tileManager.GetRelativePosition (spawnTileOfFragment, tile) [1] * 5,
@@ -331,7 +326,6 @@ public class UIManager : MonoBehaviour {
 		newImage.color = tileColor;
 		if (tile == spawnTileOfFragment)
 		{
-			Debug.Log("Found spawn tile in fragment");
 			DrawSpawnTileInFragment(newTile, fragmentNumber);
 		}
 		newTile.SetActive (true);
