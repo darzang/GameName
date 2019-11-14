@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 33080604996005972}
   - component: {fileID: 23882511158532064}
   - component: {fileID: 65233844554953850}
+  - component: {fileID: -7182058412517313116}
   m_Layer: 0
   m_Name: FloorTile
   m_TagString: Floor
@@ -92,3 +93,16 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!65 &-7182058412517313116
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1389633359081184}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 10, z: 1}
+  m_Center: {x: 0, y: 5, z: 0}
