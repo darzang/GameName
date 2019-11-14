@@ -351,8 +351,4 @@ public class UIManager : MonoBehaviour {
 		yield return new WaitForSeconds(sec);
 		playerThoughts.SetActive(false);
 	}
-
-
-
-
 }
