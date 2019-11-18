@@ -31,13 +31,14 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-//		ceiling.SetActive(true);
+        ceiling.SetActive(true);
         InstantiatePlayer();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
         GameData gameData = GameDataManager.LoadFile();
         tryCount = 1;
-        if(gameData != null){
+        if (gameData != null)
+        {
             mapFragments = gameData.mapFragments;
             spawnTilesString = gameData.spawnTiles;
             tryCount = gameData.tryCount + 1;
@@ -89,7 +90,7 @@ public class GameManager : MonoBehaviour
     {
         // Check forward
         Ray forwardRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit[] hits = Physics.RaycastAll(forwardRay, 1);
+        RaycastHit[] hits = Physics.RaycastAll(forwardRay, playerLamp.range / 2);
         bool needMapUpdate = false;
         foreach (RaycastHit rayHit in hits)
         {
