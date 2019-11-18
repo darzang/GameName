@@ -66,19 +66,19 @@ public class UIManager : MonoBehaviour {
 		miniMapPanel.transform.rotation = Quaternion.Euler(0, 0, angle);
 	}
 	public void UpdateMiniMap () {
-		List<GameObject> neighborsTiles = tileManager.GetNeighborsTiles ((int) gameManager.currentTile.transform.position.x, (int) gameManager.currentTile.transform.position.z);
-		List<GameObject> tilesToDraw = new List<GameObject> ();
-		foreach (GameObject neighbor in neighborsTiles) {
-			if (!tileManager.HasBeenRevealed (neighbor, gameManager.revealedTiles)) {
-				tilesToDraw.Add (neighbor);
-			}
-		}
-		foreach (GameObject revealedTile in gameManager.revealedTiles) {
-			tilesToDraw.Add (revealedTile);
-		}
-		foreach (GameObject tile in tilesToDraw) {
+//		List<GameObject> neighborsTiles = tileManager.GetNeighborsTiles ((int) gameManager.currentTile.transform.position.x, (int) gameManager.currentTile.transform.position.z);
+//		List<GameObject> tilesToDraw = new List<GameObject> ();
+//		foreach (GameObject neighbor in neighborsTiles) {
+//			if (!tileManager.HasBeenRevealed (neighbor, gameManager.revealedTiles)) {
+//				tilesToDraw.Add (neighbor);
+//			}
+//		}
+		foreach (GameObject tile in gameManager.revealedTiles) {
 			AddTileToMiniMap (tile);
 		}
+//		foreach (GameObject tile in tilesToDraw) {
+//			AddTileToMiniMap (tile);
+//		}
 	}
 	void UpdateBatteryLevel () {
 		// Update scale
@@ -99,14 +99,14 @@ public class UIManager : MonoBehaviour {
 
 	void DrawStartingMiniMap () {
 		AddTileToMiniMap (gameManager.startingTile);
-		List<GameObject> neighborTiles = tileManager.GetNeighborsTiles (
-			(int) gameManager.startingTile.transform.position.x,
-			(int) gameManager.startingTile.transform.position.z
-			);
-
-		foreach (GameObject tile in neighborTiles) {
-			AddTileToMiniMap (tile);
-		}
+//		List<GameObject> neighborTiles = tileManager.GetNeighborsTiles (
+//			(int) gameManager.startingTile.transform.position.x,
+//			(int) gameManager.startingTile.transform.position.z
+//			);
+//
+//		foreach (GameObject tile in neighborTiles) {
+//			AddTileToMiniMap (tile);
+//		}
 	}
 	void AddTileToMiniMap (GameObject tile) {
 

@@ -63,7 +63,7 @@ public class TileManager : MonoBehaviour {
 
     public void AddToRevealedTiles (GameObject tile, List<GameObject> revealedTiles)
     {
-        gameManager.revealedTiles.Add(tile);
+        if(!HasBeenRevealed(tile, revealedTiles)) gameManager.revealedTiles.Add(tile);
     }
     public bool HasBeenRevealed (GameObject tile, List<GameObject> revealedTiles) {
         foreach (GameObject revealedTile in revealedTiles) {

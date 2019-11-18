@@ -63,10 +63,11 @@ public class GameManager : MonoBehaviour {
 
 	void Update ()
 	{
-		if (tileManager.GetTileUnderPlayer() != currentTile.gameObject)
+		// Is the player on a new tile ?
+		if (tileManager.GetTileUnderPlayer() != currentTile)
 		{
 			currentTile = tileManager.GetTileUnderPlayer();
-			uiManager.UpdateMiniMap();
+//			uiManager.UpdateMiniMap();
 			GameObject recognizedTile = spawnTiles.Find(tile => tile.name == currentTile.name);
 			if (recognizedTile)
 			{
@@ -76,12 +77,41 @@ public class GameManager : MonoBehaviour {
 				uiManager.MergeFragmentInMiniMap(mapFragments.ElementAt(index));
 			}
 		}
+		// Toggle lamp
 		if (Input.GetMouseButtonDown (0)) { // Left click
 			lightAudio.clip = playerLamp.enabled ? lightSounds[1] : lightSounds[0];
 			lightAudio.Play ();
 			playerLamp.enabled = (!playerLamp.enabled);
 		}
+		// Useful for now, to remove later
 		if(Input.GetKey("p")) GameDataManager.EraseFile();
+
+		// Did the player discover a new tile ?
+		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+//		RaycastHit hit;
+		RaycastHit[] hits;
+		hits = Physics.RaycastAll(ray, 1);
+		bool needMapUpdate = false;
+		foreach (RaycastHit rayHit in hits)
+		{
+			if (!tileManager.HasBeenRevealed(rayHit.collider.gameObject, revealedTiles) && ! rayHit.collider.gameObject.CompareTag("Ceiling"))
+			{
+				needMapUpdate = true;
+				Debug.Log("New tile revealed: " + rayHit.collider.gameObject.name + " with tag: " + rayHit.collider.gameObject.tag);
+				tileManager.AddToRevealedTiles(rayHit.collider.gameObject, revealedTiles);
+			}
+
+		}
+		//TODO: Check why the Vector's direction seems to not be linked to the player's rotation/angle
+		//TODO: Maybe try to get the camera's forward as above and modify it 90° left and right should do the trick...
+//		RaycastHit leftHit;
+//		Ray leftRay = new Ray (player.transform.position, Vector3.left);
+//		if (Physics.Raycast (ray, out hit, 10)) {
+//			return hit.collider.gameObject;
+//		}
+
+		if(needMapUpdate) uiManager.UpdateMiniMap();
 	}
 
 	public void Retry()
