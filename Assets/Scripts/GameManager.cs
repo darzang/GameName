@@ -24,7 +24,6 @@ public class GameManager : MonoBehaviour
     public List<string> spawnTilesString = new List<string>();
     public List<GameObject> spawnTiles = new List<GameObject>();
     public List<GameObject> revealedTiles;
-    public List<GameObject> leftTiles;
 
     // Environment
     public GameObject ceiling;
@@ -35,37 +34,25 @@ public class GameManager : MonoBehaviour
 //		ceiling.SetActive(true);
         InstantiatePlayer();
         playerLamp = player.GetComponentInChildren<Light>();
-        Debug.Log(playerLamp);
         lightAudio = playerLamp.GetComponent<AudioSource>();
         GameData gameData = GameDataManager.LoadFile();
         tryCount = 1;
-        if (gameData == null)
-        {
-            Debug.Log("No data to load");
-            mapFragments = new List<List<string>>();
-        }
-        else
-        {
-            Debug.Log("Data loaded, " + gameData.mapFragments.Count + " fragments collected");
+        if(gameData != null){
             mapFragments = gameData.mapFragments;
             spawnTilesString = gameData.spawnTiles;
             tryCount = gameData.tryCount + 1;
-            Debug.Log("spawnTilesString length: " + spawnTilesString.Count);
             foreach (string tileName in spawnTilesString)
             {
                 spawnTiles.Add(GameObject.Find(tileName));
-//                Debug.Log("Spawn tile " + GameObject.Find(tileName).name + " correctly added to spawnTiles");
             }
         }
 
-        spawnTilesString.Add(currentTile.gameObject.name);
-        Debug.Log("Try #" + tryCount);
+        spawnTilesString.Add(currentTile.gameObject.name); //TODO: maybe move this above?
     }
 
     void Start()
     {
         uiManager.DrawMapFragments(mapFragments);
-
     }
 
     void Update()
@@ -163,31 +150,21 @@ public class GameManager : MonoBehaviour
 
     public void InstantiatePlayer()
     {
-        // Get available tiles
         List<GameObject> availableTiles = tileManager.GetTilesByType("Floor");
-        // Get one at random
         GameObject spawnTileObject = availableTiles.ElementAt(Random.Range(0, availableTiles.Count - 1));
-        // Instantiate player
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(
             spawnTileObject.transform.position.x,
             spawnTileObject.transform.position.y + 0.53f,
             spawnTileObject.transform.position.z
         ), Quaternion.identity);
         player = playerTransform.gameObject;
-        // Set StartingTile in gameManager
         startingTile = spawnTileObject;
         currentTile = spawnTileObject;
     }
 
     public bool isPreviousSpawnTile(GameObject tile)
     {
-        if (tile.tag == "Floor" && spawnTiles.Find(spawnTile => spawnTile.name == tile.name))
-        {
-//            Debug.Log("Tile " + tile.name + " is a previous spawn tile");
-            return true;
-        }
-//        Debug.Log("Tile " + tile.name + " is NOT a previous spawn tile");
-        return false;
+        return tile.tag == "Floor" && spawnTiles.Find(spawnTile => spawnTile.name == tile.name);
     }
 
     public int getSpawnTileTryNumber(GameObject tile)

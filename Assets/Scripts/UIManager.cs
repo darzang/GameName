@@ -139,6 +139,9 @@ public class UIManager : MonoBehaviour
         if (tile == gameManager.startingTile)
         {
             DrawSpawnTileInFragment(newTile);
+        } else if (gameManager.isPreviousSpawnTile(tile))
+        {
+            DrawSpawnTileInFragment(newTile, gameManager.getSpawnTileTryNumber(tile));
         }
 
         newTile.SetActive(true);
@@ -331,7 +334,6 @@ public class UIManager : MonoBehaviour
 
         if (gameManager.isPreviousSpawnTile(tile))
         {
-            Debug.Log("Adding previous spawn tile in fragment =) ");
             DrawSpawnTileInFragment(newTile, gameManager.getSpawnTileTryNumber(tile));
         }
 
