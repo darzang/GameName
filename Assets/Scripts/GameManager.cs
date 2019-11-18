@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour {
 	public List<string> spawnTilesString = new List<string>();
 	public List<GameObject> spawnTiles = new List<GameObject>();
 	public List<GameObject> revealedTiles;
+	public List<GameObject> leftTiles;
 
 	// Environment
 	public GameObject ceiling;
@@ -30,7 +31,7 @@ public class GameManager : MonoBehaviour {
 
 	void Awake ()
 	{
-		ceiling.SetActive(true);
+//		ceiling.SetActive(true);
 		InstantiatePlayer();
 		playerLamp = player.GetComponentInChildren<Light>();
 		Debug.Log(playerLamp);
@@ -61,57 +62,84 @@ public class GameManager : MonoBehaviour {
         Debug.Log("Try #" + tryCount);
 	}
 
-	void Update ()
+	void Update()
 	{
 		// Is the player on a new tile ?
 		if (tileManager.GetTileUnderPlayer() != currentTile)
 		{
 			currentTile = tileManager.GetTileUnderPlayer();
-//			uiManager.UpdateMiniMap();
 			GameObject recognizedTile = spawnTiles.Find(tile => tile.name == currentTile.name);
 			if (recognizedTile)
 			{
 				int index = spawnTiles.IndexOf(recognizedTile);
 				uiManager.ActivatePlayerThoughts();
-				Debug.Log("Yes, it's from fragment # " + (index + 1));
 				uiManager.MergeFragmentInMiniMap(mapFragments.ElementAt(index));
+				Debug.Log("Yes, it's from fragment # " + (index + 1));
 			}
 		}
+
+		CheckForTileDiscovery();
+
 		// Toggle lamp
-		if (Input.GetMouseButtonDown (0)) { // Left click
+		if (Input.GetMouseButtonDown(0))
+		{
 			lightAudio.clip = playerLamp.enabled ? lightSounds[1] : lightSounds[0];
-			lightAudio.Play ();
+			lightAudio.Play();
 			playerLamp.enabled = (!playerLamp.enabled);
 		}
+
 		// Useful for now, to remove later
-		if(Input.GetKey("p")) GameDataManager.EraseFile();
+		if (Input.GetKey("p")) GameDataManager.EraseFile();
+	}
 
-		// Did the player discover a new tile ?
-		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-//		RaycastHit hit;
-		RaycastHit[] hits;
-		hits = Physics.RaycastAll(ray, 1);
+	public void CheckForTileDiscovery()
+	{
+		// Check forward
+		Ray forwardRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+		RaycastHit[] hits = Physics.RaycastAll(forwardRay, 1);
 		bool needMapUpdate = false;
 		foreach (RaycastHit rayHit in hits)
 		{
-			if (!tileManager.HasBeenRevealed(rayHit.collider.gameObject, revealedTiles) && ! rayHit.collider.gameObject.CompareTag("Ceiling"))
+			//TODO: Filter out tiles that should not be discovered (ex floor behind corner of walls)
+			if (!tileManager.HasBeenRevealed(rayHit.collider.gameObject, revealedTiles) &&
+			    !rayHit.collider.gameObject.CompareTag("Ceiling"))
 			{
 				needMapUpdate = true;
-				Debug.Log("New tile revealed: " + rayHit.collider.gameObject.name + " with tag: " + rayHit.collider.gameObject.tag);
+				Debug.Log("New tile discovered forward: " + rayHit.collider.gameObject.name);
 				tileManager.AddToRevealedTiles(rayHit.collider.gameObject, revealedTiles);
 			}
 
 		}
-		//TODO: Check why the Vector's direction seems to not be linked to the player's rotation/angle
-		//TODO: Maybe try to get the camera's forward as above and modify it 90° left and right should do the trick...
-//		RaycastHit leftHit;
-//		Ray leftRay = new Ray (player.transform.position, Vector3.left);
-//		if (Physics.Raycast (ray, out hit, 10)) {
-//			return hit.collider.gameObject;
-//		}
 
-		if(needMapUpdate) uiManager.UpdateMiniMap();
+		// Check on the left
+		RaycastHit leftHit;
+		Ray leftRay = new Ray(player.transform.position, forwardRay.direction + Vector3.left);
+		if (Physics.Raycast(leftRay, out leftHit, 1))
+		{
+			if (!tileManager.HasBeenRevealed(leftHit.collider.gameObject, revealedTiles) &&
+			    !leftHit.collider.gameObject.CompareTag("Ceiling"))
+			{
+				needMapUpdate = true;
+				Debug.Log("New tile discovered on the left: " + leftHit.collider.gameObject.name);
+				tileManager.AddToRevealedTiles(leftHit.collider.gameObject, revealedTiles);
+			}
+		}
+
+		// Check on the right
+		RaycastHit rightHit;
+		Ray rightRay = new Ray(player.transform.position, forwardRay.direction + Vector3.right);
+		if (Physics.Raycast(rightRay, out rightHit, 1))
+		{
+			if (!tileManager.HasBeenRevealed(rightHit.collider.gameObject, revealedTiles) &&
+			    !rightHit.collider.gameObject.CompareTag("Ceiling"))
+			{
+				needMapUpdate = true;
+				Debug.Log("New tile discovered on the right: " + rightHit.collider.gameObject.name);
+				tileManager.AddToRevealedTiles(rightHit.collider.gameObject, revealedTiles);
+			}
+		}
+
+		if (needMapUpdate) uiManager.UpdateMiniMap();
 	}
 
 	public void Retry()

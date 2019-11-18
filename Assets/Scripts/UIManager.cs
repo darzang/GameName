@@ -42,6 +42,7 @@ public class UIManager : MonoBehaviour {
 		DrawStartingMiniMap ();
 	}
 	void Update () {
+		RotateMiniMap();
 		fuelCount = player.GetComponent<Player> ().fuelCount;
 		if (player.GetComponent<Player>().fuelCount > 0){
 			UpdateBatteryLevel();
@@ -330,7 +331,6 @@ public class UIManager : MonoBehaviour {
 
 	public void MergeFragmentInMiniMap(List<string> mapFragment)
 	{
-		List<string> minimap = tileManager.GetTilesNames(gameManager.revealedTiles);
 		foreach (string tile in mapFragment)
 		{
 			if(!tileManager.HasBeenRevealed(GameObject.Find(tile), gameManager.revealedTiles))
