@@ -28,6 +28,7 @@ public class UIManager : MonoBehaviour
     double fuelTank;
     double fuelCount;
     private bool batteryLevelBlinking = false;
+    private Quaternion initialRotation;
 
 
     void Awake()
@@ -71,7 +72,13 @@ public class UIManager : MonoBehaviour
     void RotateMiniMap()
     {
         float angle = player.transform.eulerAngles.y + 180;
+        Image[] tiles=  miniMapPanel.GetComponentsInChildren<Image>();
+        foreach (Image tile in tiles)
+        {
+            tile.transform.rotation = Quaternion.Euler(0f,0f,0f);
+        }
         miniMapPanel.transform.rotation = Quaternion.Euler(0, 0, angle);
+
     }
 
     public void UpdateMiniMap()
@@ -116,6 +123,7 @@ public class UIManager : MonoBehaviour
         newTile.GetComponent<RectTransform>().SetParent(miniMapPanel.transform);
         newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
         newTile.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
+        newTile.GetComponent<RectTransform>().rotation = Quaternion.Euler(0f,0f,0f);
 
         // Set the position of the new tile
         if (tile == tileManager.GetTileUnderPlayer())

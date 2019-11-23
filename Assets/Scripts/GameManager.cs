@@ -68,6 +68,7 @@ public class GameManager : MonoBehaviour
                 int index = spawnTiles.IndexOf(recognizedTile);
                 uiManager.ActivatePlayerThoughts();
                 uiManager.MergeFragmentInMiniMap(mapFragments.ElementAt(index));
+                uiManager.UpdateMiniMap();
                 Debug.Log("Yes, it's from fragment # " + (index + 1));
             }
         }
