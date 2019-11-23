@@ -35,6 +35,7 @@
           <e p="GameData.cs" t="Include" />
           <e p="GameDataManager.cs" t="Include" />
           <e p="GameManager.cs" t="Include" />
+          <e p="MenuManager.cs" t="Include" />
           <e p="Player.cs" t="Include" />
           <e p="PlayerLook.cs" t="Include" />
           <e p="TileManager.cs" t="Include" />

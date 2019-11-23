@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour {
 	[SerializeField] private string horizontalInputName;
@@ -12,17 +13,22 @@ public class Player : MonoBehaviour {
 	void Awake () {
 		fuelCount = fuelTank;
 		charController = GetComponent<CharacterController> ();
+		Debug.Log(SceneManager.GetActiveScene().name);
 	}
 
 	private void Update()
 	{
-		if (Input.GetKey ("z") || Input.GetKey ("q") || Input.GetKey ("s") || Input.GetKey ("d"))
+		if (SceneManager.GetActiveScene().name != "MenuScene")
 		{
-			if (fuelCount > 0) {
-				PlayerMovement ();
-				fuelCount -= fuelConsumption;
-			}
+			if (Input.GetKey ("z") || Input.GetKey ("q") || Input.GetKey ("s") || Input.GetKey ("d"))
+	        {
+	            if (fuelCount > 0) {
+            		PlayerMovement ();
+            		fuelCount -= fuelConsumption;
+	            }
+	        }
 		}
+
 	}
 	private void PlayerMovement () {
 		float horizInput = Input.GetAxis (horizontalInputName) * movementSpeed;
