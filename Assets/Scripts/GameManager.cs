@@ -61,6 +61,7 @@ public class GameManager : MonoBehaviour
         // Is the player on a new tile ?
         if (tileManager.GetTileUnderPlayer() != currentTile)
         {
+            uiManager.UpdateMiniMap();
             currentTile = tileManager.GetTileUnderPlayer();
             GameObject recognizedTile = spawnTiles.Find(tile => tile.name == currentTile.name);
             if (recognizedTile)
