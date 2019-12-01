@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
@@ -9,18 +10,21 @@ public class MenuManager : MonoBehaviour
     private TextMeshPro text;
     public GameObject player;
     private Animation anim;
+    public GameObject ceiling;
     void Start()
     {
         Cursor.visible = true;
         anim = player.GetComponent<Animation>();
+        ceiling.SetActive(true);
     }
 
     // Update is called once per frame
     void Update()
     {
+
         Ray forwardRay = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        if (Physics.Raycast(forwardRay, out hit, 3))
+        if (Physics.Raycast(forwardRay, out hit, 10))
         {
             if (hit.collider.gameObject.tag == "MenuButton")
             {
@@ -39,14 +43,26 @@ public class MenuManager : MonoBehaviour
         switch (button.name)
         {
             case "OptionsButton":
-                anim.Play("GoToOptions");
+                anim.Play("MainToOptions");
                 break;
-            case "BackButton" :
+            case "CreditsButton":
+                anim.Play("MainToCredits");
+                break;
+            case "PlayButton":
+                anim.Play("MainToPlay");
+                break;
+            case "OptionsBackButton" :
                 anim.Play("OptionsToMain");
                 break;
-            default:
+            case "CreditsBackButton" :
+                anim.Play("CreditsToMain");
                 break;
-
+            case "PlayBackButton" :
+                anim.Play("PlayToMain");
+                break;
+            case "Level1Button" :
+                SceneManager.LoadScene("GameScene");
+                break;
         }
     }
 }

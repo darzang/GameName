@@ -356,7 +356,7 @@ MonoBehaviour:
   horizontalInputName: Horizontal
   verticalInputName: Vertical
   movementSpeed: 1
-  fuelConsumption: 0.1
+  fuelConsumption: 1
   fuelCount: 500
   fuelTank: 500
 --- !u!82 &9136995392935929736
