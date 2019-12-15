@@ -72,6 +72,11 @@ public class GameManager : MonoBehaviour
                 uiManager.UpdateMiniMap();
                 Debug.Log("Yes, it's from fragment # " + (index + 1));
             }
+
+            if (currentTile.tag == "Exit")
+            {
+                Debug.Log("You reached the exit !!");
+            }
         }
 
         CheckForTileDiscovery();

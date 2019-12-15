@@ -24,6 +24,7 @@ public class UIManager : MonoBehaviour
     Color32 wallColor = new Color32(25, 25, 25, 255);
     Color32 obstacleColor = new Color32(50, 50, 50, 255);
     Color32 playerColor = new Color32(0, 0, 255, 255);
+    Color32 exitColor = new Color32(255, 0, 0, 255);
     Color32 spawnTextColor = new Color32(0, 0, 0, 255);
     double fuelTank;
     double fuelCount;
@@ -221,6 +222,8 @@ public class UIManager : MonoBehaviour
                 return obstacleColor;
             case "Player":
                 return playerColor;
+            case "Exit":
+                return exitColor;
             default:
                 Debug.Log("TAG_NOT_FOUND_FOR_TILE: " + tag);
                 return floorColor;
@@ -318,6 +321,7 @@ public class UIManager : MonoBehaviour
     public void AddTileToFragment(GameObject tile, GameObject panel, int fragmentNumber)
     {
         // Instantiate new tile and anchor it in the middle of the panel
+        Debug.Log(tile);
         GameObject newTile = new GameObject("Fragment_" + tile.transform.position.x + "_" + tile.transform.position.z +
                                             "_" + tile.tag);
 

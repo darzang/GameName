@@ -27,6 +27,9 @@ public class Player : MonoBehaviour {
             		fuelCount -= fuelConsumption;
 	            }
 	        }
+
+			if (Input.GetKeyUp("f")) fuelCount += 100;
+			if (Input.GetKeyUp("g")) fuelCount -= 100;
 		}
 
 	}
