@@ -7,11 +7,20 @@ public class Player : MonoBehaviour {
 	[SerializeField] public float movementSpeed;
 	[SerializeField] public float fuelConsumption;
 	private CharacterController charController;
-	public double fuelCount;
-	[SerializeField] public double fuelTank = 500;
+	public float fuelCount;
+	[SerializeField] public float fuelTank = 500;
+	private float startRange;
+	private float startIntensity;
+	private float startAngle;
+	private Light playerLamp;
 
 	void Awake () {
 		fuelCount = fuelTank;
+		playerLamp = GameObject.Find("PlayerLamp").GetComponent<Light>();
+		startRange = playerLamp.range;
+		startIntensity = playerLamp.intensity;
+		startAngle = playerLamp.spotAngle;
+
 		charController = GetComponent<CharacterController> ();
 		Debug.Log(SceneManager.GetActiveScene().name);
 	}
@@ -25,6 +34,10 @@ public class Player : MonoBehaviour {
 	            if (fuelCount > 0) {
             		PlayerMovement ();
             		fuelCount -= fuelConsumption;
+                    playerLamp.range = startRange * (fuelCount / fuelTank);
+                    playerLamp.intensity = startIntensity * (fuelCount / fuelTank);
+                    playerLamp.spotAngle = startAngle * (fuelCount / fuelTank);
+
 	            }
 	        }
 
