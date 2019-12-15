@@ -35,6 +35,7 @@
           </e>
         </e>
         <e p="Scripts" t="Include">
+          <e p="FlickeringLight.cs" t="Include" />
           <e p="GameData.cs" t="Include" />
           <e p="GameDataManager.cs" t="Include" />
           <e p="GameManager.cs" t="Include" />

@@ -146,7 +146,7 @@ public class GameManager : MonoBehaviour
     {
         mapFragments.Add(tileManager.GetTilesNames(revealedTiles));
         GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString));
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("Level1");
     }
 
     public void GiveUp()

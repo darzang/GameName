@@ -61,7 +61,7 @@ public class MenuManager : MonoBehaviour
                 anim.Play("PlayToMain");
                 break;
             case "Level1Button" :
-                SceneManager.LoadScene("GameScene");
+                SceneManager.LoadScene("Level1");
                 break;
         }
     }
