@@ -13,6 +13,7 @@ public class Player : MonoBehaviour {
 	private float startIntensity;
 	private float startAngle;
 	private Light playerLamp;
+	public bool lockPlayer = false;
 
 	void Awake () {
 		fuelCount = fuelTank;
@@ -31,7 +32,7 @@ public class Player : MonoBehaviour {
 		{
 			if (Input.GetKey ("z") || Input.GetKey ("q") || Input.GetKey ("s") || Input.GetKey ("d"))
 	        {
-	            if (fuelCount > 0) {
+	            if (fuelCount > 0 && !lockPlayer) {
             		PlayerMovement ();
             		fuelCount -= fuelConsumption;
                     playerLamp.range = startRange * (fuelCount / fuelTank);

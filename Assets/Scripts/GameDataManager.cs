@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameDataManager : MonoBehaviour
 {
+   // TODO: different path for each level !
    static string path = Application.persistentDataPath + "/save.dat"; // points to %userprofile%\AppData\Local\Packages\<productname>\LocalState.
    public static void SaveFile(GameData gameData)
    {

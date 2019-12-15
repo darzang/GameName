@@ -10,10 +10,14 @@ public class UIManager : MonoBehaviour
     public TileManager tileManager;
     public GameManager gameManager;
     public GameObject batteryDead;
+    public GameObject exitReached;
+    public GameObject exitReachedButtons;
     public GameObject batteryLevel;
     public GameObject playerThoughts;
     public Button retryButton;
+    public Button nextLevelButton;
     public Button giveUpButton;
+    public Button backToMenuButton;
     public GameObject fuelBar;
     public GameObject miniMapPanel;
     public GameObject mapFragmentsPanel;
@@ -28,16 +32,15 @@ public class UIManager : MonoBehaviour
     Color32 spawnTextColor = new Color32(0, 0, 0, 255);
     double fuelTank;
     double fuelCount;
-    private bool batteryLevelBlinking = false;
+    private bool batteryLevelBlinking;
     private Quaternion initialRotation;
-
 
     void Awake()
     {
+//        GameObject.Find("RetryButton").GetComponent<Button>().onClick.AddListener(gameManager.Retry);
         retryButton.onClick.AddListener(gameManager.Retry);
         giveUpButton.onClick.AddListener(gameManager.GiveUp);
     }
-
     void Start()
     {
         player = gameManager.player;
@@ -58,7 +61,7 @@ public class UIManager : MonoBehaviour
             if (!batteryDead.gameObject.activeSelf) batteryDead.SetActive(true);
             StopCoroutine("BlinkBatteryLevel");
             buttonPanel.SetActive(true);
-            Cursor.visible = true;
+
             Cursor.lockState = CursorLockMode.None;
         }
 
@@ -373,5 +376,17 @@ public class UIManager : MonoBehaviour
         playerThoughts.SetActive(true);
         yield return new WaitForSeconds(sec);
         playerThoughts.SetActive(false);
+    }
+
+    public void ShowExitUI()
+    {
+        exitReached.SetActive(true);
+        exitReachedButtons.SetActive(true);
+        nextLevelButton.onClick.AddListener(gameManager.NextLevel);
+        backToMenuButton.onClick.AddListener(gameManager.BackToMenu);
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        player.GetComponent<Player>().lockPlayer = true;
+
     }
 }

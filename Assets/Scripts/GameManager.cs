@@ -76,6 +76,8 @@ public class GameManager : MonoBehaviour
             if (currentTile.tag == "Exit")
             {
                 Debug.Log("You reached the exit !!");
+                uiManager.ShowExitUI();
+
             }
         }
 
@@ -153,6 +155,18 @@ public class GameManager : MonoBehaviour
     {
         GameDataManager.EraseFile();
         //TODO: Load Menu
+        Application.Quit(); // Doesn't work with Unity editor
+    }
+    public void BackToMenu()
+    {
+        Debug.Log("BackToMenu clicked");
+        SceneManager.LoadScene("MenuScene");
+    }
+    public void NextLevel()
+    {
+        // TODO: well.. todo =)
+        Debug.Log("Next level clicked");
+        SceneManager.LoadScene("MenuScene");
         Application.Quit(); // Doesn't work with Unity editor
     }
 
