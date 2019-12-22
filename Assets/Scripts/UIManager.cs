@@ -260,6 +260,10 @@ public class UIManager : MonoBehaviour
 
     public void DrawMapFragments(List<List<string>> mapFragments)
     {
+        if (mapFragmentsPanel.transform.childCount > 0)
+        {
+            foreach (Transform panel in mapFragmentsPanel.transform) Destroy(panel.gameObject);
+        }
         int fragmentNumber = 1;
         foreach (List<string> fragment in mapFragments)
         {
@@ -270,6 +274,7 @@ public class UIManager : MonoBehaviour
 
     public void DrawMapFragment(List<string> fragment, int fragmentNumber)
     {
+
         // Instantiate fragment panel
         GameObject fragmentPanel = Instantiate(fragmentPanelPrefab, new Vector3(0, 0, 0),
             mapFragmentsPanel.transform.rotation, mapFragmentsPanel.transform);

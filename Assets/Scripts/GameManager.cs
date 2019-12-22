@@ -68,18 +68,22 @@ public class GameManager : MonoBehaviour
             GameObject recognizedTile = spawnTiles.Find(tile => tile.name == currentTile.name);
             if (recognizedTile)
             {
+                // Merge the fragment on the previous run and delete it from
                 int index = spawnTiles.IndexOf(recognizedTile);
+                Debug.Log("Yes, it's from fragment # " + (index + 1));
                 uiManager.ActivatePlayerThoughts();
                 uiManager.MergeFragmentInMiniMap(mapFragments.ElementAt(index));
+                mapFragments.RemoveAt(index);
+                spawnTiles.RemoveAt(index);
+                uiManager.DrawMapFragments(mapFragments);
+
 //                uiManager.UpdateMiniMap();
-                Debug.Log("Yes, it's from fragment # " + (index + 1));
             }
 
             if (currentTile.tag == "Exit")
             {
                 Debug.Log("You reached the exit !!");
                 uiManager.ShowExitUI();
-
             }
         }
 
