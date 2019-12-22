@@ -52,10 +52,7 @@ public class UIManager : MonoBehaviour
     {
         RotateMiniMap();
         fuelCount = player.GetComponent<Player>().fuelCount;
-        if (player.GetComponent<Player>().fuelCount > 0)
-        {
-            UpdateBatteryLevel();
-        }
+        if (fuelCount > 0) UpdateBatteryLevel();
         else
         {
             if (!batteryDead.gameObject.activeSelf) batteryDead.SetActive(true);
@@ -122,7 +119,7 @@ public class UIManager : MonoBehaviour
         GameObject newTile =
             new GameObject(tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag);
         Image newImage = newTile.AddComponent<Image>();
-        Color32 tileColor = GetTileColor(tile.tag);
+        Color32 tileColor = GetTileColor(tile.tag, tile);
 
         newTile.GetComponent<RectTransform>().SetParent(miniMapPanel.transform);
         newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
@@ -184,7 +181,7 @@ public class UIManager : MonoBehaviour
         Was used when drawing the whole map at once,
         Basically only the anchor is different
          */
-        Color32 tileColor = GetTileColor(tile.tag);
+        Color32 tileColor = GetTileColor(tile.tag, tile);
         GameObject newTile =
             new GameObject(tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag);
         Image newImage = newTile.AddComponent<Image>();
@@ -213,7 +210,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    Color32 GetTileColor(string tag)
+    Color32 GetTileColor(string tag, GameObject tile)
     {
         switch (tag)
         {
@@ -228,7 +225,7 @@ public class UIManager : MonoBehaviour
             case "Exit":
                 return exitColor;
             default:
-                Debug.Log("TAG_NOT_FOUND_FOR_TILE: " + tag);
+                Debug.Log("TAG_NOT_FOUND_FOR_TILE: " + tile.name);
                 return floorColor;
         }
     }
@@ -334,7 +331,7 @@ public class UIManager : MonoBehaviour
                                             "_" + tile.tag);
 
         Image newImage = newTile.AddComponent<Image>();
-        Color32 tileColor = GetTileColor(tile.tag);
+        Color32 tileColor = GetTileColor(tile.tag, tile);
 
         newTile.GetComponent<RectTransform>().SetParent(panel.transform);
         newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);

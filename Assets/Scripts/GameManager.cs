@@ -29,7 +29,7 @@ public class GameManager : MonoBehaviour
 
     // Environment
     public GameObject ceiling;
-
+    public int discoveryRange = 1;
 
     void Awake()
     {
@@ -44,10 +44,7 @@ public class GameManager : MonoBehaviour
             mapFragments = gameData.mapFragments;
             spawnTilesString = gameData.spawnTiles;
             tryCount = gameData.tryCount + 1;
-            foreach (string tileName in spawnTilesString)
-            {
-                spawnTiles.Add(GameObject.Find(tileName));
-            }
+            foreach (string tileName in spawnTilesString) spawnTiles.Add(GameObject.Find(tileName));
         }
 
         spawnTilesString.Add(currentTile.gameObject.name); //TODO: maybe move this above?
@@ -63,28 +60,20 @@ public class GameManager : MonoBehaviour
         // Is the player on a new tile ?
         if (tileManager.GetTileUnderPlayer() != currentTile)
         {
-//            uiManager.UpdateMiniMap();
             currentTile = tileManager.GetTileUnderPlayer();
             GameObject recognizedTile = spawnTiles.Find(tile => tile.name == currentTile.name);
             if (recognizedTile)
             {
-                // Merge the fragment on the previous run and delete it from
+                // Merge the fragment off the previous run and delete it
                 int index = spawnTiles.IndexOf(recognizedTile);
-                Debug.Log("Yes, it's from fragment # " + (index + 1));
                 uiManager.ActivatePlayerThoughts();
                 uiManager.MergeFragmentInMiniMap(mapFragments.ElementAt(index));
                 mapFragments.RemoveAt(index);
                 spawnTiles.RemoveAt(index);
                 uiManager.DrawMapFragments(mapFragments);
-
-//                uiManager.UpdateMiniMap();
             }
 
-            if (currentTile.tag == "Exit")
-            {
-                Debug.Log("You reached the exit !!");
-                uiManager.ShowExitUI();
-            }
+            if (currentTile.tag == "Exit") uiManager.ShowExitUI();
         }
 
         CheckForTileDiscovery();
@@ -108,45 +97,21 @@ public class GameManager : MonoBehaviour
         Ray forwardRay = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit[] hits = Physics.RaycastAll(forwardRay, playerLamp.range / 2);
         bool needMapUpdate = false;
-        foreach (RaycastHit rayHit in hits)
+
+        Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, discoveryRange);
+        foreach (Collider tile in hitColliders)
         {
-            //TODO: Filter out tiles that should not be discovered (ex floor behind corner of walls)
-            if (!tileManager.HasBeenRevealed(rayHit.collider.gameObject, revealedTiles) &&
-                !rayHit.collider.gameObject.CompareTag("Ceiling"))
+            if (!tileManager.HasBeenRevealed(tile.gameObject, revealedTiles)
+            && !tile.gameObject.CompareTag("Ceiling")
+            && !tile.gameObject.CompareTag("Player"))
             {
                 needMapUpdate = true;
-//				Debug.Log("New tile discovered forward: " + rayHit.collider.gameObject.name);
-                tileManager.AddToRevealedTiles(rayHit.collider.gameObject, revealedTiles);
+                tileManager.AddToRevealedTiles(tile.gameObject, revealedTiles);
             }
         }
 
-        // Check on the left
-        RaycastHit leftHit;
-        Ray leftRay = new Ray(player.transform.position, forwardRay.direction + Vector3.left);
-        if (Physics.Raycast(leftRay, out leftHit, 1))
-        {
-            if (!tileManager.HasBeenRevealed(leftHit.collider.gameObject, revealedTiles) &&
-                !leftHit.collider.gameObject.CompareTag("Ceiling"))
-            {
-                needMapUpdate = true;
-//				Debug.Log("New tile discovered on the left: " + leftHit.collider.gameObject.name);
-                tileManager.AddToRevealedTiles(leftHit.collider.gameObject, revealedTiles);
-            }
-        }
 
-        // Check on the right
-        RaycastHit rightHit;
-        Ray rightRay = new Ray(player.transform.position, forwardRay.direction + Vector3.right);
-        if (Physics.Raycast(rightRay, out rightHit, 1))
-        {
-            if (!tileManager.HasBeenRevealed(rightHit.collider.gameObject, revealedTiles) &&
-                !rightHit.collider.gameObject.CompareTag("Ceiling"))
-            {
-                needMapUpdate = true;
-//				Debug.Log("New tile discovered on the right: " + rightHit.collider.gameObject.name);
-                tileManager.AddToRevealedTiles(rightHit.collider.gameObject, revealedTiles);
-            }
-        }
+
         if (needMapUpdate) uiManager.UpdateMiniMap();
     }
 
