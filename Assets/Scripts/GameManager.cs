@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
@@ -93,6 +95,7 @@ public class GameManager : MonoBehaviour
 
         // Useful for now, to remove later
         if (Input.GetKey("p")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
+        if (Input.GetKey("n")) NextLevel();
     }
 
     public void CheckForTileDiscovery()
@@ -148,7 +151,7 @@ public class GameManager : MonoBehaviour
     {
         mapFragments.Add(tileManager.GetTilesNames(revealedTiles));
         GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString), SceneManager.GetActiveScene().name);
-        SceneManager.LoadScene("Level1");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void GiveUp()
@@ -164,9 +167,10 @@ public class GameManager : MonoBehaviour
     }
     public void NextLevel()
     {
-        // TODO: well.. todo =)
-        Debug.Log("Next level clicked");
-        SceneManager.LoadScene("MenuScene");
+        string currentLevel = SceneManager.GetActiveScene().name;
+        int levelNumber = Int32.Parse(currentLevel.Substring(currentLevel.Length-1));
+        string sceneToLoad = $"Level{levelNumber + 1}";
+        SceneManager.LoadScene(sceneToLoad);
         Application.Quit(); // Doesn't work with Unity editor
     }
 
