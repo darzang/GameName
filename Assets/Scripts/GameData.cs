@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 [System.Serializable]
-public class GameData
-{
+public class GameData {
     public int tryCount;
     public List<List<string>> mapFragments;
     public List<string> spawnTiles;

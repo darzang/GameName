@@ -5,8 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
-public class GameManager : MonoBehaviour
-{
+public class GameManager : MonoBehaviour {
     // Managers
     public TileManager tileManager;
     public UIManager uiManager;
@@ -31,16 +30,14 @@ public class GameManager : MonoBehaviour
     public GameObject ceiling;
     public int discoveryRange = 1;
 
-    void Awake()
-    {
+    void Awake() {
         ceiling.SetActive(true);
         InstantiatePlayer();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
         GameData gameData = GameDataManager.LoadFile(SceneManager.GetActiveScene().name);
         tryCount = 1;
-        if (gameData != null)
-        {
+        if (gameData != null) {
             mapFragments = gameData.mapFragments;
             spawnTilesString = gameData.spawnTiles;
             tryCount = gameData.tryCount + 1;
@@ -50,20 +47,17 @@ public class GameManager : MonoBehaviour
         spawnTilesString.Add(currentTile.gameObject.name); //TODO: maybe move this above?
     }
 
-    void Start()
-    {
+    void Start() {
         uiManager.DrawMapFragments(mapFragments);
     }
 
     void Update()
     {
         // Is the player on a new tile ?
-        if (tileManager.GetTileUnderPlayer() != currentTile)
-        {
+        if (tileManager.GetTileUnderPlayer() != currentTile) {
             currentTile = tileManager.GetTileUnderPlayer();
             GameObject recognizedTile = spawnTiles.Find(tile => tile.name == currentTile.name);
-            if (recognizedTile)
-            {
+            if (recognizedTile) {
                 // Merge the fragment off the previous run and delete it
                 int index = spawnTiles.IndexOf(recognizedTile);
                 uiManager.ActivatePlayerThoughts();
@@ -72,15 +66,13 @@ public class GameManager : MonoBehaviour
                 spawnTiles.RemoveAt(index);
                 uiManager.DrawMapFragments(mapFragments);
             }
-
             if (currentTile.tag == "Exit") uiManager.ShowExitUI();
         }
 
         CheckForTileDiscovery();
 
         // Toggle lamp
-        if (Input.GetMouseButtonDown(0))
-        {
+        if (Input.GetMouseButtonDown(0)) {
             lightAudio.clip = playerLamp.enabled ? lightSounds[1] : lightSounds[0];
             lightAudio.Play();
             playerLamp.enabled = (!playerLamp.enabled);
@@ -91,50 +83,38 @@ public class GameManager : MonoBehaviour
         if (Input.GetKey("n")) NextLevel();
     }
 
-    public void CheckForTileDiscovery()
-    {
-        // Check forward
-        Ray forwardRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit[] hits = Physics.RaycastAll(forwardRay, playerLamp.range / 2);
+    public void CheckForTileDiscovery() {
         bool needMapUpdate = false;
-
         Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, discoveryRange);
-        foreach (Collider tile in hitColliders)
-        {
+        foreach (Collider tile in hitColliders) {
             if (!tileManager.HasBeenRevealed(tile.gameObject, revealedTiles)
             && !tile.gameObject.CompareTag("Ceiling")
-            && !tile.gameObject.CompareTag("Player"))
-            {
+            && !tile.gameObject.CompareTag("Player")) {
                 needMapUpdate = true;
                 tileManager.AddToRevealedTiles(tile.gameObject, revealedTiles);
             }
         }
-
-
-
         if (needMapUpdate) uiManager.UpdateMiniMap();
     }
 
-    public void Retry()
-    {
+    public void Retry() {
         mapFragments.Add(tileManager.GetTilesNames(revealedTiles));
         GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString), SceneManager.GetActiveScene().name);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    public void GiveUp()
-    {
+    public void GiveUp() {
         mapFragments.Add(tileManager.GetTilesNames(revealedTiles));
         GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString), SceneManager.GetActiveScene().name);
         SceneManager.LoadScene("MenuScene");
     }
-    public void BackToMenu()
-    {
+
+    public void BackToMenu() {
         Debug.Log("BackToMenu clicked");
         SceneManager.LoadScene("MenuScene");
     }
-    public void NextLevel()
-    {
+
+    public void NextLevel() {
         string currentLevel = SceneManager.GetActiveScene().name;
         int levelNumber = Int32.Parse(currentLevel.Substring(currentLevel.Length-1));
         string sceneToLoad = $"Level{levelNumber + 1}";
@@ -142,8 +122,7 @@ public class GameManager : MonoBehaviour
         Application.Quit(); // Doesn't work with Unity editor
     }
 
-    public void InstantiatePlayer()
-    {
+    public void InstantiatePlayer() {
         List<GameObject> availableTiles = tileManager.GetTilesByType("Floor");
         GameObject spawnTileObject = availableTiles.ElementAt(Random.Range(0, availableTiles.Count - 1));
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(
@@ -156,13 +135,11 @@ public class GameManager : MonoBehaviour
         currentTile = spawnTileObject;
     }
 
-    public bool isPreviousSpawnTile(GameObject tile)
-    {
+    public bool isPreviousSpawnTile(GameObject tile) {
         return tile.tag == "Floor" && spawnTiles.Find(spawnTile => spawnTile.name == tile.name);
     }
 
-    public int getSpawnTileTryNumber(GameObject tile)
-    {
+    public int getSpawnTileTryNumber(GameObject tile) {
         return spawnTiles.IndexOf(tile) + 1;
     }
 }

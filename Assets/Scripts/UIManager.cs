@@ -5,8 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIManager : MonoBehaviour
-{
+public class UIManager : MonoBehaviour {
     public TileManager tileManager;
     public GameManager gameManager;
     public GameObject batteryDead;
@@ -35,60 +34,44 @@ public class UIManager : MonoBehaviour
     private bool batteryLevelBlinking;
     private Quaternion initialRotation;
 
-    void Awake()
-    {
-//        GameObject.Find("RetryButton").GetComponent<Button>().onClick.AddListener(gameManager.Retry);
+    void Awake() {
         retryButton.onClick.AddListener(gameManager.Retry);
         giveUpButton.onClick.AddListener(gameManager.GiveUp);
     }
-    void Start()
-    {
+
+    void Start() {
         player = gameManager.player;
         fuelTank = player.GetComponent<Player>().fuelTank;
         DrawStartingMiniMap();
     }
 
-    void Update()
-    {
+    void Update() {
         RotateMiniMap();
         fuelCount = player.GetComponent<Player>().fuelCount;
-        if (fuelCount > 0) UpdateBatteryLevel();
-        else
-        {
+        if (fuelCount > 0) {
+            UpdateBatteryLevel();
+        } else {
             if (!batteryDead.gameObject.activeSelf) batteryDead.SetActive(true);
             StopCoroutine("BlinkBatteryLevel");
             buttonPanel.SetActive(true);
-
             Cursor.lockState = CursorLockMode.None;
         }
-
-        if (fuelCount <= fuelTank * 0.5)
-        {
-            if (!batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel());
-        }
-
+        if (fuelCount <= fuelTank * 0.5 && !batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel());
         RotateMiniMap();
     }
 
-    void RotateMiniMap()
-    {
+    void RotateMiniMap() {
         float angle = player.transform.eulerAngles.y + 180;
         Image[] tiles=  miniMapPanel.GetComponentsInChildren<Image>();
-        foreach (Image tile in tiles)
-        {
-            tile.transform.rotation = Quaternion.Euler(0f,0f,0f);
-        }
+        foreach (Image tile in tiles) tile.transform.rotation = Quaternion.Euler(0f,0f,0f);
         miniMapPanel.transform.rotation = Quaternion.Euler(0, 0, angle);
-
     }
 
-    public void UpdateMiniMap()
-    {
+    public void UpdateMiniMap() {
         foreach (GameObject tile in gameManager.revealedTiles) AddTileToMiniMap(tile);
     }
 
-    void UpdateBatteryLevel()
-    {
+    void UpdateBatteryLevel() {
         // Update scale
         fuelBar.transform.localScale = new Vector3(
             (float) (fuelCount / fuelTank),
@@ -101,13 +84,11 @@ public class UIManager : MonoBehaviour
             : new Color32(255, (byte) fuelCount, 0, 255);
     }
 
-    void DrawStartingMiniMap()
-    {
+    void DrawStartingMiniMap() {
         AddTileToMiniMap(gameManager.startingTile);
     }
 
-    void AddTileToMiniMap(GameObject tile)
-    {
+    void AddTileToMiniMap(GameObject tile) {
         // Regenerate previously drawn tiles
         if (tileManager.HasBeenRevealed(tile, gameManager.revealedTiles))
             Destroy(GameObject.Find(tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag));
@@ -119,7 +100,7 @@ public class UIManager : MonoBehaviour
         GameObject newTile =
             new GameObject(tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag);
         Image newImage = newTile.AddComponent<Image>();
-        Color32 tileColor = GetTileColor(tile.tag, tile);
+        Color32 tileColor = GetTileColor(tile.tag);
 
         newTile.GetComponent<RectTransform>().SetParent(miniMapPanel.transform);
         newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
@@ -127,13 +108,11 @@ public class UIManager : MonoBehaviour
         newTile.GetComponent<RectTransform>().rotation = Quaternion.Euler(0f,0f,0f);
 
         // Set the position of the new tile
-        if (tile == tileManager.GetTileUnderPlayer())
-        {
+        if (tile == tileManager.GetTileUnderPlayer()) {
             newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
             tileColor = playerColor;
         }
-        else
-        {
+        else {
             newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
                 tileManager.GetRelativePosition(tileManager.GetTileUnderPlayer(), tile)[0] * 10,
                 tileManager.GetRelativePosition(tileManager.GetTileUnderPlayer(), tile)[1] * 10,
@@ -145,19 +124,16 @@ public class UIManager : MonoBehaviour
         newTile.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
         newImage.color = tileColor;
 
-        if (tile == gameManager.startingTile)
-        {
+        if (tile == gameManager.startingTile) {
             DrawSpawnTileInFragment(newTile);
-        } else if (gameManager.isPreviousSpawnTile(tile))
-        {
+        } else if (gameManager.isPreviousSpawnTile(tile)) {
             DrawSpawnTileInFragment(newTile, gameManager.getSpawnTileTryNumber(tile));
         }
 
         newTile.SetActive(true);
     }
 
-    void DrawSpawnTileInFragment(GameObject tile, int fragmentNumber = 0)
-    {
+    void DrawSpawnTileInFragment(GameObject tile, int fragmentNumber = 0) {
         GameObject spawnTile = new GameObject("SpawnTile");
         spawnTile.transform.parent = tile.transform;
         spawnTile.AddComponent<TextMeshProUGUI>();
@@ -175,13 +151,12 @@ public class UIManager : MonoBehaviour
         spawnText.alignment = TextAlignmentOptions.MidlineJustified;
     }
 
-    void AddTileToMap(GameObject tile)
-    {
+    void AddTileToMap(GameObject tile) {
         /*
         Was used when drawing the whole map at once,
         Basically only the anchor is different
          */
-        Color32 tileColor = GetTileColor(tile.tag, tile);
+        Color32 tileColor = GetTileColor(tile.tag);
         GameObject newTile =
             new GameObject(tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag);
         Image newImage = newTile.AddComponent<Image>();
@@ -199,21 +174,16 @@ public class UIManager : MonoBehaviour
         newTile.SetActive(true);
     }
 
-    public void DrawWholeMap(GameObject[,] map3D)
-    {
-        for (int i = 0; i < map3D.GetLength(0); i++)
-        {
-            for (int j = 0; j < map3D.GetLength(1); j++)
-            {
+    public void DrawWholeMap(GameObject[,] map3D) {
+        for (int i = 0; i < map3D.GetLength(0); i++) {
+            for (int j = 0; j < map3D.GetLength(1); j++) {
                 AddTileToMap(map3D[i, j]);
             }
         }
     }
 
-    Color32 GetTileColor(string tag, GameObject tile)
-    {
-        switch (tag)
-        {
+    Color32 GetTileColor(string tag) {
+        switch (tag) {
             case "Wall":
                 return wallColor;
             case "Floor":
@@ -225,27 +195,22 @@ public class UIManager : MonoBehaviour
             case "Exit":
                 return exitColor;
             default:
-                Debug.Log("TAG_NOT_FOUND_FOR_TILE: " + tile.name);
+                Debug.Log("TAG_NOT_FOUND_FOR_TILE: " + tag);
                 return floorColor;
         }
     }
 
-    IEnumerator BlinkBatteryLevel()
-    {
+    IEnumerator BlinkBatteryLevel() {
         batteryLevelBlinking = true;
         TextMeshProUGUI batteryText = batteryLevel.GetComponent<TextMeshProUGUI>();
-        while (true)
-        {
-            if (fuelCount > fuelTank * 0.2)
-            {
+        while (true) {
+            if (fuelCount > fuelTank * 0.2) {
                 batteryText.text = "BATTERY LEVEL LOW";
                 batteryLevel.SetActive(true);
                 yield return new WaitForSeconds(0.4f);
                 batteryLevel.SetActive(false);
                 yield return new WaitForSeconds(0.4f);
-            }
-            else
-            {
+            } else {
                 batteryText.text = "BATTERY LEVEL CRITICAL";
                 batteryLevel.SetActive(true);
                 yield return new WaitForSeconds(0.2f);
@@ -255,30 +220,24 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void DrawMapFragments(List<List<string>> mapFragments)
-    {
-        if (mapFragmentsPanel.transform.childCount > 0)
-        {
+    public void DrawMapFragments(List<List<string>> mapFragments) {
+        if (mapFragmentsPanel.transform.childCount > 0) {
             foreach (Transform panel in mapFragmentsPanel.transform) Destroy(panel.gameObject);
         }
         int fragmentNumber = 1;
-        foreach (List<string> fragment in mapFragments)
-        {
+        foreach (List<string> fragment in mapFragments) {
             DrawMapFragment(fragment, fragmentNumber);
             fragmentNumber++;
         }
     }
 
-    public void DrawMapFragment(List<string> fragment, int fragmentNumber)
-    {
-
+    public void DrawMapFragment(List<string> fragment, int fragmentNumber) {
         // Instantiate fragment panel
         GameObject fragmentPanel = Instantiate(fragmentPanelPrefab, new Vector3(0, 0, 0),
             mapFragmentsPanel.transform.rotation, mapFragmentsPanel.transform);
 
         fragmentPanel.GetComponent<RectTransform>().SetParent(mapFragmentsPanel.transform);
-        switch (fragmentNumber)
-        {
+        switch (fragmentNumber) {
             case 1:
                 fragmentPanel.GetComponent<RectTransform>().anchorMin = new Vector2(0, 1);
                 fragmentPanel.GetComponent<RectTransform>().anchorMax = new Vector2(0, 1);
@@ -317,21 +276,18 @@ public class UIManager : MonoBehaviour
         fragmentPanel.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
         fragmentPanel.GetComponent<RectTransform>().sizeDelta = new Vector2(60, 60);
         fragmentPanel.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
-        foreach (string tileName in fragment)
-        {
+        foreach (string tileName in fragment) {
             AddTileToFragment(GameObject.Find(tileName), fragmentPanel, fragmentNumber);
         }
     }
 
-    public void AddTileToFragment(GameObject tile, GameObject panel, int fragmentNumber)
-    {
+    public void AddTileToFragment(GameObject tile, GameObject panel, int fragmentNumber) {
         // Instantiate new tile and anchor it in the middle of the panel
-//        Debug.Log(tile);
-        GameObject newTile = new GameObject("Fragment_" + tile.transform.position.x + "_" + tile.transform.position.z +
-                                            "_" + tile.tag);
+        GameObject newTile =
+            new GameObject("Fragment_" + tile.transform.position.x + "_" + tile.transform.position.z +"_" + tile.tag);
 
         Image newImage = newTile.AddComponent<Image>();
-        Color32 tileColor = GetTileColor(tile.tag, tile);
+        Color32 tileColor = GetTileColor(tile.tag);
 
         newTile.GetComponent<RectTransform>().SetParent(panel.transform);
         newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
@@ -349,39 +305,32 @@ public class UIManager : MonoBehaviour
         newTile.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
         newImage.color = tileColor;
 
-        if (gameManager.isPreviousSpawnTile(tile))
-        {
+        if (gameManager.isPreviousSpawnTile(tile)) {
             DrawSpawnTileInFragment(newTile, gameManager.getSpawnTileTryNumber(tile));
         }
 
         newTile.SetActive(true);
     }
 
-    public void MergeFragmentInMiniMap(List<string> mapFragment)
-    {
-        foreach (string tile in mapFragment)
-        {
-            if (!tileManager.HasBeenRevealed(GameObject.Find(tile), gameManager.revealedTiles))
-            {
+    public void MergeFragmentInMiniMap(List<string> mapFragment) {
+        foreach (string tile in mapFragment) {
+            if (!tileManager.HasBeenRevealed(GameObject.Find(tile), gameManager.revealedTiles)) {
                 gameManager.revealedTiles.Add(GameObject.Find(tile));
             }
         }
     }
 
-    public void ActivatePlayerThoughts()
-    {
+    public void ActivatePlayerThoughts() {
         StartCoroutine(ShowPlayerThoughts(5));
     }
 
-    IEnumerator ShowPlayerThoughts(float sec)
-    {
+    IEnumerator ShowPlayerThoughts(float sec) {
         playerThoughts.SetActive(true);
         yield return new WaitForSeconds(sec);
         playerThoughts.SetActive(false);
     }
 
-    public void ShowExitUI()
-    {
+    public void ShowExitUI() {
         exitReached.SetActive(true);
         exitReachedButtons.SetActive(true);
         nextLevelButton.onClick.AddListener(gameManager.NextLevel);

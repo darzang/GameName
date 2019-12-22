@@ -48,8 +48,7 @@ public class TileManager : MonoBehaviour {
         };
     }
 
-    public List<GameObject> GetTilesByType(string type)
-    {
+    public List<GameObject> GetTilesByType(string type) {
         return new List<GameObject>(GameObject.FindGameObjectsWithTag (type));
     }
     public GameObject GetTileUnderPlayer () {
@@ -61,10 +60,10 @@ public class TileManager : MonoBehaviour {
         return null;
     }
 
-    public void AddToRevealedTiles (GameObject tile, List<GameObject> revealedTiles)
-    {
+    public void AddToRevealedTiles (GameObject tile, List<GameObject> revealedTiles) {
         if(!HasBeenRevealed(tile, revealedTiles)) gameManager.revealedTiles.Add(tile);
     }
+
     public bool HasBeenRevealed (GameObject tile, List<GameObject> revealedTiles) {
         foreach (GameObject revealedTile in revealedTiles) {
             if (revealedTile == tile) return true;
@@ -81,14 +80,11 @@ public class TileManager : MonoBehaviour {
         return new [] { x, z };
     }
 
-    public List<string> GetTilesNames(List<GameObject> tileList)
-    {
+    public List<string> GetTilesNames(List<GameObject> tileList) {
         List<string> tilesNames = new List<string>();
-        foreach (GameObject tile in tileList)
-        {
+        foreach (GameObject tile in tileList) {
             tilesNames.Add(tile.name);
         }
-
         return tilesNames;
     }
 

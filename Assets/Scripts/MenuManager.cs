@@ -2,43 +2,34 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MenuManager : MonoBehaviour
-{
+public class MenuManager : MonoBehaviour {
 
     private TextMeshPro text;
     public GameObject player;
     private Animation anim;
     public GameObject ceiling;
-    void Start()
-    {
+    void Start() {
         Cursor.visible = true;
         anim = player.GetComponent<Animation>();
         ceiling.SetActive(true);
     }
 
-    void Update()
-    {
+    void Update() {
 
         Ray forwardRay = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
-        if (Physics.Raycast(forwardRay, out hit, 10))
-        {
-            if (hit.collider.gameObject.tag == "MenuButton")
-            {
+        if (Physics.Raycast(forwardRay, out hit, 10)) {
+            if (hit.collider.gameObject.tag == "MenuButton") {
                 text = hit.collider.gameObject.GetComponentInChildren<TextMeshPro>();
                 text.color = Color.blue;
-            }
-            else if (text)
-            {
+            } else if (text) {
                 text.color = Color.yellow;
             }
         }
     }
 
-    public void HandleClick(GameObject button)
-    {
-        switch (button.name)
-        {
+    public void HandleClick(GameObject button) {
+        switch (button.name) {
             case "OptionsButton":
                 anim.Play("MainToOptions");
                 break;

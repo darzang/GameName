@@ -25,12 +25,9 @@ public class Player : MonoBehaviour {
 		charController = GetComponent<CharacterController> ();
 	}
 
-	private void Update()
-	{
-		if (SceneManager.GetActiveScene().name != "MenuScene")
-		{
-			if (Input.GetKey ("z") || Input.GetKey ("q") || Input.GetKey ("s") || Input.GetKey ("d"))
-	        {
+	private void Update() {
+		if (SceneManager.GetActiveScene().name != "MenuScene") {
+			if (Input.GetKey ("z") || Input.GetKey ("q") || Input.GetKey ("s") || Input.GetKey ("d")) {
 	            if (fuelCount > 0 && !lockPlayer) {
             		PlayerMovement ();
             		fuelCount -= fuelConsumption;
@@ -40,7 +37,6 @@ public class Player : MonoBehaviour {
 
 	            }
 	        }
-
 			if (Input.GetKeyUp("f")) fuelCount += 100;
 			if (Input.GetKeyUp("g")) fuelCount -= 100;
 		}
