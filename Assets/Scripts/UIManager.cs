@@ -324,7 +324,7 @@ public class UIManager : MonoBehaviour
     public void AddTileToFragment(GameObject tile, GameObject panel, int fragmentNumber)
     {
         // Instantiate new tile and anchor it in the middle of the panel
-        Debug.Log(tile);
+//        Debug.Log(tile);
         GameObject newTile = new GameObject("Fragment_" + tile.transform.position.x + "_" + tile.transform.position.z +
                                             "_" + tile.tag);
 

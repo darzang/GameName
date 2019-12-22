@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
         InstantiatePlayer();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
-        GameData gameData = GameDataManager.LoadFile();
+        GameData gameData = GameDataManager.LoadFile(SceneManager.GetActiveScene().name);
         tryCount = 1;
         if (gameData != null)
         {
@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour
         }
 
         // Useful for now, to remove later
-        if (Input.GetKey("p")) GameDataManager.EraseFile();
+        if (Input.GetKey("p")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
     }
 
     public void CheckForTileDiscovery()
@@ -147,13 +147,13 @@ public class GameManager : MonoBehaviour
     public void Retry()
     {
         mapFragments.Add(tileManager.GetTilesNames(revealedTiles));
-        GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString));
+        GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString), SceneManager.GetActiveScene().name);
         SceneManager.LoadScene("Level1");
     }
 
     public void GiveUp()
     {
-        GameDataManager.EraseFile();
+        GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
         //TODO: Load Menu
         Application.Quit(); // Doesn't work with Unity editor
     }

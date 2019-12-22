@@ -5,9 +5,10 @@ using UnityEngine;
 public class GameDataManager : MonoBehaviour
 {
    // TODO: different path for each level !
-   static string path = Application.persistentDataPath + "/save.dat"; // points to %userprofile%\AppData\Local\Packages\<productname>\LocalState.
-   public static void SaveFile(GameData gameData)
+//   static string path = Application.persistentDataPath + "/save.dat"; // points to %userprofile%\AppData\Local\Packages\<productname>\LocalState.
+   public static void SaveFile(GameData gameData, string sceneName)
    {
+      string path = $"{Application.persistentDataPath}/{sceneName}.dat";
       FileStream file;
       if (File.Exists(path)) file = File.OpenWrite(path);
       else file = File.Create(path);
@@ -15,10 +16,10 @@ public class GameDataManager : MonoBehaviour
       bf.Serialize(file, gameData);
       file.Close();
    }
-   public static GameData LoadFile()
+   public static GameData LoadFile(string sceneName)
    {
       FileStream file;
-
+      string path = $"{Application.persistentDataPath}/{sceneName}.dat";
       if(File.Exists(path)) file = File.OpenRead(path);
       else
       {
@@ -34,8 +35,9 @@ public class GameDataManager : MonoBehaviour
 
    }
 
-   public static void EraseFile()
+   public static void EraseFile(string sceneName)
    {
+      string path = $"{Application.persistentDataPath}/{sceneName}.dat";
       if(File.Exists(path)) File.Delete(path);
       Debug.Log("File Erased");
    }

@@ -23,7 +23,6 @@ public class Player : MonoBehaviour {
 		startAngle = playerLamp.spotAngle;
 
 		charController = GetComponent<CharacterController> ();
-		Debug.Log(SceneManager.GetActiveScene().name);
 	}
 
 	private void Update()
