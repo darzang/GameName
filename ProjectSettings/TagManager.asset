@@ -10,6 +10,7 @@ TagManager:
   - Ceiling
   - MenuButton
   - Exit
+  - FlickeringLight
   layers:
   - Default
   - TransparentFX
