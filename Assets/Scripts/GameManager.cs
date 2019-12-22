@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour {
 
     // Environment
     public GameObject ceiling;
-    public int discoveryRange = 1;
+    public float discoveryRange = 0.75f;
 
     void Awake() {
         ceiling.SetActive(true);

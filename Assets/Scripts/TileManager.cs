@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 public class TileManager : MonoBehaviour {
-    public GameManager gameManager;
     private GameObject environment;
+    public GameManager gameManager;
 
 
     GameObject[] GetMapArray () {
@@ -51,13 +51,11 @@ public class TileManager : MonoBehaviour {
     public List<GameObject> GetTilesByType(string type) {
         return new List<GameObject>(GameObject.FindGameObjectsWithTag (type));
     }
+
     public GameObject GetTileUnderPlayer () {
         RaycastHit hit;
         Ray ray = new Ray (gameManager.player.transform.position, Vector3.down);
-        if (Physics.Raycast (ray, out hit, 10)) {
-            return hit.collider.gameObject;
-        }
-        return null;
+        return Physics.Raycast (ray, out hit, 10) ? hit.collider.gameObject : null;
     }
 
     public void AddToRevealedTiles (GameObject tile, List<GameObject> revealedTiles) {
@@ -87,6 +85,4 @@ public class TileManager : MonoBehaviour {
         }
         return tilesNames;
     }
-
-
 }
