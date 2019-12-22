@@ -51,17 +51,23 @@ public class MenuManager : MonoBehaviour
             case "PlayButton":
                 anim.Play("MainToPlay");
                 break;
-            case "OptionsBackButton" :
+            case "QuitButton":
+                Application.Quit(); // Doesn't work with Unity editor
+                break;
+            case "OptionsBackButton":
                 anim.Play("OptionsToMain");
                 break;
-            case "CreditsBackButton" :
+            case "CreditsBackButton":
                 anim.Play("CreditsToMain");
                 break;
-            case "PlayBackButton" :
+            case "PlayBackButton":
                 anim.Play("PlayToMain");
                 break;
-            case "Level1Button" :
+            case "Level1Button":
                 SceneManager.LoadScene("Level1");
+                break;
+            case "Level2Button" :
+                SceneManager.LoadScene("Level2");
                 break;
         }
     }

@@ -153,9 +153,9 @@ public class GameManager : MonoBehaviour
 
     public void GiveUp()
     {
-        GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
-        //TODO: Load Menu
-        Application.Quit(); // Doesn't work with Unity editor
+        mapFragments.Add(tileManager.GetTilesNames(revealedTiles));
+        GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString), SceneManager.GetActiveScene().name);
+        SceneManager.LoadScene("MenuScene");
     }
     public void BackToMenu()
     {
