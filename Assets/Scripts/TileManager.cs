@@ -72,6 +72,9 @@ public class TileManager : MonoBehaviour {
         return false;
     }
 
+    /*
+     * Returns the position between the tile and the player (Unity distance)
+     */
     public float[] GetRelativePosition (GameObject player, GameObject tile) {
         float x = player.transform.position.x - tile.transform.position.x;
         float z = player.transform.position.z - tile.transform.position.z;

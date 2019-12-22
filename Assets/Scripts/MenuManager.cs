@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,7 +16,6 @@ public class MenuManager : MonoBehaviour
         ceiling.SetActive(true);
     }
 
-    // Update is called once per frame
     void Update()
     {
 

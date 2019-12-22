@@ -63,7 +63,7 @@ public class GameManager : MonoBehaviour
         // Is the player on a new tile ?
         if (tileManager.GetTileUnderPlayer() != currentTile)
         {
-            uiManager.UpdateMiniMap();
+//            uiManager.UpdateMiniMap();
             currentTile = tileManager.GetTileUnderPlayer();
             GameObject recognizedTile = spawnTiles.Find(tile => tile.name == currentTile.name);
             if (recognizedTile)
@@ -71,7 +71,7 @@ public class GameManager : MonoBehaviour
                 int index = spawnTiles.IndexOf(recognizedTile);
                 uiManager.ActivatePlayerThoughts();
                 uiManager.MergeFragmentInMiniMap(mapFragments.ElementAt(index));
-                uiManager.UpdateMiniMap();
+//                uiManager.UpdateMiniMap();
                 Debug.Log("Yes, it's from fragment # " + (index + 1));
             }
 
@@ -143,7 +143,6 @@ public class GameManager : MonoBehaviour
                 tileManager.AddToRevealedTiles(rightHit.collider.gameObject, revealedTiles);
             }
         }
-
         if (needMapUpdate) uiManager.UpdateMiniMap();
     }
 
