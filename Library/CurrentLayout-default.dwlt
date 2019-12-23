@@ -115,7 +115,7 @@ MonoBehaviour:
   m_MinSize: {x: 713, y: 394}
   m_MaxSize: {x: 18008, y: 14044}
   vertical: 0
-  controlID: 916
+  controlID: 1900
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -166,7 +166,7 @@ MonoBehaviour:
   m_MinSize: {x: 234, y: 394}
   m_MaxSize: {x: 10004, y: 14044}
   vertical: 1
-  controlID: 922
+  controlID: 1901
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -356,9 +356,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 60370000
+      m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 64fbffff
+      m_ExpandedIDs: 98f4ffff64fbffff4e4300008445000038480000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -418,9 +418,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 1664.6326, y: 709.31506, z: -276.9883}
+    m_Target: {x: 290.90775, y: 215.98358, z: -226.05344}
     speed: 2
-    m_Value: {x: 1664.6326, y: 709.31506, z: -276.9883}
+    m_Value: {x: 290.90775, y: 215.98358, z: -226.05344}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -453,9 +453,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 95.90169
+    m_Target: 1069.1732
     speed: 2
-    m_Value: 95.90169
+    m_Value: 1069.1732
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -520,19 +520,19 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets
+    - Assets/Scenes
   m_ViewMode: 1
   m_StartGridSize: 61
   m_LastFolders:
-  - Assets
+  - Assets/Scenes
   m_LastFoldersGridSize: 61
   m_LastProjectPath: D:\Documents\m.boez\Desktop\BackUp\UnityPerso\GameName\GameName
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 8a340000
-    m_LastClickedID: 13450
+    m_SelectedIDs: 60370000
+    m_LastClickedID: 14176
     m_ExpandedIDs: 000000008a340000a23500006037000084390000cc3900007a3d00008e42000090420000924200009442000096420000984200009a4200009c4200009e420000a0420000a2420000a4420000a6420000a8420000aa420000ac420000ae420000b0420000b2420000b4420000b6420000b8420000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -588,7 +588,7 @@ MonoBehaviour:
   m_ListAreaState:
     m_SelectedInstanceIDs: 
     m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 1
+    m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: c62300007626000050260000e4290000ea290000fa2700006a29000052280000a82b00007e2c000054e0ffff000000001ae404008c2ed6ff
     m_RenameOverlay:
       m_UserAcceptedRename: 0

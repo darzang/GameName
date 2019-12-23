@@ -11,13 +11,15 @@ public class TileManager : MonoBehaviour {
         GameObject[] WallTiles = GameObject.FindGameObjectsWithTag ("Wall");
         GameObject[] ObstacleTiles = GameObject.FindGameObjectsWithTag ("Obstacle");
         GameObject[] FloorTiles = GameObject.FindGameObjectsWithTag ("Floor");
-        GameObject[] mapElements = WallTiles.Concat (ObstacleTiles).Concat (FloorTiles).ToArray ();
+        GameObject[] ExitTile = GameObject.FindGameObjectsWithTag ("Exit");
+        GameObject[] mapElements = WallTiles.Concat (ObstacleTiles).Concat (FloorTiles).Concat (ExitTile).ToArray ();
         return mapElements;
     }
 
     public GameObject[, ] GetMap2D () {
         GameObject[] mapElements = GetMapArray ();
-        int mapSize = (int) Math.Sqrt (mapElements.Length);
+//        Debug.Log($"{mapElements.Length} Elements in environment (getMapArray)");
+        int mapSize = (int) Math.Sqrt (mapElements.Length + 1);
         GameObject[, ] map = new GameObject[mapSize, mapSize];
         for (int x = 0; x < mapSize; x++) {
             for (int z = 0; z < mapSize; z++) {
@@ -25,6 +27,7 @@ public class TileManager : MonoBehaviour {
                     (int) element.transform.position.x == x && (int) element.transform.position.z == z));
             }
         }
+//        Debug.Log($"{map.GetLength(0)} * {map.GetLength(1)} Elements our from GetMap2D");
         return map;
     }
 

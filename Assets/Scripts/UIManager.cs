@@ -19,6 +19,7 @@ public class UIManager : MonoBehaviour {
     public Button backToMenuButton;
     public GameObject fuelBar;
     public GameObject miniMapPanel;
+    public GameObject mapPanel;
     public GameObject mapFragmentsPanel;
     public GameObject buttonPanel;
     public GameObject player;
@@ -43,6 +44,7 @@ public class UIManager : MonoBehaviour {
         player = gameManager.player;
         fuelTank = player.GetComponent<Player>().fuelTank;
         DrawStartingMiniMap();
+        DrawWholeMap(tileManager.GetMap2D());
     }
 
     void Update() {
@@ -91,14 +93,14 @@ public class UIManager : MonoBehaviour {
     void AddTileToMiniMap(GameObject tile) {
         // Regenerate previously drawn tiles
         if (tileManager.HasBeenRevealed(tile, gameManager.revealedTiles))
-            Destroy(GameObject.Find(tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag));
+            Destroy(GameObject.Find($"MiniMap_{tile.transform.position.x}_{tile.transform.position.z}_{tile.tag}"));
 
         if (!tileManager.HasBeenRevealed(tile, gameManager.revealedTiles))
             tileManager.AddToRevealedTiles(tile, gameManager.revealedTiles);
 
         // Instantiate new tile and anchor it in the middle of the panel
         GameObject newTile =
-            new GameObject(tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag);
+            new GameObject($"MiniMap_{tile.transform.position.x}_{tile.transform.position.z}_{tile.tag}");
         Image newImage = newTile.AddComponent<Image>();
         Color32 tileColor = GetTileColor(tile.tag);
 
@@ -158,9 +160,9 @@ public class UIManager : MonoBehaviour {
          */
         Color32 tileColor = GetTileColor(tile.tag);
         GameObject newTile =
-            new GameObject(tile.transform.position.x + "_" + tile.transform.position.z + "_" + tile.tag);
+            new GameObject($"Map_{tile.transform.position.x}_{tile.transform.position.z}_{tile.tag}");
         Image newImage = newTile.AddComponent<Image>();
-        newTile.GetComponent<RectTransform>().SetParent(miniMapPanel.transform);
+        newTile.GetComponent<RectTransform>().SetParent(mapPanel.transform);
 
         newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0, 0);
         newTile.GetComponent<RectTransform>().anchorMax = new Vector2(0, 0);
@@ -170,14 +172,18 @@ public class UIManager : MonoBehaviour {
             0
         );
         newTile.GetComponent<RectTransform>().sizeDelta = new Vector2(10, 10);
+        newTile.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
         newImage.color = tileColor;
         newTile.SetActive(true);
     }
 
-    public void DrawWholeMap(GameObject[,] map3D) {
-        for (int i = 0; i < map3D.GetLength(0); i++) {
-            for (int j = 0; j < map3D.GetLength(1); j++) {
-                AddTileToMap(map3D[i, j]);
+    public void DrawWholeMap(GameObject[,] map2D)
+    {
+        RectTransform rect = mapPanel.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2((map2D.GetLength(0) + 1) * 10, (map2D.GetLength(1) + 1) * 10);
+        for (int i = 0; i < map2D.GetLength(0); i++) {
+            for (int j = 0; j < map2D.GetLength(1); j++) {
+                AddTileToMap(map2D[i, j]);
             }
         }
     }
@@ -284,7 +290,7 @@ public class UIManager : MonoBehaviour {
     public void AddTileToFragment(GameObject tile, GameObject panel, int fragmentNumber) {
         // Instantiate new tile and anchor it in the middle of the panel
         GameObject newTile =
-            new GameObject("Fragment_" + tile.transform.position.x + "_" + tile.transform.position.z +"_" + tile.tag);
+            new GameObject($"Fragment_{tile.transform.position.x}_{tile.transform.position.z}_{tile.tag}");
 
         Image newImage = newTile.AddComponent<Image>();
         Color32 tileColor = GetTileColor(tile.tag);
