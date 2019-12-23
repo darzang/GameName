@@ -226,13 +226,13 @@ public class UIManager : MonoBehaviour {
         }
     }
 
-    public void DrawMapFragments(List<List<string>> mapFragments) {
+    public void DrawMapFragments(List<Fragment> mapFragments) {
         if (mapFragmentsPanel.transform.childCount > 0) {
             foreach (Transform panel in mapFragmentsPanel.transform) Destroy(panel.gameObject);
         }
         int fragmentNumber = 1;
-        foreach (List<string> fragment in mapFragments) {
-            DrawMapFragment(fragment, fragmentNumber);
+        foreach (Fragment fragment in mapFragments) {
+            DrawMapFragment(fragment.tiles, fragmentNumber);
             fragmentNumber++;
         }
     }

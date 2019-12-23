@@ -21,7 +21,7 @@ public class GameManager : MonoBehaviour {
     public GameObject startingTile;
     public GameObject currentTile;
     public int tryCount;
-    public List<List<string>> mapFragments = new List<List<string>>();
+    public List<Fragment> mapFragments = new List<Fragment>();
     public List<string> spawnTilesString = new List<string>();
     public List<GameObject> spawnTiles = new List<GameObject>();
     public List<GameObject> revealedTiles;
@@ -61,8 +61,8 @@ public class GameManager : MonoBehaviour {
                 // Merge the fragment off the previous run and delete it
                 int index = spawnTiles.IndexOf(recognizedTile);
                 uiManager.ActivatePlayerThoughts();
-                uiManager.MergeFragmentInMiniMap(mapFragments.ElementAt(index));
-                mapFragments.RemoveAt(index);
+//                uiManager.MergeFragmentInMiniMap(mapFragments.ElementAt(index));
+//                mapFragments.RemoveAt(index);
                 spawnTiles.RemoveAt(index);
                 uiManager.DrawMapFragments(mapFragments);
             }
@@ -97,14 +97,18 @@ public class GameManager : MonoBehaviour {
         if (needMapUpdate) uiManager.UpdateMiniMap();
     }
 
-    public void Retry() {
-        mapFragments.Add(tileManager.GetTilesNames(revealedTiles));
+    public void Retry()
+    {
+
+        Fragment currentFragment = createFragment(tileManager.GetTilesNames(revealedTiles), startingTile.name, tryCount);
+        mapFragments.Add(currentFragment);
         GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString), SceneManager.GetActiveScene().name);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void GiveUp() {
-        mapFragments.Add(tileManager.GetTilesNames(revealedTiles));
+        Fragment currentFragment = createFragment(tileManager.GetTilesNames(revealedTiles), startingTile.name, tryCount);
+        mapFragments.Add(currentFragment);
         GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString), SceneManager.GetActiveScene().name);
         SceneManager.LoadScene("MenuScene");
     }
@@ -141,5 +145,9 @@ public class GameManager : MonoBehaviour {
 
     public int getSpawnTileTryNumber(GameObject tile) {
         return spawnTiles.IndexOf(tile) + 1;
+    }
+
+    public Fragment createFragment(List<string> tiles, string spawnTile, int number) {
+        return new Fragment(tiles, spawnTile, number);
     }
 }

@@ -11,6 +11,7 @@ TagManager:
   - MenuButton
   - Exit
   - FlickeringLight
+  - Fragment
   layers:
   - Default
   - TransparentFX
