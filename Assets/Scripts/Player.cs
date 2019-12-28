@@ -13,7 +13,7 @@ public class Player : MonoBehaviour {
 	private float startIntensity;
 	private float startAngle;
 	private Light playerLamp;
-	public bool lockPlayer = false;
+	public bool lockPlayer;
 
 	void Awake () {
 		fuelCount = fuelTank;
@@ -36,17 +36,18 @@ public class Player : MonoBehaviour {
                     playerLamp.spotAngle = startAngle * (fuelCount / fuelTank);
 
 	            }
-	        }
+			}
 			if (Input.GetKeyUp("f")) fuelCount += 100;
 			if (Input.GetKeyUp("g")) fuelCount -= 100;
 		}
 
 	}
 	private void PlayerMovement () {
-		float horizInput = Input.GetAxis (horizontalInputName) * movementSpeed;
-		float vertInput = Input.GetAxis (verticalInputName) * movementSpeed;
-		Vector3  forwardMovement = transform.forward * vertInput;
-		Vector3 rightMovement = transform.right * horizInput;
+		float horizontalInput = Input.GetAxis (horizontalInputName) * movementSpeed;
+		float verticalInput = Input.GetAxis (verticalInputName) * movementSpeed;
+		Transform playerTransform = transform;
+		Vector3  forwardMovement = playerTransform.forward * verticalInput;
+		Vector3 rightMovement = playerTransform.right * horizontalInput;
 		charController.SimpleMove (forwardMovement + rightMovement);
 	}
 }

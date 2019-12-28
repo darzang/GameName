@@ -18,7 +18,6 @@ public class TileManager : MonoBehaviour {
 
     public GameObject[, ] GetMap2D () {
         GameObject[] mapElements = GetMapArray ();
-//        Debug.Log($"{mapElements.Length} Elements in environment (getMapArray)");
         int mapSize = (int) Math.Sqrt (mapElements.Length + 1);
         GameObject[, ] map = new GameObject[mapSize, mapSize];
         for (int x = 0; x < mapSize; x++) {
@@ -27,7 +26,6 @@ public class TileManager : MonoBehaviour {
                     (int) element.transform.position.x == x && (int) element.transform.position.z == z));
             }
         }
-//        Debug.Log($"{map.GetLength(0)} * {map.GetLength(1)} Elements our from GetMap2D");
         return map;
     }
 
@@ -56,9 +54,8 @@ public class TileManager : MonoBehaviour {
     }
 
     public GameObject GetTileUnderPlayer () {
-        RaycastHit hit;
         Ray ray = new Ray (gameManager.player.transform.position, Vector3.down);
-        return Physics.Raycast (ray, out hit, 10) ? hit.collider.gameObject : null;
+        return Physics.Raycast (ray, out RaycastHit hit, 10) ? hit.collider.gameObject : null;
     }
 
     public void AddToRevealedTiles (GameObject tile, List<GameObject> revealedTiles) {
@@ -76,8 +73,10 @@ public class TileManager : MonoBehaviour {
      * Returns the position between the tile and the player (Unity distance)
      */
     public float[] GetRelativePosition (GameObject player, GameObject tile) {
-        float x = player.transform.position.x - tile.transform.position.x;
-        float z = player.transform.position.z - tile.transform.position.z;
+        Vector3 playerPosition = player.transform.position;
+        Vector3 tilePosition = tile.transform.position;
+        float x = playerPosition.x - tilePosition.x;
+        float z = playerPosition.z - tilePosition.z;
         return new [] { x, z };
     }
 

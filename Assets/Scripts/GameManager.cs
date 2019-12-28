@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour {
 
     // Player components
     public Transform playerPrefab;
+    public Transform fragmentPrefab;
     public GameObject player;
     private Light playerLamp;
     private AudioSource lightAudio;
@@ -41,20 +42,27 @@ public class GameManager : MonoBehaviour {
             mapFragments = gameData.mapFragments;
             spawnTilesString = gameData.spawnTiles;
             tryCount = gameData.tryCount + 1;
-            foreach (string tileName in spawnTilesString) spawnTiles.Add(GameObject.Find(tileName));
-        }
+            int index = 1;
+            foreach (string tileName in spawnTilesString) {
+                GameObject spawnTile = GameObject.Find(tileName);
+                spawnTiles.Add(spawnTile);
+                InstantiateFragment(spawnTile, index);
+                index++;
 
+            }
+        }
         spawnTilesString.Add(currentTile.gameObject.name); //TODO: maybe move this above?
     }
 
-    void Start() {
+    private void Start() {
         uiManager.DrawMapFragments(mapFragments);
     }
 
-    void Update()
+    private void Update()
     {
         // Is the player on a new tile ?
         if (tileManager.GetTileUnderPlayer() != currentTile) {
+            uiManager.UpdateMiniMap();
             currentTile = tileManager.GetTileUnderPlayer();
             GameObject recognizedTile = spawnTiles.Find(tile => tile.name == currentTile.name);
             if (recognizedTile) {
@@ -66,7 +74,7 @@ public class GameManager : MonoBehaviour {
                 spawnTiles.RemoveAt(index);
                 uiManager.DrawMapFragments(mapFragments);
             }
-            if (currentTile.tag == "Exit") uiManager.ShowExitUI();
+            if (currentTile.CompareTag("Exit")) uiManager.ShowExitUi();
         }
 
         CheckForTileDiscovery();
@@ -83,7 +91,7 @@ public class GameManager : MonoBehaviour {
         if (Input.GetKey("n")) NextLevel();
     }
 
-    public void CheckForTileDiscovery() {
+    private void CheckForTileDiscovery() {
         bool needMapUpdate = false;
         Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, discoveryRange);
         foreach (Collider tile in hitColliders) {
@@ -97,17 +105,15 @@ public class GameManager : MonoBehaviour {
         if (needMapUpdate) uiManager.UpdateMiniMap();
     }
 
-    public void Retry()
-    {
-
-        Fragment currentFragment = createFragment(tileManager.GetTilesNames(revealedTiles), startingTile.name, tryCount);
+    public void Retry() {
+        Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), startingTile.name, tryCount);
         mapFragments.Add(currentFragment);
         GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString), SceneManager.GetActiveScene().name);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void GiveUp() {
-        Fragment currentFragment = createFragment(tileManager.GetTilesNames(revealedTiles), startingTile.name, tryCount);
+        Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), startingTile.name, tryCount);
         mapFragments.Add(currentFragment);
         GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString), SceneManager.GetActiveScene().name);
         SceneManager.LoadScene("MenuScene");
@@ -126,28 +132,39 @@ public class GameManager : MonoBehaviour {
         Application.Quit(); // Doesn't work with Unity editor
     }
 
-    public void InstantiatePlayer() {
+    private void InstantiatePlayer() {
         List<GameObject> availableTiles = tileManager.GetTilesByType("Floor");
         GameObject spawnTileObject = availableTiles.ElementAt(Random.Range(0, availableTiles.Count - 1));
+        Vector3 position = spawnTileObject.transform.position;
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(
-            spawnTileObject.transform.position.x,
-            spawnTileObject.transform.position.y + 0.53f,
-            spawnTileObject.transform.position.z
+            position.x,
+            position.y + 0.53f,
+            position.z
         ), Quaternion.identity);
         player = playerTransform.gameObject;
         startingTile = spawnTileObject;
         currentTile = spawnTileObject;
     }
 
-    public bool isPreviousSpawnTile(GameObject tile) {
-        return tile.tag == "Floor" && spawnTiles.Find(spawnTile => spawnTile.name == tile.name);
+    private void InstantiateFragment(GameObject spawnTile, int fragmentNumber) {
+        Vector3 position = spawnTile.transform.position;
+        Transform fragment = Instantiate(fragmentPrefab, new Vector3(
+            position.x,
+            position.y + 0.50f,
+            position.z
+        ), Quaternion.identity);
+        fragment.name = $"Fragment_{fragmentNumber}";
     }
 
-    public int getSpawnTileTryNumber(GameObject tile) {
+    public bool IsPreviousSpawnTile(GameObject tile) {
+        return tile.CompareTag("Floor") && spawnTiles.Find(spawnTile => spawnTile.name == tile.name);
+    }
+
+    public int GetSpawnTileTryNumber(GameObject tile) {
         return spawnTiles.IndexOf(tile) + 1;
     }
 
-    public Fragment createFragment(List<string> tiles, string spawnTile, int number) {
+    private Fragment CreateFragment(List<string> tiles, string spawnTile, int number) {
         return new Fragment(tiles, spawnTile, number);
     }
 }

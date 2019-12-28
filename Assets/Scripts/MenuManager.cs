@@ -17,9 +17,8 @@ public class MenuManager : MonoBehaviour {
     void Update() {
 
         Ray forwardRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(forwardRay, out hit, 10)) {
-            if (hit.collider.gameObject.tag == "MenuButton") {
+        if (Physics.Raycast(forwardRay, out RaycastHit hit, 10)) {
+            if (hit.collider.gameObject.CompareTag("MenuButton")) {
                 text = hit.collider.gameObject.GetComponentInChildren<TextMeshPro>();
                 text.color = Color.blue;
             } else if (text) {
@@ -56,6 +55,9 @@ public class MenuManager : MonoBehaviour {
                 break;
             case "Level2Button" :
                 SceneManager.LoadScene("Level2");
+                break;
+            default:
+                Debug.LogError($"Case not covered {button.name}");
                 break;
         }
     }

@@ -24,12 +24,12 @@ public class UIManager : MonoBehaviour {
     public GameObject buttonPanel;
     public GameObject player;
     public GameObject fragmentPanelPrefab;
-    Color32 floorColor = new Color32(255, 255, 255, 255);
-    Color32 wallColor = new Color32(25, 25, 25, 255);
-    Color32 obstacleColor = new Color32(50, 50, 50, 255);
-    Color32 playerColor = new Color32(0, 0, 255, 255);
-    Color32 exitColor = new Color32(255, 0, 0, 255);
-    Color32 spawnTextColor = new Color32(0, 0, 0, 255);
+    readonly Color32 floorColor = new Color32(255, 255, 255, 255);
+    readonly Color32 wallColor = new Color32(25, 25, 25, 255);
+    readonly Color32 obstacleColor = new Color32(50, 50, 50, 255);
+    readonly Color32 playerColor = new Color32(0, 0, 255, 255);
+    readonly Color32 exitColor = new Color32(255, 0, 0, 255);
+    readonly Color32 spawnTextColor = new Color32(0, 0, 0, 255);
     double fuelTank;
     double fuelCount;
     private bool batteryLevelBlinking;
@@ -40,14 +40,14 @@ public class UIManager : MonoBehaviour {
         giveUpButton.onClick.AddListener(gameManager.GiveUp);
     }
 
-    void Start() {
+    private void Start() {
         player = gameManager.player;
         fuelTank = player.GetComponent<Player>().fuelTank;
         DrawStartingMiniMap();
         DrawWholeMap(tileManager.GetMap2D());
     }
 
-    void Update() {
+    private void Update() {
         RotateMiniMap();
         fuelCount = player.GetComponent<Player>().fuelCount;
         if (fuelCount > 0) {
@@ -75,11 +75,13 @@ public class UIManager : MonoBehaviour {
 
     void UpdateBatteryLevel() {
         // Update scale
-        fuelBar.transform.localScale = new Vector3(
+        Vector3 localScale = fuelBar.transform.localScale;
+        localScale = new Vector3(
             (float) (fuelCount / fuelTank),
-            fuelBar.transform.localScale.y,
-            fuelBar.transform.localScale.z
+            localScale.y,
+            localScale.z
         );
+        fuelBar.transform.localScale = localScale;
         // Update color
         fuelBar.GetComponent<Image>().color = fuelCount > fuelTank / 2
             ? new Color32((byte) (fuelTank - fuelCount), 255, 0, 255)
@@ -92,15 +94,17 @@ public class UIManager : MonoBehaviour {
 
     void AddTileToMiniMap(GameObject tile) {
         // Regenerate previously drawn tiles
-        if (tileManager.HasBeenRevealed(tile, gameManager.revealedTiles))
-            Destroy(GameObject.Find($"MiniMap_{tile.transform.position.x}_{tile.transform.position.z}_{tile.tag}"));
+        Vector3 position = tile.transform.position;
+        if (tileManager.HasBeenRevealed(tile, gameManager.revealedTiles)) {
+            Destroy(GameObject.Find($"MiniMap_{position.x}_{position.z}_{tile.tag}"));
+        }
 
         if (!tileManager.HasBeenRevealed(tile, gameManager.revealedTiles))
             tileManager.AddToRevealedTiles(tile, gameManager.revealedTiles);
 
         // Instantiate new tile and anchor it in the middle of the panel
         GameObject newTile =
-            new GameObject($"MiniMap_{tile.transform.position.x}_{tile.transform.position.z}_{tile.tag}");
+            new GameObject($"MiniMap_{position.x}_{position.z}_{tile.tag}");
         Image newImage = newTile.AddComponent<Image>();
         Color32 tileColor = GetTileColor(tile.tag);
 
@@ -128,8 +132,8 @@ public class UIManager : MonoBehaviour {
 
         if (tile == gameManager.startingTile) {
             DrawSpawnTileInFragment(newTile);
-        } else if (gameManager.isPreviousSpawnTile(tile)) {
-            DrawSpawnTileInFragment(newTile, gameManager.getSpawnTileTryNumber(tile));
+        } else if (gameManager.IsPreviousSpawnTile(tile)) {
+            DrawSpawnTileInFragment(newTile, gameManager.GetSpawnTileTryNumber(tile));
         }
 
         newTile.SetActive(true);
@@ -159,16 +163,17 @@ public class UIManager : MonoBehaviour {
         Basically only the anchor is different
          */
         Color32 tileColor = GetTileColor(tile.tag);
+        Vector3 position = tile.transform.position;
         GameObject newTile =
-            new GameObject($"Map_{tile.transform.position.x}_{tile.transform.position.z}_{tile.tag}");
+            new GameObject($"Map_{position.x}_{position.z}_{tile.tag}");
         Image newImage = newTile.AddComponent<Image>();
         newTile.GetComponent<RectTransform>().SetParent(mapPanel.transform);
 
         newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0, 0);
         newTile.GetComponent<RectTransform>().anchorMax = new Vector2(0, 0);
         newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
-            tile.transform.position.x * 10 + 5,
-            tile.transform.position.z * 10 + 5,
+            position.x * 10 + 5,
+            position.z * 10 + 5,
             0
         );
         newTile.GetComponent<RectTransform>().sizeDelta = new Vector2(10, 10);
@@ -177,7 +182,7 @@ public class UIManager : MonoBehaviour {
         newTile.SetActive(true);
     }
 
-    public void DrawWholeMap(GameObject[,] map2D)
+    private void DrawWholeMap(GameObject[,] map2D)
     {
         RectTransform rect = mapPanel.GetComponent<RectTransform>();
         rect.sizeDelta = new Vector2((map2D.GetLength(0) + 1) * 10, (map2D.GetLength(1) + 1) * 10);
@@ -188,8 +193,8 @@ public class UIManager : MonoBehaviour {
         }
     }
 
-    Color32 GetTileColor(string tag) {
-        switch (tag) {
+    private Color32 GetTileColor(string tileTag) {
+        switch (tileTag) {
             case "Wall":
                 return wallColor;
             case "Floor":
@@ -201,12 +206,12 @@ public class UIManager : MonoBehaviour {
             case "Exit":
                 return exitColor;
             default:
-                Debug.Log("TAG_NOT_FOUND_FOR_TILE: " + tag);
+                Debug.Log("TAG_NOT_FOUND_FOR_TILE: " + tileTag);
                 return floorColor;
         }
     }
 
-    IEnumerator BlinkBatteryLevel() {
+    private IEnumerator BlinkBatteryLevel() {
         batteryLevelBlinking = true;
         TextMeshProUGUI batteryText = batteryLevel.GetComponent<TextMeshProUGUI>();
         while (true) {
@@ -237,7 +242,7 @@ public class UIManager : MonoBehaviour {
         }
     }
 
-    public void DrawMapFragment(List<string> fragment, int fragmentNumber) {
+    private void DrawMapFragment(List<string> fragment, int fragmentNumber) {
         // Instantiate fragment panel
         GameObject fragmentPanel = Instantiate(fragmentPanelPrefab, new Vector3(0, 0, 0),
             mapFragmentsPanel.transform.rotation, mapFragmentsPanel.transform);
@@ -287,10 +292,11 @@ public class UIManager : MonoBehaviour {
         }
     }
 
-    public void AddTileToFragment(GameObject tile, GameObject panel, int fragmentNumber) {
+    private void AddTileToFragment(GameObject tile, GameObject panel, int fragmentNumber) {
         // Instantiate new tile and anchor it in the middle of the panel
+        Vector3 position = tile.transform.position;
         GameObject newTile =
-            new GameObject($"Fragment_{tile.transform.position.x}_{tile.transform.position.z}_{tile.tag}");
+            new GameObject($"Fragment_{position.x}_{position.z}_{tile.tag}");
 
         Image newImage = newTile.AddComponent<Image>();
         Color32 tileColor = GetTileColor(tile.tag);
@@ -311,8 +317,8 @@ public class UIManager : MonoBehaviour {
         newTile.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
         newImage.color = tileColor;
 
-        if (gameManager.isPreviousSpawnTile(tile)) {
-            DrawSpawnTileInFragment(newTile, gameManager.getSpawnTileTryNumber(tile));
+        if (gameManager.IsPreviousSpawnTile(tile)) {
+            DrawSpawnTileInFragment(newTile, gameManager.GetSpawnTileTryNumber(tile));
         }
 
         newTile.SetActive(true);
@@ -336,7 +342,7 @@ public class UIManager : MonoBehaviour {
         playerThoughts.SetActive(false);
     }
 
-    public void ShowExitUI() {
+    public void ShowExitUi() {
         exitReached.SetActive(true);
         exitReachedButtons.SetActive(true);
         nextLevelButton.onClick.AddListener(gameManager.NextLevel);
@@ -344,6 +350,5 @@ public class UIManager : MonoBehaviour {
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         player.GetComponent<Player>().lockPlayer = true;
-
     }
 }
