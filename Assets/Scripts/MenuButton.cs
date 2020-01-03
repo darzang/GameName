@@ -12,7 +12,7 @@ public class MenuButton : MonoBehaviour
 
     private void OnMouseDown()
     {
-        menuManager.HandleClick(this.gameObject);
+        menuManager.HandleClick(gameObject);
     }
 
 

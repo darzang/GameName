@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -23,57 +22,35 @@ public class GameManager : MonoBehaviour {
     public GameObject currentTile;
     public int tryCount;
     public List<Fragment> mapFragments = new List<Fragment>();
-    public List<string> spawnTilesString = new List<string>();
-    public List<GameObject> spawnTiles = new List<GameObject>();
     public List<GameObject> revealedTiles;
+    public List<string> discoveredTiles = new List<string>();
 
     // Environment
     public GameObject ceiling;
     public float discoveryRange = 0.75f;
 
-    void Awake() {
+    private void Awake() {
+        tryCount = 1;
         ceiling.SetActive(true);
         InstantiatePlayer();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
         GameData gameData = GameDataManager.LoadFile(SceneManager.GetActiveScene().name);
-        tryCount = 1;
-        if (gameData != null) {
-            mapFragments = gameData.mapFragments;
-            spawnTilesString = gameData.spawnTiles;
-            tryCount = gameData.tryCount + 1;
-            int index = 1;
-            foreach (string tileName in spawnTilesString) {
-                GameObject spawnTile = GameObject.Find(tileName);
-                spawnTiles.Add(spawnTile);
-                InstantiateFragment(spawnTile, index);
-                index++;
-
-            }
+        if (gameData == null) return;
+        mapFragments = gameData.mapFragments;
+        tryCount = gameData.tryCount + 1;
+        discoveredTiles = gameData.discoveredTiles;
+        foreach (Fragment fragment in mapFragments.Where(fragment => fragment.discovered == false)) {
+            InstantiateFragment(fragment);
         }
-        spawnTilesString.Add(currentTile.gameObject.name); //TODO: maybe move this above?
+        uiManager.DrawMap(discoveredTiles);
     }
-
-    private void Start() {
-        uiManager.DrawMapFragments(mapFragments);
-    }
-
     private void Update()
     {
         // Is the player on a new tile ?
         if (tileManager.GetTileUnderPlayer() != currentTile) {
             uiManager.UpdateMiniMap();
             currentTile = tileManager.GetTileUnderPlayer();
-            GameObject recognizedTile = spawnTiles.Find(tile => tile.name == currentTile.name);
-            if (recognizedTile) {
-                // Merge the fragment off the previous run and delete it
-                int index = spawnTiles.IndexOf(recognizedTile);
-                uiManager.ActivatePlayerThoughts();
-//                uiManager.MergeFragmentInMiniMap(mapFragments.ElementAt(index));
-//                mapFragments.RemoveAt(index);
-                spawnTiles.RemoveAt(index);
-                uiManager.DrawMapFragments(mapFragments);
-            }
             if (currentTile.CompareTag("Exit")) uiManager.ShowExitUi();
         }
 
@@ -83,7 +60,7 @@ public class GameManager : MonoBehaviour {
         if (Input.GetMouseButtonDown(0)) {
             lightAudio.clip = playerLamp.enabled ? lightSounds[1] : lightSounds[0];
             lightAudio.Play();
-            playerLamp.enabled = (!playerLamp.enabled);
+            playerLamp.enabled = !playerLamp.enabled;
         }
 
         // Useful for now, to remove later
@@ -96,8 +73,9 @@ public class GameManager : MonoBehaviour {
         Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, discoveryRange);
         foreach (Collider tile in hitColliders) {
             if (!tileManager.HasBeenRevealed(tile.gameObject, revealedTiles)
-            && !tile.gameObject.CompareTag("Ceiling")
-            && !tile.gameObject.CompareTag("Player")) {
+            && (tile.gameObject.CompareTag("Floor")
+            || tile.gameObject.CompareTag("Obstacle")
+            || tile.gameObject.CompareTag("Wall"))) {
                 needMapUpdate = true;
                 tileManager.AddToRevealedTiles(tile.gameObject, revealedTiles);
             }
@@ -106,30 +84,28 @@ public class GameManager : MonoBehaviour {
     }
 
     public void Retry() {
-        Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), startingTile.name, tryCount);
+        Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
         mapFragments.Add(currentFragment);
-        GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString), SceneManager.GetActiveScene().name);
+        GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles), SceneManager.GetActiveScene().name);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void GiveUp() {
-        Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), startingTile.name, tryCount);
+        Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
         mapFragments.Add(currentFragment);
-        GameDataManager.SaveFile(new GameData(tryCount, mapFragments, spawnTilesString), SceneManager.GetActiveScene().name);
+        GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles), SceneManager.GetActiveScene().name);
         SceneManager.LoadScene("MenuScene");
     }
 
     public void BackToMenu() {
-        Debug.Log("BackToMenu clicked");
         SceneManager.LoadScene("MenuScene");
     }
 
     public void NextLevel() {
         string currentLevel = SceneManager.GetActiveScene().name;
-        int levelNumber = Int32.Parse(currentLevel.Substring(currentLevel.Length-1));
+        int levelNumber = int.Parse(currentLevel.Substring(currentLevel.Length-1));
         string sceneToLoad = $"Level{levelNumber + 1}";
         SceneManager.LoadScene(sceneToLoad);
-        Application.Quit(); // Doesn't work with Unity editor
     }
 
     private void InstantiatePlayer() {
@@ -146,25 +122,42 @@ public class GameManager : MonoBehaviour {
         currentTile = spawnTileObject;
     }
 
-    private void InstantiateFragment(GameObject spawnTile, int fragmentNumber) {
+    private void InstantiateFragment(Fragment fragmentIn) {
+        GameObject spawnTile = GameObject.Find(fragmentIn.spawnTile);
         Vector3 position = spawnTile.transform.position;
         Transform fragment = Instantiate(fragmentPrefab, new Vector3(
             position.x,
-            position.y + 0.50f,
+            position.y + 0.35f,
             position.z
         ), Quaternion.identity);
-        fragment.name = $"Fragment_{fragmentNumber}";
+        fragment.name = $"Fragment_{fragmentIn.number}";
     }
 
     public bool IsPreviousSpawnTile(GameObject tile) {
-        return tile.CompareTag("Floor") && spawnTiles.Find(spawnTile => spawnTile.name == tile.name);
+        return mapFragments.Any(fragment => fragment.spawnTile == tile.name);
     }
 
     public int GetSpawnTileTryNumber(GameObject tile) {
-        return spawnTiles.IndexOf(tile) + 1;
+        foreach (Fragment fragment in mapFragments) {
+            if (fragment.spawnTile == tile.name) return fragment.number;
+        }
+        return 0;
     }
 
     private Fragment CreateFragment(List<string> tiles, string spawnTile, int number) {
         return new Fragment(tiles, spawnTile, number);
+    }
+
+    public void PickupFragment(GameObject fragmentIn) {
+        int fragmentNumber = int.Parse(fragmentIn.name.Split('_')[1]);
+        Fragment fragment = mapFragments.Find(frag => frag.number == fragmentNumber);
+        fragment.discovered = true;
+        fragment.tiles.ForEach(tile => {
+            if (discoveredTiles.Count == 0 || !discoveredTiles.Contains(tile)) {
+                discoveredTiles.Add(tile);
+            }
+        });
+        uiManager.DrawMap(discoveredTiles);
+        Destroy(fragmentIn);
     }
 }

@@ -12,7 +12,6 @@ public class UIManager : MonoBehaviour {
     public GameObject exitReached;
     public GameObject exitReachedButtons;
     public GameObject batteryLevel;
-    public GameObject playerThoughts;
     public Button retryButton;
     public Button nextLevelButton;
     public Button giveUpButton;
@@ -35,7 +34,7 @@ public class UIManager : MonoBehaviour {
     private bool batteryLevelBlinking;
     private Quaternion initialRotation;
 
-    void Awake() {
+    private void Awake() {
         retryButton.onClick.AddListener(gameManager.Retry);
         giveUpButton.onClick.AddListener(gameManager.GiveUp);
     }
@@ -44,25 +43,25 @@ public class UIManager : MonoBehaviour {
         player = gameManager.player;
         fuelTank = player.GetComponent<Player>().fuelTank;
         DrawStartingMiniMap();
-        DrawWholeMap(tileManager.GetMap2D());
     }
 
     private void Update() {
         RotateMiniMap();
         fuelCount = player.GetComponent<Player>().fuelCount;
-        if (fuelCount > 0) {
+        if (fuelCount >= 0) {
             UpdateBatteryLevel();
-        } else {
-            if (!batteryDead.gameObject.activeSelf) batteryDead.SetActive(true);
-            StopCoroutine("BlinkBatteryLevel");
-            buttonPanel.SetActive(true);
-            Cursor.lockState = CursorLockMode.None;
+            if (fuelCount == 0 && !batteryDead.gameObject.activeSelf) {
+                batteryDead.SetActive(true);
+                StopCoroutine(nameof(BlinkBatteryLevel));
+                buttonPanel.SetActive(true);
+                Cursor.lockState = CursorLockMode.None;
+            }
         }
         if (fuelCount <= fuelTank * 0.5 && !batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel());
         RotateMiniMap();
     }
 
-    void RotateMiniMap() {
+    private void RotateMiniMap() {
         float angle = player.transform.eulerAngles.y + 180;
         Image[] tiles=  miniMapPanel.GetComponentsInChildren<Image>();
         foreach (Image tile in tiles) tile.transform.rotation = Quaternion.Euler(0f,0f,0f);
@@ -73,7 +72,7 @@ public class UIManager : MonoBehaviour {
         foreach (GameObject tile in gameManager.revealedTiles) AddTileToMiniMap(tile);
     }
 
-    void UpdateBatteryLevel() {
+    private void UpdateBatteryLevel() {
         // Update scale
         Vector3 localScale = fuelBar.transform.localScale;
         localScale = new Vector3(
@@ -88,11 +87,11 @@ public class UIManager : MonoBehaviour {
             : new Color32(255, (byte) fuelCount, 0, 255);
     }
 
-    void DrawStartingMiniMap() {
+    private void DrawStartingMiniMap() {
         AddTileToMiniMap(gameManager.startingTile);
     }
 
-    void AddTileToMiniMap(GameObject tile) {
+    private void AddTileToMiniMap(GameObject tile) {
         // Regenerate previously drawn tiles
         Vector3 position = tile.transform.position;
         if (tileManager.HasBeenRevealed(tile, gameManager.revealedTiles)) {
@@ -130,16 +129,11 @@ public class UIManager : MonoBehaviour {
         newTile.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
         newImage.color = tileColor;
 
-        if (tile == gameManager.startingTile) {
-            DrawSpawnTileInFragment(newTile);
-        } else if (gameManager.IsPreviousSpawnTile(tile)) {
-            DrawSpawnTileInFragment(newTile, gameManager.GetSpawnTileTryNumber(tile));
-        }
-
+        if (tile == gameManager.startingTile) DrawSpawnTileInFragment(newTile);
         newTile.SetActive(true);
     }
 
-    void DrawSpawnTileInFragment(GameObject tile, int fragmentNumber = 0) {
+    private void DrawSpawnTileInFragment(GameObject tile, int fragmentNumber = 0) {
         GameObject spawnTile = new GameObject("SpawnTile");
         spawnTile.transform.parent = tile.transform;
         spawnTile.AddComponent<TextMeshProUGUI>();
@@ -157,7 +151,7 @@ public class UIManager : MonoBehaviour {
         spawnText.alignment = TextAlignmentOptions.MidlineJustified;
     }
 
-    void AddTileToMap(GameObject tile) {
+    private void AddTileToMap(GameObject tile) {
         /*
         Was used when drawing the whole map at once,
         Basically only the anchor is different
@@ -192,6 +186,15 @@ public class UIManager : MonoBehaviour {
             }
         }
     }
+
+    public void DrawMap(List<string> tiles) {
+        foreach (string tileName in tiles) {
+            GameObject tile = GameObject.Find(tileName);
+            AddTileToMap(tile);
+        }
+    }
+    
+    
 
     private Color32 GetTileColor(string tileTag) {
         switch (tileTag) {
@@ -236,13 +239,13 @@ public class UIManager : MonoBehaviour {
             foreach (Transform panel in mapFragmentsPanel.transform) Destroy(panel.gameObject);
         }
         int fragmentNumber = 1;
-        foreach (Fragment fragment in mapFragments) {
+        foreach (Fragment fragment in mapFragments.Where(fragment => fragment.discovered)) {
             DrawMapFragment(fragment.tiles, fragmentNumber);
             fragmentNumber++;
         }
     }
 
-    private void DrawMapFragment(List<string> fragment, int fragmentNumber) {
+    private void DrawMapFragment(List<string> tiles, int fragmentNumber) {
         // Instantiate fragment panel
         GameObject fragmentPanel = Instantiate(fragmentPanelPrefab, new Vector3(0, 0, 0),
             mapFragmentsPanel.transform.rotation, mapFragmentsPanel.transform);
@@ -287,7 +290,7 @@ public class UIManager : MonoBehaviour {
         fragmentPanel.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
         fragmentPanel.GetComponent<RectTransform>().sizeDelta = new Vector2(60, 60);
         fragmentPanel.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
-        foreach (string tileName in fragment) {
+        foreach (string tileName in tiles) {
             AddTileToFragment(GameObject.Find(tileName), fragmentPanel, fragmentNumber);
         }
     }
@@ -306,11 +309,11 @@ public class UIManager : MonoBehaviour {
         newTile.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
 
         // Get spawn tile associated to fragment number
-        GameObject spawnTileOfFragment = GameObject.Find(gameManager.spawnTilesString.ElementAt(fragmentNumber - 1));
-        newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
-            tileManager.GetRelativePosition(spawnTileOfFragment, tile)[0] * 5,
-            tileManager.GetRelativePosition(spawnTileOfFragment, tile)[1] * 5,
-            0);
+        // GameObject spawnTileOfFragment = GameObject.Find(gameManager.spawnTilesString.ElementAt(fragmentNumber - 1));
+        // newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
+            // tileManager.GetRelativePosition(spawnTileOfFragment, tile)[0] * 5,
+            // tileManager.GetRelativePosition(spawnTileOfFragment, tile)[1] * 5,
+            // 0);
 
         // Set the size and scale of the tile
         newTile.GetComponent<RectTransform>().sizeDelta = new Vector2(5, 5);
@@ -323,25 +326,7 @@ public class UIManager : MonoBehaviour {
 
         newTile.SetActive(true);
     }
-
-    public void MergeFragmentInMiniMap(List<string> mapFragment) {
-        foreach (string tile in mapFragment) {
-            if (!tileManager.HasBeenRevealed(GameObject.Find(tile), gameManager.revealedTiles)) {
-                gameManager.revealedTiles.Add(GameObject.Find(tile));
-            }
-        }
-    }
-
-    public void ActivatePlayerThoughts() {
-        StartCoroutine(ShowPlayerThoughts(5));
-    }
-
-    IEnumerator ShowPlayerThoughts(float sec) {
-        playerThoughts.SetActive(true);
-        yield return new WaitForSeconds(sec);
-        playerThoughts.SetActive(false);
-    }
-
+    
     public void ShowExitUi() {
         exitReached.SetActive(true);
         exitReachedButtons.SetActive(true);

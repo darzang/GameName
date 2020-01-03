@@ -6,6 +6,7 @@ public class GameDataManager : MonoBehaviour {
 //  Application.persistentDataPath points to %userprofile%\AppData\Local\Packages\<productname>\LocalState.
    public static void SaveFile(GameData gameData, string sceneName) {
       string path = $"{Application.persistentDataPath}/{sceneName}.dat";
+      Debug.Log($"Saving file at: {path}");
       FileStream file = File.Exists(path) ? File.OpenWrite(path) : File.Create(path);
       BinaryFormatter bf = new BinaryFormatter();
       bf.Serialize(file, gameData);
@@ -15,10 +16,10 @@ public class GameDataManager : MonoBehaviour {
    public static GameData LoadFile(string sceneName) {
       FileStream file;
       string path = $"{Application.persistentDataPath}/{sceneName}.dat";
+      Debug.Log($"Opening file at: {path}");
       if (File.Exists(path)) {
          file = File.OpenRead(path);
-      }
-      else {
+      } else {
          Debug.LogError("File not found");
          return null;
       }
@@ -30,7 +31,9 @@ public class GameDataManager : MonoBehaviour {
 
    public static void EraseFile(string sceneName) {
       string path = $"{Application.persistentDataPath}/{sceneName}.dat";
-      if(File.Exists(path)) File.Delete(path);
-      Debug.Log("File Erased");
+      if (File.Exists(path)) {
+         Debug.Log("File erased");
+         File.Delete(path);
+      }
    }
 }

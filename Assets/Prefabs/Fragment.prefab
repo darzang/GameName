@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6377249713866120992}
   - component: {fileID: 6377249713866120993}
   - component: {fileID: 6377249713866120989}
+  - component: {fileID: -5707783315661332177}
   m_Layer: 0
   m_Name: Fragment
   m_TagString: Fragment
@@ -109,3 +110,15 @@ Animation:
   m_PlayAutomatically: 1
   m_AnimatePhysics: 0
   m_CullingType: 0
+--- !u!114 &-5707783315661332177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6377249713866120994}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3097a94b9284a7abf3ea71c3f22d334, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -8,15 +8,17 @@ public class MenuManager : MonoBehaviour {
     public GameObject player;
     private Animation anim;
     public GameObject ceiling;
-    void Start() {
+    private Camera mainCamera;
+    private void Start() {
         Cursor.visible = true;
         anim = player.GetComponent<Animation>();
         ceiling.SetActive(true);
+        mainCamera = Camera.main;
     }
 
-    void Update() {
+    private void Update() {
 
-        Ray forwardRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray forwardRay = mainCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(forwardRay, out RaycastHit hit, 10)) {
             if (hit.collider.gameObject.CompareTag("MenuButton")) {
                 text = hit.collider.gameObject.GetComponentInChildren<TextMeshPro>();

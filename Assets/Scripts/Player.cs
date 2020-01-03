@@ -15,7 +15,7 @@ public class Player : MonoBehaviour {
 	private Light playerLamp;
 	public bool lockPlayer;
 
-	void Awake () {
+	private void Awake () {
 		fuelCount = fuelTank;
 		playerLamp = GameObject.Find("PlayerLamp").GetComponent<Light>();
 		startRange = playerLamp.range;
@@ -26,20 +26,19 @@ public class Player : MonoBehaviour {
 	}
 
 	private void Update() {
-		if (SceneManager.GetActiveScene().name != "MenuScene") {
-			if (Input.GetKey ("z") || Input.GetKey ("q") || Input.GetKey ("s") || Input.GetKey ("d")) {
-	            if (fuelCount > 0 && !lockPlayer) {
-            		PlayerMovement ();
-            		fuelCount -= fuelConsumption;
-                    playerLamp.range = startRange * (fuelCount / fuelTank);
-                    playerLamp.intensity = startIntensity * (fuelCount / fuelTank);
-                    playerLamp.spotAngle = startAngle * (fuelCount / fuelTank);
+		if (SceneManager.GetActiveScene().name == "MenuScene") return;
+		if (Input.GetKey ("z") || Input.GetKey ("q") || Input.GetKey ("s") || Input.GetKey ("d")) {
+			if (fuelCount > 0 && !lockPlayer) {
+				PlayerMovement ();
+				fuelCount -= fuelConsumption;
+				playerLamp.range = startRange * (fuelCount / fuelTank);
+				playerLamp.intensity = startIntensity * (fuelCount / fuelTank);
+				playerLamp.spotAngle = startAngle * (fuelCount / fuelTank);
 
-	            }
 			}
-			if (Input.GetKeyUp("f")) fuelCount += 100;
-			if (Input.GetKeyUp("g")) fuelCount -= 100;
 		}
+		if (Input.GetKeyUp("f")) fuelCount += 100;
+		if (Input.GetKeyUp("g")) fuelCount -= 100;
 
 	}
 	private void PlayerMovement () {

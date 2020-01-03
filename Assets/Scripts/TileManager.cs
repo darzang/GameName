@@ -16,21 +16,21 @@ public class TileManager : MonoBehaviour {
         return mapElements;
     }
 
-    public GameObject[, ] GetMap2D () {
+    private GameObject[, ] GetMap2D () {
         GameObject[] mapElements = GetMapArray ();
         int mapSize = (int) Math.Sqrt (mapElements.Length + 1);
         GameObject[, ] map = new GameObject[mapSize, mapSize];
         for (int x = 0; x < mapSize; x++) {
             for (int z = 0; z < mapSize; z++) {
-                map[x, z] = Array.Find (mapElements, element => (
-                    (int) element.transform.position.x == x && (int) element.transform.position.z == z));
+                map[x, z] = Array.Find (mapElements, element => 
+                    (int) element.transform.position.x == x && (int) element.transform.position.z == z);
             }
         }
         return map;
     }
 
     public List<GameObject> GetNeighborsTiles (int x, int z) {
-        /**
+        /*
         length
             ... | X+1  | ...
             Z-1 | tile | Z+1
@@ -63,10 +63,7 @@ public class TileManager : MonoBehaviour {
     }
 
     public bool HasBeenRevealed (GameObject tile, List<GameObject> revealedTiles) {
-        foreach (GameObject revealedTile in revealedTiles) {
-            if (revealedTile == tile) return true;
-        }
-        return false;
+        return revealedTiles.Any(revealedTile => revealedTile == tile);
     }
 
     /*
