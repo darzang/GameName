@@ -352,7 +352,7 @@ public class UIManager : MonoBehaviour {
     }
 
     public void AddInfoMessage(string message) {
-        // Instantiate text and trigger 
+        
          // Handle position of previous texts if any 
         if (infoPanel.transform.childCount > 0) {
             foreach (Transform previousText in infoPanel.transform) {
@@ -363,13 +363,13 @@ public class UIManager : MonoBehaviour {
                 rectTransform.anchoredPosition = new Vector3(0,rectTransform.anchoredPosition.y + 20,0);
             }
         }
+        // Instantiate new text
         GameObject infoText = Instantiate(infoTextPrefab, infoPanel.transform.position,
             infoPanel.transform.rotation, infoPanel.transform);
         totalInfoText++;
         infoText.name = $"InfoText{totalInfoText}";
         TextMeshProUGUI text = infoText.GetComponent<TextMeshProUGUI>();
         text.text = message;
-        StartCoroutine(nameof(InfoTextDestruction), infoText);
         
         // Adjust Position
         infoText.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0);
@@ -377,14 +377,8 @@ public class UIManager : MonoBehaviour {
         infoText.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0);
         infoText.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
         
-       
-        // ? 
+        // Destroy it later
+        Destroy(infoText, 5f);
     }
-    private IEnumerator InfoTextDestruction(GameObject infoText) {
-        Debug.Log("InfoText triggered");
-        yield return new WaitForSeconds(5f);
-        Debug.Log("InfoText wait over");
-        Destroy(infoText);
-    }
-    
+
 }
