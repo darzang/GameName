@@ -31,10 +31,12 @@ public class Player : MonoBehaviour {
 			if (fuelCount > 0 && !lockPlayer) {
 				PlayerMovement ();
 				fuelCount -= fuelConsumption;
-				playerLamp.range = startRange * (fuelCount / fuelTank);
-				playerLamp.intensity = startIntensity * (fuelCount / fuelTank);
-				playerLamp.spotAngle = startAngle * (fuelCount / fuelTank);
-
+				playerLamp.range = startRange * (fuelCount / fuelTank) * 2 ;
+				if (playerLamp.range > startRange) playerLamp.range = startRange;
+				playerLamp.intensity = startIntensity * (fuelCount / fuelTank) * 2;
+				if (playerLamp.intensity > startIntensity) playerLamp.intensity = startIntensity;
+				playerLamp.spotAngle = startAngle * (fuelCount / fuelTank) * 2;
+				if (playerLamp.spotAngle > startAngle) playerLamp.spotAngle = startAngle;
 			}
 		}
 		if (Input.GetKeyUp("f")) fuelCount += 100;

@@ -24,7 +24,9 @@ public class UIManager : MonoBehaviour {
     public GameObject buttonPanel;
     public GameObject player;
     public GameObject fragmentPanelPrefab;
+    public GameObject infoPanel;
     public TextMeshProUGUI discoveryText;
+    public GameObject infoTextPrefab;
     readonly Color32 floorColor = new Color32(255, 255, 255, 255);
     readonly Color32 wallColor = new Color32(25, 25, 25, 255);
     readonly Color32 obstacleColor = new Color32(50, 50, 50, 255);
@@ -35,6 +37,7 @@ public class UIManager : MonoBehaviour {
     double fuelCount;
     private bool batteryLevelBlinking;
     private Quaternion initialRotation;
+    private int totalInfoText = 0;
 
     private void Awake() {
         retryButton.onClick.AddListener(gameManager.Retry);
@@ -347,4 +350,41 @@ public class UIManager : MonoBehaviour {
             discoveryText.text = "";
         }
     }
+
+    public void AddInfoMessage(string message) {
+        // Instantiate text and trigger 
+         // Handle position of previous texts if any 
+        if (infoPanel.transform.childCount > 0) {
+            foreach (Transform previousText in infoPanel.transform) {
+                RectTransform rectTransform = previousText.GetComponent<RectTransform>();
+                if (rectTransform.anchoredPosition.y == 80) {
+                    Destroy(previousText.gameObject);
+                }
+                rectTransform.anchoredPosition = new Vector3(0,rectTransform.anchoredPosition.y + 20,0);
+            }
+        }
+        GameObject infoText = Instantiate(infoTextPrefab, infoPanel.transform.position,
+            infoPanel.transform.rotation, infoPanel.transform);
+        totalInfoText++;
+        infoText.name = $"InfoText{totalInfoText}";
+        TextMeshProUGUI text = infoText.GetComponent<TextMeshProUGUI>();
+        text.text = message;
+        StartCoroutine(nameof(InfoTextDestruction), infoText);
+        
+        // Adjust Position
+        infoText.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0);
+        infoText.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0);
+        infoText.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0);
+        infoText.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
+        
+       
+        // ? 
+    }
+    private IEnumerator InfoTextDestruction(GameObject infoText) {
+        Debug.Log("InfoText triggered");
+        yield return new WaitForSeconds(5f);
+        Debug.Log("InfoText wait over");
+        Destroy(infoText);
+    }
+    
 }

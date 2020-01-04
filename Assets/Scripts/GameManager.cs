@@ -46,6 +46,7 @@ public class GameManager : MonoBehaviour {
         }
         uiManager.DrawMap(discoveredTiles);
         uiManager.UpdateDiscoveryText(discoveredTiles.Count,tileManager.GetMapSize());
+        if(discoveredTiles.Count > 0) uiManager.AddInfoMessage("Previous data loaded");
     }
     private void Update()
     {
@@ -66,8 +67,9 @@ public class GameManager : MonoBehaviour {
         }
 
         // Useful for now, to remove later
-        if (Input.GetKey("p")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
-        if (Input.GetKey("n")) NextLevel();
+        if (Input.GetKeyUp("p")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
+        if (Input.GetKeyUp("n")) NextLevel();
+        if (Input.GetKeyUp("t")) uiManager.AddInfoMessage("Heyyyyyyyy");
     }
 
     private void CheckForTileDiscovery() {
@@ -161,6 +163,8 @@ public class GameManager : MonoBehaviour {
         });
         uiManager.DrawMap(discoveredTiles);
         uiManager.UpdateDiscoveryText(discoveredTiles.Count, tileManager.GetMapSize());
+        uiManager.AddInfoMessage("Fragment picked up");
+
         Destroy(fragmentIn);
     }
 }
