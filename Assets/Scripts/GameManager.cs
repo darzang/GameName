@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -44,6 +45,7 @@ public class GameManager : MonoBehaviour {
             InstantiateFragment(fragment);
         }
         uiManager.DrawMap(discoveredTiles);
+        uiManager.UpdateDiscoveryText(discoveredTiles.Count,tileManager.GetMapSize());
     }
     private void Update()
     {
@@ -158,6 +160,7 @@ public class GameManager : MonoBehaviour {
             }
         });
         uiManager.DrawMap(discoveredTiles);
+        uiManager.UpdateDiscoveryText(discoveredTiles.Count, tileManager.GetMapSize());
         Destroy(fragmentIn);
     }
 }

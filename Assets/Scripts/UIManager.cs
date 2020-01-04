@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -23,6 +24,7 @@ public class UIManager : MonoBehaviour {
     public GameObject buttonPanel;
     public GameObject player;
     public GameObject fragmentPanelPrefab;
+    public TextMeshProUGUI discoveryText;
     readonly Color32 floorColor = new Color32(255, 255, 255, 255);
     readonly Color32 wallColor = new Color32(25, 25, 25, 255);
     readonly Color32 obstacleColor = new Color32(50, 50, 50, 255);
@@ -50,14 +52,14 @@ public class UIManager : MonoBehaviour {
         fuelCount = player.GetComponent<Player>().fuelCount;
         if (fuelCount >= 0) {
             UpdateBatteryLevel();
-            if (fuelCount == 0 && !batteryDead.gameObject.activeSelf) {
-                batteryDead.SetActive(true);
-                StopCoroutine(nameof(BlinkBatteryLevel));
-                buttonPanel.SetActive(true);
-                Cursor.lockState = CursorLockMode.None;
-            }
+            if (fuelCount <= fuelTank * 0.5 && !batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel());
         }
-        if (fuelCount <= fuelTank * 0.5 && !batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel());
+        if (fuelCount <= 0 && !batteryDead.gameObject.activeSelf) {
+            batteryDead.SetActive(true);
+            StopCoroutine(nameof(BlinkBatteryLevel));
+            buttonPanel.SetActive(true);
+            Cursor.lockState = CursorLockMode.None;
+        }
         RotateMiniMap();
     }
 
@@ -335,5 +337,14 @@ public class UIManager : MonoBehaviour {
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         player.GetComponent<Player>().lockPlayer = true;
+    }
+
+    public void UpdateDiscoveryText(int discoveredTiles, int mapSize) {
+        Debug.Log($"Updating percentage :  {discoveredTiles}/{mapSize}");
+        if (discoveredTiles > 0) {
+            discoveryText.text = $"Discovered {Math.Round((double) discoveredTiles /  mapSize * 100)}%";
+        } else {
+            discoveryText.text = "";
+        }
     }
 }

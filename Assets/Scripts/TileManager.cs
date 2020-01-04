@@ -16,6 +16,15 @@ public class TileManager : MonoBehaviour {
         return mapElements;
     }
 
+    public int GetMapSize() {
+        GameObject[] WallTiles = GameObject.FindGameObjectsWithTag ("Wall");
+        GameObject[] ObstacleTiles = GameObject.FindGameObjectsWithTag ("Obstacle");
+        GameObject[] FloorTiles = GameObject.FindGameObjectsWithTag ("Floor");
+        GameObject[] ExitTile = GameObject.FindGameObjectsWithTag ("Exit");
+        GameObject[] mapElements = WallTiles.Concat (ObstacleTiles).Concat (FloorTiles).Concat (ExitTile).ToArray ();
+        return mapElements.Length;
+    }
+
     private GameObject[, ] GetMap2D () {
         GameObject[] mapElements = GetMapArray ();
         int mapSize = (int) Math.Sqrt (mapElements.Length + 1);
