@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour {
     // Player components
     public Transform playerPrefab;
     public Transform fragmentPrefab;
+    public Transform arrowPrefab;
     public GameObject player;
     private Light playerLamp;
     private AudioSource lightAudio;
@@ -32,7 +33,7 @@ public class GameManager : MonoBehaviour {
 
     private void Awake() {
         tryCount = 1;
-        ceiling.SetActive(true);
+        // ceiling.SetActive(true);
         InstantiatePlayer();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
@@ -167,5 +168,36 @@ public class GameManager : MonoBehaviour {
         uiManager.AddInfoMessage("Fragment picked up");
 
         Destroy(fragmentIn);
+    }
+
+    public void InstantiateArrow(Transform tileTransform, string direction) {
+        if (GameObject.Find($"Arrow_{tileTransform.gameObject.name}")) {
+            Destroy(GameObject.Find($"Arrow_{tileTransform.gameObject.name}"));
+        }
+        float angle = 0;
+        Quaternion transformRotation = Quaternion.identity;
+        switch (direction) {
+            case "BACKWARD":
+                angle = 0;
+                break;
+            case "LEFT":
+                angle = 90;
+                break;
+            case "FORWARD":
+                angle = 180;
+                break;
+            case "RIGHT":
+                angle = 270;
+                break;
+        }
+        transformRotation.y = angle;
+        Transform arrow = Instantiate(arrowPrefab, new Vector3(
+            tileTransform.position.x,
+            tileTransform.position.y + 0.5f,
+            tileTransform.position.z
+        ), Quaternion.identity);
+        arrow.name = $"Arrow_{tileTransform.gameObject.name}";
+        arrow.transform.eulerAngles = new Vector3(0,angle,0);
+        
     }
 }

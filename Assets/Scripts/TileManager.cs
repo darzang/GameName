@@ -48,6 +48,7 @@ public class TileManager : MonoBehaviour {
                         if (tile.GetComponent<Tile>().score == 1) continue;
                         tile.GetComponent<Tile>().score = 1;
                         SetAction(tile, neighborTile);
+                        gameManager.InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);
                         updated = true;
                     } else if (
                         neighborTile.GetComponent<Tile>().score < tile.GetComponent<Tile>().score
@@ -55,6 +56,7 @@ public class TileManager : MonoBehaviour {
                         ) {
                         tile.GetComponent<Tile>().score = neighborTile.GetComponent<Tile>().score + 1;
                         SetAction(tile, neighborTile);
+                        gameManager.InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);
                         updated = true;
                     }
                 }
