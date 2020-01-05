@@ -19,9 +19,12 @@ public class GameManager : MonoBehaviour {
     private AudioSource lightAudio;
     public AudioClip[] lightSounds;
 
+    public GameObject arrows;
+    public GameObject fragments;
     // Tiles
     public GameObject startingTile;
     public GameObject currentTile;
+    public bool exitRevealed;
     public int tryCount;
     public List<Fragment> mapFragments = new List<Fragment>();
     public List<GameObject> revealedTiles;
@@ -33,22 +36,30 @@ public class GameManager : MonoBehaviour {
 
     private void Awake() {
         tryCount = 1;
-        // ceiling.SetActive(true);
+        ceiling.SetActive(true);
         InstantiatePlayer();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
-        GameData gameData = GameDataManager.LoadFile(SceneManager.GetActiveScene().name);
-        if (gameData == null) return;
-        mapFragments = gameData.mapFragments;
-        tryCount = gameData.tryCount + 1;
-        discoveredTiles = gameData.discoveredTiles;
-        foreach (Fragment fragment in mapFragments.Where(fragment => fragment.discovered == false)) {
-            InstantiateFragment(fragment);
-        }
-        uiManager.DrawMap(discoveredTiles);
-        uiManager.UpdateDiscoveryText(discoveredTiles.Count,tileManager.GetMapSize());
-        if(discoveredTiles.Count > 0) uiManager.AddInfoMessage("Previous data loaded");
         tileManager.DoPathPlanning();
+        GameData gameData = GameDataManager.LoadFile(SceneManager.GetActiveScene().name);
+        if (gameData == null) {
+            Debug.Log("No Data to load");
+        } else {
+            exitRevealed = gameData.exitRevealed;
+            mapFragments = gameData.mapFragments;
+            tryCount = gameData.tryCount + 1;
+            discoveredTiles = gameData.totalDiscoveredTiles;
+            foreach (Fragment fragment in mapFragments.Where(fragment => fragment.discovered == false)) {
+                InstantiateFragment(fragment);
+            }
+            uiManager.DrawMap(discoveredTiles);
+            uiManager.UpdateDiscoveryText(discoveredTiles.Count,tileManager.GetMapSize());
+            Debug.Log($"Data loaded: exitRevealed: {gameData.exitRevealed} | try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {discoveredTiles.Count}");
+            if(discoveredTiles.Count > 0) uiManager.AddInfoMessage("Previous data loaded");
+        }
+
+        
+        // StartCoroutine(tileManager.DoPathPlanningCoroutine());
     }
     private void Update()
     {
@@ -81,6 +92,7 @@ public class GameManager : MonoBehaviour {
             if (!tileManager.HasBeenRevealed(tile.gameObject, revealedTiles)
             && (tile.gameObject.CompareTag("Floor")
             || tile.gameObject.CompareTag("Obstacle")
+            || tile.gameObject.CompareTag("Exit")
             || tile.gameObject.CompareTag("Wall"))) {
                 needMapUpdate = true;
                 tileManager.AddToRevealedTiles(tile.gameObject, revealedTiles);
@@ -92,14 +104,14 @@ public class GameManager : MonoBehaviour {
     public void Retry() {
         Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
         mapFragments.Add(currentFragment);
-        GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles), SceneManager.GetActiveScene().name);
+        GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed), SceneManager.GetActiveScene().name);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void GiveUp() {
         Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
         mapFragments.Add(currentFragment);
-        GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles), SceneManager.GetActiveScene().name);
+        GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed), SceneManager.GetActiveScene().name);
         SceneManager.LoadScene("MenuScene");
     }
 
@@ -137,6 +149,7 @@ public class GameManager : MonoBehaviour {
             position.z
         ), Quaternion.identity);
         fragment.name = $"Fragment_{fragmentIn.number}";
+        fragment.SetParent(fragments.transform);
     }
 
     public bool IsPreviousSpawnTile(GameObject tile) {
@@ -161,11 +174,17 @@ public class GameManager : MonoBehaviour {
         fragment.tiles.ForEach(tile => {
             if (discoveredTiles.Count == 0 || !discoveredTiles.Contains(tile)) {
                 discoveredTiles.Add(tile);
+                if (!exitRevealed && GameObject.Find(tile).CompareTag("Exit")) {
+                    exitRevealed = true;
+                }
             }
         });
         uiManager.DrawMap(discoveredTiles);
         uiManager.UpdateDiscoveryText(discoveredTiles.Count, tileManager.GetMapSize());
         uiManager.AddInfoMessage("Fragment picked up");
+        if (exitRevealed) {
+            InstantiateArrow(currentTile.transform, currentTile.GetComponent<Tile>().action);
+        }
 
         Destroy(fragmentIn);
     }
@@ -193,11 +212,11 @@ public class GameManager : MonoBehaviour {
         transformRotation.y = angle;
         Transform arrow = Instantiate(arrowPrefab, new Vector3(
             tileTransform.position.x,
-            tileTransform.position.y + 0.5f,
+            tileTransform.position.y + 0.05f,
             tileTransform.position.z
         ), Quaternion.identity);
         arrow.name = $"Arrow_{tileTransform.gameObject.name}";
         arrow.transform.eulerAngles = new Vector3(0,angle,0);
-        
+        arrow.SetParent(arrows.transform);
     }
 }

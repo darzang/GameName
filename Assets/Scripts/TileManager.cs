@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -48,7 +49,7 @@ public class TileManager : MonoBehaviour {
                         if (tile.GetComponent<Tile>().score == 1) continue;
                         tile.GetComponent<Tile>().score = 1;
                         SetAction(tile, neighborTile);
-                        gameManager.InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);
+                        // gameManager.InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);
                         updated = true;
                     } else if (
                         neighborTile.GetComponent<Tile>().score < tile.GetComponent<Tile>().score
@@ -56,14 +57,13 @@ public class TileManager : MonoBehaviour {
                         ) {
                         tile.GetComponent<Tile>().score = neighborTile.GetComponent<Tile>().score + 1;
                         SetAction(tile, neighborTile);
-                        gameManager.InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);
+                        // gameManager.InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);
                         updated = true;
                     }
                 }
             }
         } while (updated) ;
     }
-
     private void SetAction(GameObject tile, GameObject neighborTile) {
         if (neighborTile.transform.position.z > tile.transform.position.z) {
             tile.GetComponent<Tile>().action = "FORWARD";

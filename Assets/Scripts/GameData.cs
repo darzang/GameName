@@ -3,10 +3,12 @@
 public class GameData: object {
     public int tryCount;
     public List<Fragment> mapFragments;
-    public List<string> discoveredTiles;
-    public GameData(int tryNumber,  List<Fragment> mapFragmentsIn, List<string> discoveredTilesIn ) {
+    public List<string> totalDiscoveredTiles;
+    public bool exitRevealed;
+    public GameData(int tryNumber,  List<Fragment> mapFragmentsIn, List<string> totalDiscoveredTilesIn, bool exitRevealedIn) {
          tryCount = tryNumber;
          mapFragments = mapFragmentsIn;
-         discoveredTiles = discoveredTilesIn;
+         totalDiscoveredTiles = totalDiscoveredTilesIn;
+         exitRevealed = exitRevealedIn;
     }
 }
