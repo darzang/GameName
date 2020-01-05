@@ -5,17 +5,7 @@ using UnityEngine;
 public class TileManager : MonoBehaviour {
     private GameObject environment;
     public GameManager gameManager;
-
-
-    GameObject[] GetMapArray () {
-        GameObject[] WallTiles = GameObject.FindGameObjectsWithTag ("Wall");
-        GameObject[] ObstacleTiles = GameObject.FindGameObjectsWithTag ("Obstacle");
-        GameObject[] FloorTiles = GameObject.FindGameObjectsWithTag ("Floor");
-        GameObject[] ExitTile = GameObject.FindGameObjectsWithTag ("Exit");
-        GameObject[] mapElements = WallTiles.Concat (ObstacleTiles).Concat (FloorTiles).Concat (ExitTile).ToArray ();
-        return mapElements;
-    }
-
+    public List<GameObject> floorTiles;
     public int GetMapSize() {
         GameObject[] WallTiles = GameObject.FindGameObjectsWithTag ("Wall");
         GameObject[] ObstacleTiles = GameObject.FindGameObjectsWithTag ("Obstacle");
@@ -24,40 +14,65 @@ public class TileManager : MonoBehaviour {
         GameObject[] mapElements = WallTiles.Concat (ObstacleTiles).Concat (FloorTiles).Concat (ExitTile).ToArray ();
         return mapElements.Length;
     }
+    
+    private void InstantiateFloorTiles() {
+        floorTiles = GameObject.FindGameObjectsWithTag("Floor").ToList();
+        foreach (GameObject tile in floorTiles) {
+            tile.GetComponent<Tile>().score = floorTiles.Count;
+            tile.GetComponent<Tile>().action = null;
+        }
+    }
 
-    private GameObject[, ] GetMap2D () {
-        GameObject[] mapElements = GetMapArray ();
-        int mapSize = (int) Math.Sqrt (mapElements.Length + 1);
-        GameObject[, ] map = new GameObject[mapSize, mapSize];
-        for (int x = 0; x < mapSize; x++) {
-            for (int z = 0; z < mapSize; z++) {
-                map[x, z] = Array.Find (mapElements, element => 
-                    (int) element.transform.position.x == x && (int) element.transform.position.z == z);
+    private List<GameObject> GetNeighborTiles(GameObject tile) {
+        List<GameObject> neighborTiles = new List<GameObject>();
+        RaycastHit hit;
+        List<Vector3> directions = new List<Vector3> { Vector3.back, Vector3.forward, Vector3.left, Vector3.right };
+        foreach (Vector3 direction in directions) {
+            if (Physics.Raycast(tile.transform.position, direction,out hit, 1)) {
+                if(hit.collider.gameObject.CompareTag("Floor") || hit.collider.gameObject.CompareTag("Exit"))
+                    neighborTiles.Add(hit.collider.gameObject);
             }
         }
-        return map;
+        return neighborTiles;
+    }
+    public void DoPathPlanning() {
+        InstantiateFloorTiles();
+        bool updated;
+        do {
+            updated = false;
+            foreach (GameObject tile in floorTiles) {
+                // Check Neighbor tiles
+                List<GameObject> neighborTiles = GetNeighborTiles(tile);
+                foreach (GameObject neighborTile in neighborTiles) {
+                    if (neighborTile.CompareTag("Exit")) {
+                        if (tile.GetComponent<Tile>().score == 1) continue;
+                        tile.GetComponent<Tile>().score = 1;
+                        SetAction(tile, neighborTile);
+                        updated = true;
+                    } else if (
+                        neighborTile.GetComponent<Tile>().score < tile.GetComponent<Tile>().score
+                        && tile.GetComponent<Tile>().score != neighborTile.GetComponent<Tile>().score + 1
+                        ) {
+                        tile.GetComponent<Tile>().score = neighborTile.GetComponent<Tile>().score + 1;
+                        SetAction(tile, neighborTile);
+                        updated = true;
+                    }
+                }
+            }
+        } while (updated) ;
     }
 
-    public List<GameObject> GetNeighborsTiles (int x, int z) {
-        /*
-        length
-            ... | X+1  | ...
-            Z-1 | tile | Z+1
-        0   ... | X-1  | ...
-            0           length
-        */
-        return new List<GameObject> {
-            GetMap2D () [x + 1, z],
-            GetMap2D () [x + 1, z - 1],
-            GetMap2D () [x + 1, z + 1],
-            GetMap2D () [x - 1, z - 1],
-            GetMap2D () [x - 1, z + 1],
-            GetMap2D () [x - 1, z],
-            GetMap2D () [x, z - 1],
-            GetMap2D () [x, z + 1]
-        };
+    private void SetAction(GameObject tile, GameObject neighborTile) {
+        if (neighborTile.transform.position.z > tile.transform.position.z) {
+            tile.GetComponent<Tile>().action = "FORWARD";
+        } else if (neighborTile.transform.position.z < tile.transform.position.z) {
+            tile.GetComponent<Tile>().action = "BACKWARD";
+        } else if (neighborTile.transform.position.x > tile.transform.position.x) {
+            tile.GetComponent<Tile>().action = "RIGHT";
+        } else if (neighborTile.transform.position.x < tile.transform.position.x) {
+            tile.GetComponent<Tile>().action = "LEFT";
+        }
     }
-
     public List<GameObject> GetTilesByType(string type) {
         return new List<GameObject>(GameObject.FindGameObjectsWithTag (type));
     }
@@ -70,7 +85,6 @@ public class TileManager : MonoBehaviour {
     public void AddToRevealedTiles (GameObject tile, List<GameObject> revealedTiles) {
         if(!HasBeenRevealed(tile, revealedTiles)) gameManager.revealedTiles.Add(tile);
     }
-
     public bool HasBeenRevealed (GameObject tile, List<GameObject> revealedTiles) {
         return revealedTiles.Any(revealedTile => revealedTile == tile);
     }

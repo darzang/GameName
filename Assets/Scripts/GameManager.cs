@@ -47,6 +47,7 @@ public class GameManager : MonoBehaviour {
         uiManager.DrawMap(discoveredTiles);
         uiManager.UpdateDiscoveryText(discoveredTiles.Count,tileManager.GetMapSize());
         if(discoveredTiles.Count > 0) uiManager.AddInfoMessage("Previous data loaded");
+        tileManager.DoPathPlanning();
     }
     private void Update()
     {
