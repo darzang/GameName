@@ -37,10 +37,10 @@ public class GameManager : MonoBehaviour {
     private void Awake() {
         tryCount = 1;
         ceiling.SetActive(true);
-        InstantiatePlayer();
+        tileManager.DoPathPlanning();
+        InstantiatePlayer(15);
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
-        tileManager.DoPathPlanning();
         GameData gameData = GameDataManager.LoadFile(SceneManager.GetActiveScene().name);
         if (gameData == null) {
             Debug.Log("No Data to load");
@@ -126,8 +126,9 @@ public class GameManager : MonoBehaviour {
         SceneManager.LoadScene(sceneToLoad);
     }
 
-    private void InstantiatePlayer() {
+    private void InstantiatePlayer(int minDistanceFromExit) {
         List<GameObject> availableTiles = tileManager.GetTilesByType("Floor");
+        availableTiles = availableTiles.Where(tile => tile.GetComponent<Tile>().score >= minDistanceFromExit).ToList();
         GameObject spawnTileObject = availableTiles.ElementAt(Random.Range(0, availableTiles.Count - 1));
         Vector3 position = spawnTileObject.transform.position;
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(
