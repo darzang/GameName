@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour {
     public GameObject currentTile;
     public bool exitRevealed;
     public int tryCount;
+    public int tryMax;
     public List<Fragment> mapFragments = new List<Fragment>();
     public List<GameObject> revealedTiles;
     public List<string> discoveredTiles = new List<string>();
@@ -37,6 +38,7 @@ public class GameManager : MonoBehaviour {
 
     private void Awake() {
         tryCount = 1;
+        tryMax = GetMaxTryValue(SceneManager.GetActiveScene().name);
         ceiling.SetActive(true);
         tileManager.DoPathPlanning();
         InstantiatePlayer(15);
@@ -105,8 +107,20 @@ public class GameManager : MonoBehaviour {
         if (needMapUpdate) uiManager.UpdateMiniMap();
     }
 
+    private int GetMaxTryValue(string sceneName) {
+        switch (sceneName) {
+            case "Level1":
+                return 6;
+            case "Level2":
+                return 9;
+            case "Level3":
+                return 12;
+            default:
+                return 12;
+        }
+    }
     public void Retry() {
-        if (tryCount <= 7) {
+        if (tryCount <= tryMax) {
             Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
             mapFragments.Add(currentFragment);
             GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed), SceneManager.GetActiveScene().name);
@@ -118,7 +132,7 @@ public class GameManager : MonoBehaviour {
     }
 
     public void GiveUp() {
-        if (tryCount <= 7) {
+        if (tryCount <= tryMax) {
             Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
             mapFragments.Add(currentFragment);
             GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed), SceneManager.GetActiveScene().name);

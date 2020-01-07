@@ -62,7 +62,7 @@ public class UIManager : MonoBehaviour {
             batteryDead.SetActive(true);
             StopCoroutine(nameof(BlinkBatteryLevel));
             buttonPanel.SetActive(true);
-            if (gameManager.tryCount >= 7) {
+            if (gameManager.tryCount >= gameManager.tryMax) {
                 batteryDead.SetActive(false);
                 resetText.gameObject.SetActive(true);
                 GameObject.Find("GiveUpText").GetComponent<TextMeshProUGUI>().text = "Fuck off and die";
