@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
+    
     // Managers
     public TileManager tileManager;
     public UIManager uiManager;
@@ -86,7 +87,6 @@ public class GameManager : MonoBehaviour {
         // Useful for now, to remove later
         if (Input.GetKeyUp("p")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
         if (Input.GetKeyUp("n")) NextLevel();
-        if (Input.GetKeyUp("t")) uiManager.AddInfoMessage("Heyyyyyyyy");
     }
 
     private void CheckForTileDiscovery() {
@@ -106,16 +106,24 @@ public class GameManager : MonoBehaviour {
     }
 
     public void Retry() {
-        Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
-        mapFragments.Add(currentFragment);
-        GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed), SceneManager.GetActiveScene().name);
+        if (tryCount <= 7) {
+            Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
+            mapFragments.Add(currentFragment);
+            GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed), SceneManager.GetActiveScene().name);
+        }
+        else {
+            GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
+        }
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void GiveUp() {
-        Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
-        mapFragments.Add(currentFragment);
-        GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed), SceneManager.GetActiveScene().name);
+        if (tryCount <= 7) {
+            Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
+            mapFragments.Add(currentFragment);
+            GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed), SceneManager.GetActiveScene().name);
+        }
+        GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
         SceneManager.LoadScene("MenuScene");
     }
 

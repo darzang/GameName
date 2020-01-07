@@ -26,6 +26,7 @@ public class UIManager : MonoBehaviour {
     public GameObject fragmentPanelPrefab;
     public GameObject infoPanel;
     public TextMeshProUGUI discoveryText;
+    public TextMeshProUGUI resetText;
     public GameObject infoTextPrefab;
     readonly Color32 floorColor = new Color32(255, 255, 255, 255);
     readonly Color32 wallColor = new Color32(25, 25, 25, 255);
@@ -61,6 +62,11 @@ public class UIManager : MonoBehaviour {
             batteryDead.SetActive(true);
             StopCoroutine(nameof(BlinkBatteryLevel));
             buttonPanel.SetActive(true);
+            if (gameManager.tryCount >= 7) {
+                batteryDead.SetActive(false);
+                resetText.gameObject.SetActive(true);
+                GameObject.Find("GiveUpText").GetComponent<TextMeshProUGUI>().text = "Fuck off and die";
+            }
             Cursor.lockState = CursorLockMode.None;
         }
         RotateMiniMap();

@@ -358,7 +358,7 @@ MonoBehaviour:
   movementSpeed: 1
   fuelConsumption: 1
   fuelCount: 500
-  fuelTank: 1000
+  fuelTank: 750
   lockPlayer: 0
 --- !u!82 &9136995392935929736
 AudioSource:
