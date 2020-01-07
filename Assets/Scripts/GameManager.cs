@@ -49,8 +49,12 @@ public class GameManager : MonoBehaviour {
             mapFragments = gameData.mapFragments;
             tryCount = gameData.tryCount + 1;
             discoveredTiles = gameData.totalDiscoveredTiles;
-            foreach (Fragment fragment in mapFragments.Where(fragment => fragment.discovered == false)) {
-                InstantiateFragment(fragment);
+            foreach (Fragment fragment in mapFragments) {
+                if(!fragment.discovered) InstantiateFragment(fragment);
+                if (fragment.arrowRevealed) {
+                    GameObject tile = GameObject.Find(fragment.spawnTile);
+                    InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);
+                }
             }
             uiManager.DrawMap(discoveredTiles);
             uiManager.UpdateDiscoveryText(discoveredTiles.Count,tileManager.GetMapSize());
@@ -185,6 +189,7 @@ public class GameManager : MonoBehaviour {
         uiManager.AddInfoMessage("Fragment picked up");
         if (exitRevealed) {
             InstantiateArrow(currentTile.transform, currentTile.GetComponent<Tile>().action);
+            fragment.arrowRevealed = true;
         }
 
         Destroy(fragmentIn);

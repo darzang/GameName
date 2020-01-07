@@ -8,7 +8,7 @@ public class Player : MonoBehaviour {
 	[SerializeField] public float fuelConsumption;
 	private CharacterController charController;
 	public float fuelCount;
-	[SerializeField] public float fuelTank = 500;
+	[SerializeField] public float fuelTank = 1000;
 	private float startRange;
 	private float startIntensity;
 	private float startAngle;
