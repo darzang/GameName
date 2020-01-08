@@ -15,10 +15,10 @@ public class FlickeringLight : MonoBehaviour {
 
     private IEnumerator LightFlicker()
     {
-        float flickeringSpeed = 0.1f;
+        float flickeringSpeed = 0.5f;
         while (true) {
             float trigger = Random.Range(0, 5);
-            if (trigger >= 2) {
+            if (trigger >= 3) {
                 light.enabled = false;
                 renderer.material = lampOff;
             } else {
