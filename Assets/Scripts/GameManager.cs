@@ -6,7 +6,11 @@ using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
-    
+    private enum TryMax {
+        Level1 = 5,
+        Level2 = 7,
+        Level3 = 9,
+    }
     // Managers
     public TileManager tileManager;
     public UIManager uiManager;
@@ -19,7 +23,11 @@ public class GameManager : MonoBehaviour {
     private Light playerLamp;
     private AudioSource lightAudio;
     public AudioClip[] lightSounds;
-
+    public AudioClip batteryDeadAudio;
+    private AudioSource playerAudio;
+    private bool isDead;
+    public AudioClip fragmentPickupAudio;
+    public AudioClip youLostAudio;
     public GameObject arrows;
     public GameObject fragments;
     // Tiles
@@ -38,13 +46,14 @@ public class GameManager : MonoBehaviour {
 
     private void Awake() {
         tryCount = 1;
-        tryMax = GetMaxTryValue(SceneManager.GetActiveScene().name);
         ceiling.SetActive(true);
         tileManager.DoPathPlanning();
         InstantiatePlayer(15);
+        playerAudio = player.GetComponent<AudioSource>();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
         GameData gameData = GameDataManager.LoadFile(SceneManager.GetActiveScene().name);
+        tryMax = GetTryMax();
         if (gameData == null) {
             Debug.Log("No Data to load");
         } else {
@@ -86,6 +95,12 @@ public class GameManager : MonoBehaviour {
             playerLamp.enabled = !playerLamp.enabled;
         }
 
+        if (player.GetComponent<Player>().fuelCount <= 0 && !isDead) {
+            isDead = true;
+            playerAudio.PlayOneShot(batteryDeadAudio);
+            if(tryCount >= tryMax) playerAudio.PlayOneShot(youLostAudio);
+        }
+
         // Useful for now, to remove later
         if (Input.GetKeyUp("p")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
         if (Input.GetKeyUp("n")) NextLevel();
@@ -107,20 +122,20 @@ public class GameManager : MonoBehaviour {
         if (needMapUpdate) uiManager.UpdateMiniMap();
     }
 
-    private int GetMaxTryValue(string sceneName) {
-        switch (sceneName) {
+    private int GetTryMax() {
+        switch (SceneManager.GetActiveScene().name) {
             case "Level1":
-                return 6;
+                return (int) TryMax.Level1;
             case "Level2":
-                return 9;
+                return (int) TryMax.Level2;
             case "Level3":
-                return 12;
+                return (int) TryMax.Level3;
             default:
-                return 12;
+                return (int) TryMax.Level3;
         }
     }
     public void Retry() {
-        if (tryCount <= tryMax) {
+        if (tryCount < tryMax) {
             Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
             mapFragments.Add(currentFragment);
             GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed), SceneManager.GetActiveScene().name);
@@ -132,12 +147,14 @@ public class GameManager : MonoBehaviour {
     }
 
     public void GiveUp() {
-        if (tryCount <= tryMax) {
+        if (tryCount < tryMax) {
             Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
             mapFragments.Add(currentFragment);
             GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed), SceneManager.GetActiveScene().name);
         }
-        GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
+        else {
+            GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
+        }
         SceneManager.LoadScene("MenuScene");
     }
 
@@ -198,6 +215,7 @@ public class GameManager : MonoBehaviour {
         int fragmentNumber = int.Parse(fragmentIn.name.Split('_')[1]);
         Fragment fragment = mapFragments.Find(frag => frag.number == fragmentNumber);
         fragment.discovered = true;
+        player.GetComponent<AudioSource>().PlayOneShot(fragmentPickupAudio);
         fragment.tiles.ForEach(tile => {
             if (discoveredTiles.Count == 0 || !discoveredTiles.Contains(tile)) {
                 discoveredTiles.Add(tile);
