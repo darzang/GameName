@@ -7,14 +7,15 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
     private enum TryMax {
-        Level1 = 5,
+        Level1 = 6,
         Level2 = 7,
         Level3 = 9,
     }
+
+    public string difficulty;
     // Managers
     public TileManager tileManager;
     public UIManager uiManager;
-
     // Player components
     public Transform playerPrefab;
     public Transform fragmentPrefab;
@@ -45,13 +46,19 @@ public class GameManager : MonoBehaviour {
     public float discoveryRange = 0.75f;
 
     private void Awake() {
+        if (PlayerPrefs.GetString("Difficulty") != "") {
+            difficulty = PlayerPrefs.GetString("Difficulty");
+            Debug.Log($"Difficulty from playerPrefs {difficulty}");
+        }
+        else {
+            Debug.Log($"No difficulty set {PlayerPrefs.GetString("Difficulty")}");
+            PlayerPrefs.SetString("Difficulty", "Medium");
+            difficulty = "Medium";
+        }
         tryCount = 1;
         ceiling.SetActive(true);
         tileManager.DoPathPlanning();
-        InstantiatePlayer();
-        playerAudio = player.GetComponent<AudioSource>();
-        playerLamp = player.GetComponentInChildren<Light>();
-        lightAudio = playerLamp.GetComponent<AudioSource>();
+
         GameData gameData = GameDataManager.LoadFile(SceneManager.GetActiveScene().name);
         tryMax = GetTryMax();
         if (gameData == null) {
@@ -73,7 +80,10 @@ public class GameManager : MonoBehaviour {
             Debug.Log($"Data loaded: exitRevealed: {gameData.exitRevealed} | try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {discoveredTiles.Count}");
             if(discoveredTiles.Count > 0) uiManager.AddInfoMessage("Previous data loaded");
         }
-
+        InstantiatePlayer();
+        playerAudio = player.GetComponent<AudioSource>();
+        playerLamp = player.GetComponentInChildren<Light>();
+        lightAudio = playerLamp.GetComponent<AudioSource>();
         
         // StartCoroutine(tileManager.DoPathPlanningCoroutine());
     }
@@ -81,9 +91,9 @@ public class GameManager : MonoBehaviour {
     {
         // Is the player on a new tile ?
         if (tileManager.GetTileUnderPlayer() != currentTile) {
+            currentTile = tileManager.GetTileUnderPlayer();
             uiManager.UpdateMiniMap();
             uiManager.DrawMap(discoveredTiles);
-            currentTile = tileManager.GetTileUnderPlayer();
             if (currentTile.CompareTag("Exit")) uiManager.ShowExitUi();
         }
 
@@ -124,15 +134,27 @@ public class GameManager : MonoBehaviour {
     }
 
     private int GetTryMax() {
+        int bonus;
+        switch (difficulty) {
+            case "Easy":
+                bonus = 2;
+                break;
+            case "Medium":
+                bonus = 1;
+                break;
+            default:
+                bonus = 0;
+                break;
+        }
         switch (SceneManager.GetActiveScene().name) {
             case "Level1":
-                return (int) TryMax.Level1;
+                return (int) TryMax.Level1 + bonus;
             case "Level2":
-                return (int) TryMax.Level2;
+                return (int) TryMax.Level2 + bonus;
             case "Level3":
-                return (int) TryMax.Level3;
+                return (int) TryMax.Level3 + bonus;
             default:
-                return (int) TryMax.Level3;
+                return (int) TryMax.Level3 + bonus;
         }
     }
     public void Retry() {

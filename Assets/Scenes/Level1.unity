@@ -5454,6 +5454,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 841b57ee3d0056b4abe03e5ea438c184, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  difficulty: 
   tileManager: {fileID: 1942737561}
   uiManager: {fileID: 435763045}
   playerPrefab: {fileID: 9136995392935929742, guid: f5d7b6cc7630fec498d6191d0ee75270,
@@ -17569,7 +17570,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -20}
+  m_AnchoredPosition: {x: 0, y: 118}
   m_SizeDelta: {x: 200, y: 20}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1523332487
