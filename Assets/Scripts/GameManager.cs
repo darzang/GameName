@@ -48,8 +48,7 @@ public class GameManager : MonoBehaviour {
         tryCount = 1;
         ceiling.SetActive(true);
         tileManager.DoPathPlanning();
-        InstantiatePlayerAtTile(GetFurthestTile());
-        // InstantiatePlayer(15);
+        InstantiatePlayer();
         playerAudio = player.GetComponent<AudioSource>();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
@@ -170,7 +169,7 @@ public class GameManager : MonoBehaviour {
         SceneManager.LoadScene(sceneToLoad);
     }
 
-    private void InstantiatePlayer(int minDistanceFromExit) {
+    private void InstantiatePlayerByDistance(int minDistanceFromExit) {
         List<GameObject> availableTiles = tileManager.GetTilesByType("Floor");
         availableTiles = availableTiles.Where(tile => tile.GetComponent<Tile>().score >= minDistanceFromExit).ToList();
         GameObject spawnTileObject = availableTiles.ElementAt(Random.Range(0, availableTiles.Count - 1));
@@ -195,6 +194,26 @@ public class GameManager : MonoBehaviour {
         player = playerTransform.gameObject;
         startingTile = tile;
         currentTile = tile;
+    }
+    
+    private void InstantiatePlayer() {
+        List<GameObject> floorTiles = tileManager.GetTilesByType("Floor");
+        floorTiles = floorTiles.OrderBy(t => t.GetComponent<Tile>().score).ToList();
+        
+        // Get the 20 % furthest tiles 
+        int availablesTiles = (int) Math.Round((double)floorTiles.Count / 5);
+        Debug.Log($"{availablesTiles} tiles available");
+        GameObject tile = floorTiles[floorTiles.Count - Random.Range(1, availablesTiles)];
+        Vector3 position = tile.transform.position;
+        Transform playerTransform = Instantiate(playerPrefab, new Vector3(
+            position.x,
+            position.y + 0.53f,
+            position.z
+        ), Quaternion.identity);
+        player = playerTransform.gameObject;
+        startingTile = tile;
+        currentTile = tile;
+        Debug.Log($"Instantiated player at {tile.GetComponent<Tile>().score} distance, max is {GetFurthestTile().GetComponent<Tile>().score}");
     }
 
     private void InstantiateFragment(Fragment fragmentIn) {
