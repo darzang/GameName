@@ -106,7 +106,7 @@ public class UIManager : MonoBehaviour {
         // Regenerate previously drawn tiles
         Vector3 position = tile.transform.position;
         if (tileManager.HasBeenRevealed(tile, gameManager.revealedTiles)) {
-            Destroy(GameObject.Find($"MiniMap_{position.x}_{position.z}_{tile.tag}"));
+            Destroy(GameObject.Find($"MiniMap_{tile.gameObject.name}"));
         }
 
         if (!tileManager.HasBeenRevealed(tile, gameManager.revealedTiles))
@@ -114,7 +114,7 @@ public class UIManager : MonoBehaviour {
 
         // Instantiate new tile and anchor it in the middle of the panel
         GameObject newTile =
-            new GameObject($"MiniMap_{position.x}_{position.z}_{tile.tag}");
+            new GameObject($"MiniMap_{tile.gameObject.name}");
         Image newImage = newTile.AddComponent<Image>();
         Color32 tileColor = GetTileColor(tile.tag);
 
@@ -168,9 +168,11 @@ public class UIManager : MonoBehaviour {
         Basically only the anchor is different
          */
         Color32 tileColor = GetTileColor(tile.tag);
-        Vector3 position = tile.transform.position;
+        Vector3 position = tile.tag == "Player" 
+            ? gameManager.currentTile.transform.position 
+            : tile.transform.position ;
         GameObject newTile =
-            new GameObject($"Map_{position.x}_{position.z}_{tile.tag}");
+            new GameObject($"Map_{tile.gameObject.name}");
         Image newImage = newTile.AddComponent<Image>();
         newTile.GetComponent<RectTransform>().SetParent(mapPanel.transform);
 
@@ -199,8 +201,17 @@ public class UIManager : MonoBehaviour {
     }
 
     public void DrawMap(List<string> tiles) {
+        Debug.Log("Drawing Map");
         foreach (string tileName in tiles) {
             GameObject tile = GameObject.Find(tileName);
+            // if (!tile) {
+            //     Debug.Log($"No tile found for {tileName}");
+            //     continue;
+            // }
+            if (tile == gameManager.currentTile) {
+                AddTileToMap(gameManager.player);
+                continue;
+            }
             AddTileToMap(tile);
         }
     }
@@ -216,6 +227,7 @@ public class UIManager : MonoBehaviour {
             case "Obstacle":
                 return obstacleColor;
             case "Player":
+                Debug.Log("Player Tile");
                 return playerColor;
             case "Exit":
                 return exitColor;

@@ -82,6 +82,7 @@ public class GameManager : MonoBehaviour {
         // Is the player on a new tile ?
         if (tileManager.GetTileUnderPlayer() != currentTile) {
             uiManager.UpdateMiniMap();
+            uiManager.DrawMap(discoveredTiles);
             currentTile = tileManager.GetTileUnderPlayer();
             if (currentTile.CompareTag("Exit")) uiManager.ShowExitUi();
         }
