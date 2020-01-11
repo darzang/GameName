@@ -15,7 +15,13 @@ public class Player : MonoBehaviour {
 	private Light playerLamp;
 	public bool lockPlayer;
 
+	private enum FuelTank {
+		Level1 = 600,  // 500 - 600
+		Level2 = 600,
+		Level3 = 1100,
+	}
 	private void Awake () {
+		fuelTank = GetFuelTank();
 		fuelCount = fuelTank;
 		playerLamp = GameObject.Find("PlayerLamp").GetComponent<Light>();
 		startRange = playerLamp.range;
@@ -31,17 +37,27 @@ public class Player : MonoBehaviour {
 			if (fuelCount > 0 && !lockPlayer) {
 				PlayerMovement ();
 				fuelCount -= fuelConsumption;
-				playerLamp.range = startRange * (fuelCount / fuelTank) * 2 ;
-				if (playerLamp.range > startRange) playerLamp.range = startRange;
-				playerLamp.intensity = startIntensity * (fuelCount / fuelTank) * 2;
-				if (playerLamp.intensity > startIntensity) playerLamp.intensity = startIntensity;
-				playerLamp.spotAngle = startAngle * (fuelCount / fuelTank) * 2;
-				if (playerLamp.spotAngle > startAngle) playerLamp.spotAngle = startAngle;
+				playerLamp.range = startRange * (fuelCount / fuelTank);
+				playerLamp.intensity = startIntensity * (fuelCount / fuelTank);
+				playerLamp.spotAngle = startAngle * (fuelCount / fuelTank);
 			}
 		}
 		if (Input.GetKeyUp("f")) fuelCount += 100;
 		if (Input.GetKeyUp("g")) fuelCount -= 100;
 
+	}
+
+	private int GetFuelTank() {
+		switch (SceneManager.GetActiveScene().name) {
+			case "Level1":
+				return (int) FuelTank.Level1;
+			case "Level2":
+				return (int) FuelTank.Level2;
+			case "Level3":
+				return (int) FuelTank.Level3;
+			default:
+				return (int) FuelTank.Level1;
+		}
 	}
 	private void PlayerMovement () {
 		float horizontalInput = Input.GetAxis (horizontalInputName) * movementSpeed;

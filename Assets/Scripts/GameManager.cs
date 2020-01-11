@@ -48,7 +48,8 @@ public class GameManager : MonoBehaviour {
         tryCount = 1;
         ceiling.SetActive(true);
         tileManager.DoPathPlanning();
-        InstantiatePlayer(15);
+        InstantiatePlayerAtTile(GetFurthestTile());
+        // InstantiatePlayer(15);
         playerAudio = player.GetComponent<AudioSource>();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
@@ -183,6 +184,18 @@ public class GameManager : MonoBehaviour {
         startingTile = spawnTileObject;
         currentTile = spawnTileObject;
     }
+    
+    private void InstantiatePlayerAtTile(GameObject tile) {
+        Vector3 position = tile.transform.position;
+        Transform playerTransform = Instantiate(playerPrefab, new Vector3(
+            position.x,
+            position.y + 0.53f,
+            position.z
+        ), Quaternion.identity);
+        player = playerTransform.gameObject;
+        startingTile = tile;
+        currentTile = tile;
+    }
 
     private void InstantiateFragment(Fragment fragmentIn) {
         GameObject spawnTile = GameObject.Find(fragmentIn.spawnTile);
@@ -264,5 +277,19 @@ public class GameManager : MonoBehaviour {
         arrow.name = $"Arrow_{tileTransform.gameObject.name}";
         arrow.transform.eulerAngles = new Vector3(0,angle,0);
         arrow.SetParent(arrows.transform);
+    }
+
+    public GameObject GetFurthestTile() {
+        GameObject[] floorTiles = GameObject.FindGameObjectsWithTag("Floor");
+        GameObject furthestTile = null;
+        int maxDistance = 0;
+        foreach (GameObject floorTile in floorTiles) {
+            if (floorTile.GetComponent<Tile>().score > maxDistance) {
+                maxDistance = floorTile.GetComponent<Tile>().score;
+                furthestTile = floorTile;
+            }
+        }
+        Debug.Log($"Furthest tile: {maxDistance}");
+        return furthestTile;
     }
 }
