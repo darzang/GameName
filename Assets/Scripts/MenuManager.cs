@@ -12,6 +12,10 @@ public class MenuManager : MonoBehaviour {
     public GameObject easyWrapper;
     public GameObject mediumWrapper;
     public GameObject hardWrapper;
+    public GameObject helpText1;
+    public GameObject helpText2;
+    public GameObject helpNextButton;
+    public GameObject helpPreviousButton;
     private void Start() {
         Cursor.visible = true;
         anim = player.GetComponent<Animation>();
@@ -60,6 +64,9 @@ public class MenuManager : MonoBehaviour {
             case "PlayButton":
                 anim.Play("MainToPlay");
                 break;
+            case "HelpButton":
+                anim.Play("MainToHelp");
+                break;
             case "QuitButton":
                 Application.Quit(); // Doesn't work with Unity editor
                 break;
@@ -71,6 +78,21 @@ public class MenuManager : MonoBehaviour {
                 break;
             case "PlayBackButton":
                 anim.Play("PlayToMain");
+                break;
+            case "HelpBackButton":
+                anim.Play("HelpToMain");
+                break;
+            case "HelpNextButton":
+                helpText1.SetActive(false);
+                helpText2.SetActive(true);
+                helpNextButton.SetActive(false);
+                helpPreviousButton.SetActive(true);
+                break;
+            case "HelpPreviousButton":
+                helpText1.SetActive(true);
+                helpText2.SetActive(false);
+                helpNextButton.SetActive(true);
+                helpPreviousButton.SetActive(false);
                 break;
             case "Level1Button":
                 SceneManager.LoadScene("Level1");
