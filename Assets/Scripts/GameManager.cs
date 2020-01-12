@@ -94,7 +94,10 @@ public class GameManager : MonoBehaviour {
             currentTile = tileManager.GetTileUnderPlayer();
             uiManager.UpdateMiniMap();
             uiManager.DrawMap(discoveredTiles);
-            if (currentTile.CompareTag("Exit")) uiManager.ShowExitUi();
+            if (currentTile.CompareTag("Exit")) {
+                GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed, true), SceneManager.GetActiveScene().name);
+                uiManager.ShowExitUi();
+            }
         }
 
         CheckForTileDiscovery();
@@ -142,6 +145,9 @@ public class GameManager : MonoBehaviour {
                 break;
             case "Medium":
                 bonus = 1;
+                break;
+            case "Hard":
+                bonus = 0;
                 break;
             default:
                 bonus = 0;
@@ -221,13 +227,30 @@ public class GameManager : MonoBehaviour {
     }
     
     private void InstantiatePlayer() {
+
+        // Get the furthest tile
+        int percentage;
+        switch (difficulty) {
+            case "Easy":
+                percentage = 30;
+                break;
+            case "Medium":
+                percentage = 25;
+                break;
+            case "Hard":
+                percentage = 20;
+                break;
+            default:
+                Debug.Log("Default percentage furthest tiles");
+                percentage = 20;
+                break;
+        }        
         List<GameObject> floorTiles = tileManager.GetTilesByType("Floor");
         floorTiles = floorTiles.OrderBy(t => t.GetComponent<Tile>().score).ToList();
-        
-        // Get the 20 % furthest tiles 
-        int availablesTiles = (int) Math.Round((double)floorTiles.Count / 5);
-        Debug.Log($"{availablesTiles} tiles available");
-        GameObject tile = floorTiles[floorTiles.Count - Random.Range(1, availablesTiles)];
+                 
+        int tilesCount = (int) Math.Round((double)floorTiles.Count * percentage / 100);
+        Debug.Log($"{tilesCount} tiles available");
+        GameObject tile = floorTiles[floorTiles.Count - Random.Range(1, tilesCount)];
         Vector3 position = tile.transform.position;
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(
             position.x,

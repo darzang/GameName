@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour {
@@ -30,6 +31,7 @@ public class UIManager : MonoBehaviour {
     public GameObject fragmentPanelPrefab;
     public GameObject infoPanel;
     public TextMeshProUGUI discoveryText;
+    public TextMeshProUGUI tryCountText;
     public TextMeshProUGUI resetText;
     public GameObject infoTextPrefab;
     readonly Color32 floorColor = new Color32(255, 255, 255, 255);
@@ -53,6 +55,7 @@ public class UIManager : MonoBehaviour {
         player = gameManager.player;
         fuelTank = player.GetComponent<Player>().fuelTank;
         DrawStartingMiniMap();
+        tryCountText.text = $"Try number {gameManager.tryCount} / {gameManager.tryMax}";
     }
 
     private void Update() {
@@ -369,15 +372,24 @@ public class UIManager : MonoBehaviour {
         player.GetComponent<Player>().lockPlayer = false;
     }
     public void ShowExitUi() {
+
         exitReached.SetActive(true);
         exitReachedButtons.SetActive(true);
         nextLevelButton.onClick.AddListener(gameManager.NextLevel);
         backToMenuButton.onClick.AddListener(gameManager.BackToMenu);
+        // set posX of ack to menu to 0
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         player.GetComponent<Player>().lockPlayer = true;
+        if (SceneManager.GetActiveScene().name == "Level3") {
+            exitReached.GetComponent<TextMeshProUGUI>().text = "Congrats beta tester, you've been through all the levels !!";
+            exitReached.GetComponent<TextMeshProUGUI>().fontSize = 17;
+            nextLevelButton.gameObject.SetActive(false);
+            backToMenuButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(0,0);
+        }
     }
-
+    //You reached the exit !!!
+//Congrats beta tester, you've been through all the levels !!
     public void UpdateDiscoveryText(int discoveredTiles, int mapSize) {
         if (discoveredTiles > 0) {
             discoveryText.text = $"Discovered {Math.Round((double) discoveredTiles /  mapSize * 100)}%";

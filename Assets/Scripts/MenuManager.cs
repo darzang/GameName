@@ -14,9 +14,15 @@ public class MenuManager : MonoBehaviour {
     public GameObject hardWrapper;
     public GameObject helpText1;
     public GameObject helpText2;
+    public GameObject controlsText;
     public GameObject helpNextButton;
     public GameObject helpPreviousButton;
+    public GameObject level1Check;
+    public GameObject level2Check;
+    public GameObject level3Check;
+    private int levelMax;
     private void Start() {
+        levelMax = GetLevelMax();
         Cursor.visible = true;
         anim = player.GetComponent<Animation>();
         ceiling.SetActive(true);
@@ -52,6 +58,19 @@ public class MenuManager : MonoBehaviour {
         }
     }
 
+    public int GetLevelMax() {
+        int totalScenes = SceneManager.sceneCountInBuildSettings - 1;
+        int levelMax = 1;
+        for (int i = 0; i < totalScenes; i++) {
+            GameData gameData = GameDataManager.LoadFile($"Level{i + 1}");
+            if (gameData == null) continue;
+            if (gameData.levelOver) levelMax += 1;
+        }
+        if(levelMax >= 2) level1Check.SetActive(true);
+        if(levelMax >= 3) level2Check.SetActive(true);
+        if(levelMax >= 4) level3Check.SetActive(true);
+        return levelMax;
+    }
     public void HandleClick(GameObject button) {
         Debug.Log($"Clicked on {button.name}");
         switch (button.name) {
@@ -83,25 +102,42 @@ public class MenuManager : MonoBehaviour {
                 anim.Play("HelpToMain");
                 break;
             case "HelpNextButton":
-                helpText1.SetActive(false);
-                helpText2.SetActive(true);
-                helpNextButton.SetActive(false);
-                helpPreviousButton.SetActive(true);
+                if (helpText2.activeSelf) {
+                    helpText2.SetActive(false);
+                    controlsText.SetActive(true);
+                    helpNextButton.SetActive(false);
+                    helpPreviousButton.SetActive(true);
+                }
+                else {
+                    helpText1.SetActive(false);
+                    helpText2.SetActive(true);
+                    helpNextButton.SetActive(true);
+                    helpPreviousButton.SetActive(true);
+                }
+
                 break;
             case "HelpPreviousButton":
-                helpText1.SetActive(true);
-                helpText2.SetActive(false);
-                helpNextButton.SetActive(true);
-                helpPreviousButton.SetActive(false);
+                if (helpText2.activeSelf) {
+                    helpText1.SetActive(true);
+                    helpText2.SetActive(false);
+                    helpNextButton.SetActive(true);
+                    helpPreviousButton.SetActive(false);
+                }
+                else {
+                    controlsText.SetActive(false);
+                    helpText2.SetActive(true);
+                    helpNextButton.SetActive(false);
+                    helpPreviousButton.SetActive(true);
+                }
                 break;
             case "Level1Button":
                 SceneManager.LoadScene("Level1");
                 break;
             case "Level2Button" :
-                SceneManager.LoadScene("Level2");
+                if(levelMax > 1) SceneManager.LoadScene("Level2");
                 break;
             case "Level3Button" :
-                SceneManager.LoadScene("Level3");
+                if(levelMax > 2) SceneManager.LoadScene("Level3");
                 break;
             case "EasyButton" :
                 easyWrapper.SetActive(true);
