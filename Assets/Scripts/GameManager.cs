@@ -113,7 +113,7 @@ public class GameManager : MonoBehaviour {
         }
 
         // Useful for now, to remove later
-        // if (Input.GetKeyUp("r")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
+        if (Input.GetKeyUp("r")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
         // if (Input.GetKeyUp("n")) NextLevel();
         if (Input.GetKeyUp("p")) uiManager.ShowPauseUi();
     }
@@ -268,6 +268,7 @@ public class GameManager : MonoBehaviour {
     }
 
     public void PickupFragment(GameObject fragmentIn) {
+        Destroy(fragmentIn);
         int fragmentNumber = int.Parse(fragmentIn.name.Split('_')[1]);
         Fragment fragment = mapFragments.Find(frag => frag.number == fragmentNumber);
         fragment.discovered = true;
@@ -283,12 +284,32 @@ public class GameManager : MonoBehaviour {
         uiManager.DrawMap(discoveredTiles);
         uiManager.UpdateDiscoveryText(discoveredTiles.Count, tileManager.GetMapSize());
         uiManager.AddInfoMessage("Fragment picked up");
-        if (exitRevealed) {
-            InstantiateArrow(currentTile.transform, currentTile.GetComponent<Tile>().action);
-            fragment.arrowRevealed = true;
+        // Randomly spawn arrow
+        int chance;
+
+        switch (difficulty) {
+            case "Easy":
+                chance = 30;
+                break;
+            case "Medium":
+                chance = 20;
+                break;
+            case "Hard":
+                chance = 10;
+                break;
+            default:
+                chance = 20;
+                break;
         }
 
-        Destroy(fragmentIn);
+        if (Random.Range(1, 100) < chance) {
+            uiManager.AddInfoMessage("Helping arrow spawned");
+            fragment.arrowRevealed = true;
+        }
+        if (fragment.arrowRevealed) {
+            InstantiateArrow(currentTile.transform, currentTile.GetComponent<Tile>().action);
+        }
+
     }
 
     public void InstantiateArrow(Transform tileTransform, string direction) {

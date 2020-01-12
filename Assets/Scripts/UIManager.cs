@@ -205,7 +205,6 @@ public class UIManager : MonoBehaviour {
     }
 
     public void DrawMap(List<string> tiles) {
-        Debug.Log("Drawing Map");
         foreach (string tileName in tiles) {
             GameObject tile = GameObject.Find(tileName);
             // if (!tile) {
@@ -231,7 +230,6 @@ public class UIManager : MonoBehaviour {
             case "Obstacle":
                 return obstacleColor;
             case "Player":
-                Debug.Log("Player Tile");
                 return playerColor;
             case "Exit":
                 return exitColor;
@@ -381,7 +379,6 @@ public class UIManager : MonoBehaviour {
     }
 
     public void UpdateDiscoveryText(int discoveredTiles, int mapSize) {
-        Debug.Log($"Updating percentage :  {discoveredTiles}/{mapSize}");
         if (discoveredTiles > 0) {
             discoveryText.text = $"Discovered {Math.Round((double) discoveredTiles /  mapSize * 100)}%";
         } else {
