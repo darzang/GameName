@@ -23,7 +23,7 @@ public class MenuManager : MonoBehaviour {
     private int levelMax;
     private void Start() {
         levelMax = GetLevelMax();
-        Cursor.visible = true;
+        Cursor.visible = false;
         anim = player.GetComponent<Animation>();
         ceiling.SetActive(true);
         mainCamera = Camera.main;

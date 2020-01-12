@@ -47,6 +47,8 @@ public class UIManager : MonoBehaviour {
     private int totalInfoText = 0;
 
     private void Awake() {
+        Cursor.visible = false;
+
         retryButton.onClick.AddListener(gameManager.Retry);
         giveUpButton.onClick.AddListener(gameManager.GiveUp);
     }

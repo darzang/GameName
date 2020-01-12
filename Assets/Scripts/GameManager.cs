@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
@@ -116,7 +117,7 @@ public class GameManager : MonoBehaviour {
         }
 
         // Useful for now, to remove later
-        if (Input.GetKeyUp("r")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
+        // if (Input.GetKeyUp("r")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
         // if (Input.GetKeyUp("n")) NextLevel();
         if (Input.GetKeyUp("p")) uiManager.ShowPauseUi();
     }

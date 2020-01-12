@@ -63,8 +63,8 @@ public class Player : MonoBehaviour {
 				}
 			}
 		}
-		if (Input.GetKeyUp("l")) fuelCount += 100;
-		if (Input.GetKeyUp("k")) fuelCount -= 100;
+		// if (Input.GetKeyUp("l")) fuelCount += 100;
+		// if (Input.GetKeyUp("k")) fuelCount -= 100;
 
 	}
 
