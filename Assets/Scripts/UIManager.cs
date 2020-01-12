@@ -69,6 +69,7 @@ public class UIManager : MonoBehaviour {
         }
         if (fuelCount <= 0 && !batteryDead.gameObject.activeSelf) {
             batteryDead.SetActive(true);
+            Cursor.visible = true;
             StopCoroutine(nameof(BlinkBatteryLevel));
             buttonPanel.SetActive(true);
             if (gameManager.tryCount >= gameManager.tryMax) {

@@ -333,7 +333,6 @@ public class GameManager : MonoBehaviour {
         if (fragment.arrowRevealed) {
             InstantiateArrow(currentTile.transform, currentTile.GetComponent<Tile>().action);
         }
-
     }
 
     public void InstantiateArrow(Transform tileTransform, string direction) {
