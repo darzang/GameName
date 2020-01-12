@@ -52,7 +52,8 @@ public class Player : MonoBehaviour {
 
 	private void Update() {
 		if (SceneManager.GetActiveScene().name == "MenuScene") return;
-		if (Input.GetKey ("z") || Input.GetKey ("q") || Input.GetKey ("s") || Input.GetKey ("d")) {
+		if (Input.GetKey ("w") || Input.GetKey ("a") || Input.GetKey ("s") || Input.GetKey ("d")
+		    || Input.GetKey ("up") || Input.GetKey ("left") || Input.GetKey ("right") || Input.GetKey ("down")) {
 			if (fuelCount > 0 && !lockPlayer) {
 				PlayerMovement ();
 				if (playerLamp.enabled) {
@@ -62,8 +63,8 @@ public class Player : MonoBehaviour {
 				}
 			}
 		}
-		if (Input.GetKeyUp("f")) fuelCount += 100;
-		if (Input.GetKeyUp("g")) fuelCount -= 100;
+		if (Input.GetKeyUp("l")) fuelCount += 100;
+		if (Input.GetKeyUp("k")) fuelCount -= 100;
 
 	}
 

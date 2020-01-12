@@ -84,7 +84,7 @@ public class GameManager : MonoBehaviour {
         playerAudio = player.GetComponent<AudioSource>();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
-        
+
         // StartCoroutine(tileManager.DoPathPlanningCoroutine());
     }
     private void Update()
@@ -113,8 +113,9 @@ public class GameManager : MonoBehaviour {
         }
 
         // Useful for now, to remove later
-        if (Input.GetKeyUp("p")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
-        if (Input.GetKeyUp("n")) NextLevel();
+        // if (Input.GetKeyUp("r")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
+        // if (Input.GetKeyUp("n")) NextLevel();
+        if (Input.GetKeyUp("p")) uiManager.ShowPauseUi();
     }
 
     private void CheckForTileDiscovery() {

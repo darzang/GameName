@@ -17,8 +17,12 @@ public class UIManager : MonoBehaviour {
     public Button nextLevelButton;
     public Button giveUpButton;
     public Button backToMenuButton;
+    public Button pauseRetryButton;
+    public Button pauseResumeButton;
+    public Button pauseBackButton;
     public GameObject fuelBar;
     public GameObject miniMapPanel;
+    public GameObject pausePanel;
     public GameObject mapPanel;
     public GameObject mapFragmentsPanel;
     public GameObject buttonPanel;
@@ -349,7 +353,23 @@ public class UIManager : MonoBehaviour {
 
         newTile.SetActive(true);
     }
-    
+
+    public void ShowPauseUi() {
+        pausePanel.SetActive(true);
+        pauseResumeButton.onClick.AddListener(HidePauseUi);
+        pauseRetryButton.onClick.AddListener(gameManager.Retry);
+        pauseBackButton.onClick.AddListener(gameManager.GiveUp);
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        player.GetComponent<Player>().lockPlayer = true;
+    }
+
+    public void HidePauseUi() {
+        pausePanel.SetActive(false);
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        player.GetComponent<Player>().lockPlayer = false;
+    }
     public void ShowExitUi() {
         exitReached.SetActive(true);
         exitReachedButtons.SetActive(true);
