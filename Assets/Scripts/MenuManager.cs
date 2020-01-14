@@ -46,7 +46,6 @@ public class MenuManager : MonoBehaviour {
     }
 
     private void Update() {
-
         Ray forwardRay = mainCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(forwardRay, out RaycastHit hit, 10)) {
             if (hit.collider.gameObject.CompareTag("MenuButton")) {
@@ -86,6 +85,9 @@ public class MenuManager : MonoBehaviour {
             case "HelpButton":
                 anim.Play("MainToHelp");
                 break;
+            case "ControlsButton":
+                anim.Play("MainToControls");
+                break;
             case "QuitButton":
                 Application.Quit(); // Doesn't work with Unity editor
                 break;
@@ -101,34 +103,20 @@ public class MenuManager : MonoBehaviour {
             case "HelpBackButton":
                 anim.Play("HelpToMain");
                 break;
+            case "ControlsBackButton":
+                anim.Play("ControlsToMain");
+                break;
             case "HelpNextButton":
-                if (helpText2.activeSelf) {
-                    helpText2.SetActive(false);
-                    controlsText.SetActive(true);
-                    helpNextButton.SetActive(false);
-                    helpPreviousButton.SetActive(true);
-                }
-                else {
-                    helpText1.SetActive(false);
-                    helpText2.SetActive(true);
-                    helpNextButton.SetActive(true);
-                    helpPreviousButton.SetActive(true);
-                }
-
+                helpText1.SetActive(false);
+                helpText2.SetActive(true);
+                helpNextButton.SetActive(false);
+                helpPreviousButton.SetActive(true);
                 break;
             case "HelpPreviousButton":
-                if (helpText2.activeSelf) {
-                    helpText1.SetActive(true);
-                    helpText2.SetActive(false);
-                    helpNextButton.SetActive(true);
-                    helpPreviousButton.SetActive(false);
-                }
-                else {
-                    controlsText.SetActive(false);
-                    helpText2.SetActive(true);
-                    helpNextButton.SetActive(false);
-                    helpPreviousButton.SetActive(true);
-                }
+                helpText1.SetActive(true);
+                helpText2.SetActive(false);
+                helpNextButton.SetActive(true);
+                helpPreviousButton.SetActive(false);
                 break;
             case "Level1Button":
                 SceneManager.LoadScene("Level1");

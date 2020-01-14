@@ -18,7 +18,7 @@ public class Player : MonoBehaviour {
 	private int fuelMaxMultiplier;
 	private float fuelConsumptionMultiplier;
 	private enum FuelTank {
-		Level1 = 700,
+		Level1 = 800,
 		Level2 = 700,
 		Level3 = 1100,
 	}
