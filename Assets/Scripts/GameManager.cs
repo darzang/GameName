@@ -35,7 +35,6 @@ public class GameManager : MonoBehaviour {
     // Tiles
     public GameObject startingTile;
     public GameObject currentTile;
-    public bool exitRevealed;
     public int tryCount;
     public int tryMax;
     public List<Fragment> mapFragments = new List<Fragment>();
@@ -65,7 +64,6 @@ public class GameManager : MonoBehaviour {
         if (gameData == null) {
             Debug.Log("No Data to load");
         } else {
-            exitRevealed = gameData.exitRevealed;
             mapFragments = gameData.mapFragments;
             tryCount = gameData.tryCount + 1;
             discoveredTiles = gameData.totalDiscoveredTiles;
@@ -78,10 +76,13 @@ public class GameManager : MonoBehaviour {
             }
             uiManager.DrawMap(discoveredTiles);
             uiManager.UpdateDiscoveryText(discoveredTiles.Count,tileManager.GetMapSize());
-            Debug.Log($"Data loaded: exitRevealed: {gameData.exitRevealed} | try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {discoveredTiles.Count}");
+            Debug.Log($"Data loaded: try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {discoveredTiles.Count}, levelOver: {gameData.levelOver}");
             if(discoveredTiles.Count > 0) uiManager.AddInfoMessage("Previous data loaded");
         }
         InstantiatePlayer();
+        if (gameData != null) {
+            uiManager.DrawMap(discoveredTiles);
+        }
         playerAudio = player.GetComponent<AudioSource>();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
@@ -96,7 +97,7 @@ public class GameManager : MonoBehaviour {
             uiManager.UpdateMiniMap();
             uiManager.DrawMap(discoveredTiles);
             if (currentTile.CompareTag("Exit")) {
-                GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed, true), SceneManager.GetActiveScene().name);
+                GameDataManager.SaveFile(new GameData(0, new List<Fragment>(), new List<string>(), true), SceneManager.GetActiveScene().name);
                 uiManager.ShowExitUi();
             }
         }
@@ -119,7 +120,7 @@ public class GameManager : MonoBehaviour {
         // Useful for now, to remove later
         // if (Input.GetKeyUp("r")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
         // if (Input.GetKeyUp("n")) NextLevel();
-        if (Input.GetKeyUp("p")) uiManager.ShowPauseUi();
+        if (Input.GetKeyUp("p") || Input.GetKeyUp(KeyCode.Escape)) uiManager.ShowPauseUi();
     }
 
     private void CheckForTileDiscovery() {
@@ -169,10 +170,10 @@ public class GameManager : MonoBehaviour {
         if (tryCount < tryMax) {
             Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
             mapFragments.Add(currentFragment);
-            GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed), SceneManager.GetActiveScene().name);
+            GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles), SceneManager.GetActiveScene().name);
         }
         else {
-            GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
+            GameDataManager.ResetFile(SceneManager.GetActiveScene().name);
         }
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
@@ -181,10 +182,10 @@ public class GameManager : MonoBehaviour {
         if (tryCount < tryMax) {
             Fragment currentFragment = CreateFragment(tileManager.GetTilesNames(revealedTiles), currentTile.name, tryCount);
             mapFragments.Add(currentFragment);
-            GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles, exitRevealed), SceneManager.GetActiveScene().name);
+            GameDataManager.SaveFile(new GameData(tryCount, mapFragments, discoveredTiles), SceneManager.GetActiveScene().name);
         }
         else {
-            GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
+            GameDataManager.ResetFile(SceneManager.GetActiveScene().name);
         }
         SceneManager.LoadScene("MenuScene");
     }
@@ -300,9 +301,6 @@ public class GameManager : MonoBehaviour {
         fragment.tiles.ForEach(tile => {
             if (discoveredTiles.Count == 0 || !discoveredTiles.Contains(tile)) {
                 discoveredTiles.Add(tile);
-                if (!exitRevealed && GameObject.Find(tile).CompareTag("Exit")) {
-                    exitRevealed = true;
-                }
             }
         });
         uiManager.DrawMap(discoveredTiles);

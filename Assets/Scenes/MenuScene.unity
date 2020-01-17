@@ -13134,7 +13134,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_text
       value: "The difficulty influences the following things:\r\n\nThe amount of maximum
-        try you get by level.\r\n\nThe battery consumption and its maximum capacity.\r\n\nThe
+        tries you get by level.\r\n\nThe battery consumption and its maximum capacity.\r\n\nThe
         chance of having an helping arrow appearing when picking up a fragment.\n\nThe
         distance from which you spawn to the exit."
       objectReference: {fileID: 0}

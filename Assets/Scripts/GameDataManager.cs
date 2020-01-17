@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
@@ -29,10 +30,16 @@ public class GameDataManager : MonoBehaviour {
       return data;
    }
 
-   public static void EraseFile(string sceneName) {
+   public static void ResetFile(string sceneName) {
       string path = $"{Application.persistentDataPath}/{sceneName}.dat";
+      Debug.Log($"Resetting file at: {path}");
       if (File.Exists(path)) {
-         Debug.Log("File erased");
+         GameData data = LoadFile(path);
+         data.tryCount = 0;
+         data.mapFragments = new List<Fragment>();
+         data.totalDiscoveredTiles = new List<string>();
+         SaveFile(data, sceneName);
+         Debug.Log("File reset");
          File.Delete(path);
       }
    }
