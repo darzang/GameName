@@ -90,7 +90,7 @@ public class UIManager : MonoBehaviour {
     }
 
     public void UpdateMiniMap() {
-        foreach (GameObject tile in gameManager.revealedTiles) AddTileToMiniMap(tile);
+        foreach (GameObject tile in gameManager.revealedTilesInRun) AddTileToMiniMap(tile);
     }
 
     private void UpdateBatteryLevel() {
@@ -115,12 +115,12 @@ public class UIManager : MonoBehaviour {
     private void AddTileToMiniMap(GameObject tile) {
         // Regenerate previously drawn tiles
         Vector3 position = tile.transform.position;
-        if (tileManager.HasBeenRevealed(tile, gameManager.revealedTiles)) {
+        if (tileManager.HasBeenRevealed(tile, gameManager.revealedTilesInRun)) {
             Destroy(GameObject.Find($"MiniMap_{tile.gameObject.name}"));
         }
 
-        if (!tileManager.HasBeenRevealed(tile, gameManager.revealedTiles))
-            tileManager.AddToRevealedTiles(tile, gameManager.revealedTiles);
+        if (!tileManager.HasBeenRevealed(tile, gameManager.revealedTilesInRun))
+            tileManager.AddToRevealedTiles(tile, gameManager.revealedTilesInRun);
 
         // Instantiate new tile and anchor it in the middle of the panel
         GameObject newTile =
