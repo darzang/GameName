@@ -27,7 +27,7 @@ public class UIManager : MonoBehaviour {
     public GameObject mapPanel;
     public GameObject mapFragmentsPanel;
     public GameObject buttonPanel;
-    public GameObject player;
+    public Player player;
     public GameObject fragmentPanelPrefab;
     public GameObject infoPanel;
     public TextMeshProUGUI discoveryText;
@@ -40,8 +40,6 @@ public class UIManager : MonoBehaviour {
     readonly Color32 playerColor = new Color32(0, 0, 255, 255);
     readonly Color32 exitColor = new Color32(255, 0, 0, 255);
     readonly Color32 spawnTextColor = new Color32(0, 0, 0, 255);
-    double fuelTank;
-    double fuelCount;
     private bool batteryLevelBlinking;
     private Quaternion initialRotation;
     private int totalInfoText = 0;
@@ -54,20 +52,21 @@ public class UIManager : MonoBehaviour {
     }
 
     private void Start() {
-        player = gameManager.player;
-        fuelTank = player.GetComponent<Player>().fuelTank;
+        player = gameManager.player.GetComponent<Player>();
         DrawStartingMiniMap();
         tryCountText.text = $"Try number {gameManager.tryCount} / {gameManager.tryMax}";
     }
 
     private void Update() {
         RotateMiniMap();
-        fuelCount = player.GetComponent<Player>().fuelCount;
-        if (fuelCount >= 0) {
+        player.fuelCount = player.GetComponent<Player>().fuelCount;
+        if (player.fuelCount >= 0) {
             UpdateBatteryLevel();
-            if (fuelCount <= fuelTank * 0.5 && !batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel());
+            if (player.fuelCount <= gameManager.playerData.batteryMax * 0.5 && !batteryLevelBlinking)
+                StartCoroutine(BlinkBatteryLevel());
         }
-        if (fuelCount <= 0 && !batteryDead.gameObject.activeSelf) {
+
+        if (player.fuelCount <= 0 && !batteryDead.gameObject.activeSelf) {
             batteryDead.SetActive(true);
             Cursor.visible = true;
             StopCoroutine(nameof(BlinkBatteryLevel));
@@ -77,15 +76,17 @@ public class UIManager : MonoBehaviour {
                 resetText.gameObject.SetActive(true);
                 GameObject.Find("GiveUpText").GetComponent<TextMeshProUGUI>().text = "Fuck off and die";
             }
+
             Cursor.lockState = CursorLockMode.None;
         }
+
         RotateMiniMap();
     }
 
     private void RotateMiniMap() {
         float angle = player.transform.eulerAngles.y + 180;
-        Image[] tiles=  miniMapPanel.GetComponentsInChildren<Image>();
-        foreach (Image tile in tiles) tile.transform.rotation = Quaternion.Euler(0f,0f,0f);
+        Image[] tiles = miniMapPanel.GetComponentsInChildren<Image>();
+        foreach (Image tile in tiles) tile.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
         miniMapPanel.transform.rotation = Quaternion.Euler(0, 0, angle);
     }
 
@@ -97,15 +98,15 @@ public class UIManager : MonoBehaviour {
         // Update scale
         Vector3 localScale = fuelBar.transform.localScale;
         localScale = new Vector3(
-            (float) (fuelCount / fuelTank),
+            (float) (player.fuelCount / gameManager.playerData.batteryMax),
             localScale.y,
             localScale.z
         );
         fuelBar.transform.localScale = localScale;
         // Update color
-        fuelBar.GetComponent<Image>().color = fuelCount > fuelTank / 2
-            ? new Color32((byte) (fuelTank - fuelCount), 255, 0, 255)
-            : new Color32(255, (byte) fuelCount, 0, 255);
+        fuelBar.GetComponent<Image>().color = player.fuelCount > gameManager.playerData.batteryMax / 2
+            ? new Color32((byte) (gameManager.playerData.batteryMax - player.fuelCount), 255, 0, 255)
+            : new Color32(255, (byte) player.fuelCount, 0, 255);
     }
 
     private void DrawStartingMiniMap() {
@@ -131,7 +132,7 @@ public class UIManager : MonoBehaviour {
         newTile.GetComponent<RectTransform>().SetParent(miniMapPanel.transform);
         newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
         newTile.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
-        newTile.GetComponent<RectTransform>().rotation = Quaternion.Euler(0f,0f,0f);
+        newTile.GetComponent<RectTransform>().rotation = Quaternion.Euler(0f, 0f, 0f);
 
         // Set the position of the new tile
         if (tile == tileManager.GetTileUnderPlayer()) {
@@ -178,9 +179,9 @@ public class UIManager : MonoBehaviour {
         Basically only the anchor is different
          */
         Color32 tileColor = GetTileColor(tile.tag);
-        Vector3 position = tile.tag == "Player" 
-            ? gameManager.currentTile.transform.position 
-            : tile.transform.position ;
+        Vector3 position = tile.tag == "Player"
+            ? gameManager.currentTile.transform.position
+            : tile.transform.position;
         GameObject newTile =
             new GameObject($"Map_{tile.gameObject.name}");
         Image newImage = newTile.AddComponent<Image>();
@@ -199,8 +200,7 @@ public class UIManager : MonoBehaviour {
         newTile.SetActive(true);
     }
 
-    private void DrawWholeMap(GameObject[,] map2D)
-    {
+    private void DrawWholeMap(GameObject[,] map2D) {
         RectTransform rect = mapPanel.GetComponent<RectTransform>();
         rect.sizeDelta = new Vector2((map2D.GetLength(0) + 1) * 10, (map2D.GetLength(1) + 1) * 10);
         for (int i = 0; i < map2D.GetLength(0); i++) {
@@ -221,11 +221,11 @@ public class UIManager : MonoBehaviour {
                 AddTileToMap(gameManager.player);
                 continue;
             }
+
             AddTileToMap(tile);
         }
     }
-    
-    
+
 
     private Color32 GetTileColor(string tileTag) {
         switch (tileTag) {
@@ -249,13 +249,14 @@ public class UIManager : MonoBehaviour {
         batteryLevelBlinking = true;
         TextMeshProUGUI batteryText = batteryLevel.GetComponent<TextMeshProUGUI>();
         while (true) {
-            if (fuelCount > fuelTank * 0.2) {
+            if (player.fuelCount > gameManager.playerData.batteryMax * 0.2) {
                 batteryText.text = "BATTERY LEVEL LOW";
                 batteryLevel.SetActive(true);
                 yield return new WaitForSeconds(0.4f);
                 batteryLevel.SetActive(false);
                 yield return new WaitForSeconds(0.4f);
-            } else {
+            }
+            else {
                 batteryText.text = "BATTERY LEVEL CRITICAL";
                 batteryLevel.SetActive(true);
                 yield return new WaitForSeconds(0.2f);
@@ -269,6 +270,7 @@ public class UIManager : MonoBehaviour {
         if (mapFragmentsPanel.transform.childCount > 0) {
             foreach (Transform panel in mapFragmentsPanel.transform) Destroy(panel.gameObject);
         }
+
         int fragmentNumber = 1;
         foreach (Fragment fragment in mapFragments.Where(fragment => fragment.discovered)) {
             DrawMapFragment(fragment.tiles, fragmentNumber);
@@ -342,9 +344,9 @@ public class UIManager : MonoBehaviour {
         // Get spawn tile associated to fragment number
         // GameObject spawnTileOfFragment = GameObject.Find(gameManager.spawnTilesString.ElementAt(fragmentNumber - 1));
         // newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
-            // tileManager.GetRelativePosition(spawnTileOfFragment, tile)[0] * 5,
-            // tileManager.GetRelativePosition(spawnTileOfFragment, tile)[1] * 5,
-            // 0);
+        // tileManager.GetRelativePosition(spawnTileOfFragment, tile)[0] * 5,
+        // tileManager.GetRelativePosition(spawnTileOfFragment, tile)[1] * 5,
+        // 0);
 
         // Set the size and scale of the tile
         newTile.GetComponent<RectTransform>().sizeDelta = new Vector2(5, 5);
@@ -374,8 +376,8 @@ public class UIManager : MonoBehaviour {
         Cursor.lockState = CursorLockMode.Locked;
         player.GetComponent<Player>().lockPlayer = false;
     }
-    public void ShowExitUi() {
 
+    public void ShowExitUi() {
         exitReached.SetActive(true);
         exitReachedButtons.SetActive(true);
         nextLevelButton.onClick.AddListener(gameManager.NextLevel);
@@ -385,34 +387,38 @@ public class UIManager : MonoBehaviour {
         Cursor.lockState = CursorLockMode.None;
         player.GetComponent<Player>().lockPlayer = true;
         if (SceneManager.GetActiveScene().name == "Level3") {
-            exitReached.GetComponent<TextMeshProUGUI>().text = "Congrats beta tester, you've been through all the levels !!";
+            exitReached.GetComponent<TextMeshProUGUI>().text =
+                "Congrats beta tester, you've been through all the levels !!";
             exitReached.GetComponent<TextMeshProUGUI>().fontSize = 17;
             nextLevelButton.gameObject.SetActive(false);
-            backToMenuButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(0,0);
+            backToMenuButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
         }
     }
+
     //You reached the exit !!!
 //Congrats beta tester, you've been through all the levels !!
     public void UpdateDiscoveryText(int discoveredTiles, int mapSize) {
         if (discoveredTiles > 0) {
-            discoveryText.text = $"Discovered {Math.Round((double) discoveredTiles /  mapSize * 100)}%";
-        } else {
+            discoveryText.text = $"Discovered {Math.Round((double) discoveredTiles / mapSize * 100)}%";
+        }
+        else {
             discoveryText.text = "";
         }
     }
 
     public void AddInfoMessage(string message) {
-        
-         // Handle position of previous texts if any 
+        // Handle position of previous texts if any 
         if (infoPanel.transform.childCount > 0) {
             foreach (Transform previousText in infoPanel.transform) {
                 RectTransform rectTransform = previousText.GetComponent<RectTransform>();
                 if (rectTransform.anchoredPosition.y == 80) {
                     Destroy(previousText.gameObject);
                 }
-                rectTransform.anchoredPosition = new Vector3(0,rectTransform.anchoredPosition.y + 20,0);
+
+                rectTransform.anchoredPosition = new Vector3(0, rectTransform.anchoredPosition.y + 20, 0);
             }
         }
+
         // Instantiate new text
         GameObject infoText = Instantiate(infoTextPrefab, infoPanel.transform.position,
             infoPanel.transform.rotation, infoPanel.transform);
@@ -420,15 +426,14 @@ public class UIManager : MonoBehaviour {
         infoText.name = $"InfoText{totalInfoText}";
         TextMeshProUGUI text = infoText.GetComponent<TextMeshProUGUI>();
         text.text = message;
-        
+
         // Adjust Position
         infoText.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0);
         infoText.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0);
         infoText.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0);
         infoText.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
-        
+
         // Destroy it later
         Destroy(infoText, 5f);
     }
-
 }

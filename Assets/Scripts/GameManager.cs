@@ -41,8 +41,6 @@ public class GameManager : MonoBehaviour {
 
     // Environment
     public GameObject ceiling;
-
-    public float discoveryRange = 0.75f;
     public PlayerData playerData;
 
     private void Awake() {
@@ -65,15 +63,16 @@ public class GameManager : MonoBehaviour {
                     InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);
                 }
             }
+
             uiManager.DrawMap(discoveredTiles);
             uiManager.UpdateDiscoveryText(discoveredTiles.Count, tileManager.GetMapSize());
-            Debug.Log($"Data loaded: try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {discoveredTiles.Count}");
+            Debug.Log(
+                $"Data loaded: try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {discoveredTiles.Count}");
             if (discoveredTiles.Count > 0) uiManager.AddInfoMessage("Previous data loaded");
         }
 
         playerData = FileManager.LoadPlayerDataFile();
-        
-        tryMax = playerData.levelCompleted + 4;
+        tryMax = playerData.levelCompleted + 5;
         InstantiatePlayer();
         if (levelData != null) {
             uiManager.DrawMap(discoveredTiles);
@@ -82,7 +81,8 @@ public class GameManager : MonoBehaviour {
         playerAudio = player.GetComponent<AudioSource>();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
-
+        playerLamp.range = 1.5f * playerData.lightMultiplier;
+        playerLamp.intensity = 1 * playerData.lightMultiplier;
         // StartCoroutine(tileManager.DoPathPlanningCoroutine());
     }
 
@@ -93,8 +93,13 @@ public class GameManager : MonoBehaviour {
             uiManager.UpdateMiniMap();
             uiManager.DrawMap(discoveredTiles);
             if (currentTile.CompareTag("Exit")) {
-                FileManager.SaveLevelDataFile(new LevelData(0, new List<Fragment>(), new List<string>()),
-                    SceneManager.GetActiveScene().name);
+                string sceneName = SceneManager.GetActiveScene().name;
+                FileManager.DeleteFile(sceneName);
+                Int32.TryParse(sceneName.Substring(sceneName.Length - 1), out int levelNumber);
+                if (playerData.levelCompleted < levelNumber) {
+                    playerData.levelCompleted += 1;
+                }
+                FileManager.SavePlayerDataFile(playerData);
                 uiManager.ShowExitUi();
             }
         }
@@ -103,7 +108,14 @@ public class GameManager : MonoBehaviour {
 
         // Toggle lamp
         if (Input.GetMouseButtonDown(0)) {
-            lightAudio.clip = playerLamp.enabled ? lightSounds[1] : lightSounds[0];
+            if (playerLamp.enabled) {
+                lightAudio.clip = lightSounds[1];
+                uiManager.AddInfoMessage("Lamp Disabled");
+            }
+            else {
+                lightAudio.clip = lightSounds[0];
+                uiManager.AddInfoMessage("Lamp enabled");
+            }
             lightAudio.Play();
             playerLamp.enabled = !playerLamp.enabled;
         }
@@ -122,7 +134,7 @@ public class GameManager : MonoBehaviour {
 
     private void CheckForTileDiscovery() {
         bool needMapUpdate = false;
-        Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, discoveryRange);
+        Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, playerData.discoveryRange);
         foreach (Collider tile in hitColliders) {
             if (!tileManager.HasBeenRevealed(tile.gameObject, revealedTilesInRun)
                 && (tile.gameObject.CompareTag("Floor")
@@ -182,10 +194,9 @@ public class GameManager : MonoBehaviour {
         // Get the furthest tile
         List<GameObject> floorTiles = tileManager.GetTilesByType("Floor");
         floorTiles = floorTiles.OrderBy(t => t.GetComponent<Tile>().score).ToList();
-
-        int tilesCount = (int) Math.Round((double) floorTiles.Count);
-        Debug.Log($"{tilesCount} tiles available");
-        GameObject tile = floorTiles[floorTiles.Count - Random.Range(1, tilesCount)];
+        // Get 10 % furthest tiles
+        int index = floorTiles.Count - Random.Range(1, (int) Math.Round(floorTiles.Count / 10f));
+        GameObject tile = floorTiles[index];
         Vector3 position = tile.transform.position;
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(
             position.x,
@@ -195,8 +206,6 @@ public class GameManager : MonoBehaviour {
         player = playerTransform.gameObject;
         startingTile = tile;
         currentTile = tile;
-        Debug.Log(
-            $"Instantiated player at {tile.GetComponent<Tile>().score} distance, max is {GetFurthestTile().GetComponent<Tile>().score}");
     }
 
     private void InstantiateFragment(Fragment fragmentIn) {

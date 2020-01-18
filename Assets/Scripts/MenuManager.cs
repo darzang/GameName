@@ -15,11 +15,10 @@ public class MenuManager : MonoBehaviour {
     public GameObject helpNextButton;
     public GameObject helpPreviousButton;
     public PlayerData playerData;
-    private int levelMax;
     private void Start() {
         playerData= FileManager.LoadPlayerDataFile();
         if (playerData == null) {
-            playerData = new PlayerData(1,800,1,1,1,1,0,false, 10);
+            playerData = new PlayerData();
             FileManager.SavePlayerDataFile(playerData);
         }
         Debug.Log(JsonUtility.ToJson(playerData, true));
@@ -92,10 +91,10 @@ public class MenuManager : MonoBehaviour {
                 SceneManager.LoadScene("Level1");
                 break;
             case "Level2Button" :
-                if(levelMax > 1) SceneManager.LoadScene("Level2");
+                if(playerData.levelCompleted > 0) SceneManager.LoadScene("Level2");
                 break;
             case "Level3Button" :
-                if(levelMax > 2) SceneManager.LoadScene("Level3");
+                if(playerData.levelCompleted > 1) SceneManager.LoadScene("Level3");
                 break;
             default:
                 Debug.LogError($"Case not covered {button.name}");

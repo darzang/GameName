@@ -10,7 +10,7 @@ public class PlayerData: object {
     public int levelCompleted;
     public bool onboardingDone;
     public int spawnArrowChance;
-    public PlayerData(float playerSpeedIn, int batteryMaxIn, float fuelComsumptionIn, float lightMultiplierIn, float lightConsumptionIn, float discoveryRangeIn, int levelCompletedIn, bool onboardingDoneIn, int spawnArrowChanceIn) {
+    public PlayerData(float playerSpeedIn = 1, int batteryMaxIn = 1200, float fuelComsumptionIn = 1, float lightMultiplierIn = 1, float lightConsumptionIn = 1, float discoveryRangeIn = 0.75f, int levelCompletedIn = 0, bool onboardingDoneIn = false, int spawnArrowChanceIn = 10) {
         playerSpeed = playerSpeedIn;
         batteryMax = batteryMaxIn;
         fuelComsumption = fuelComsumptionIn;
@@ -21,13 +21,4 @@ public class PlayerData: object {
         onboardingDone = onboardingDoneIn;
         spawnArrowChance = spawnArrowChanceIn;
     }
-
-    public void FirstRunDone() {
-        onboardingDone = true;
-    }
-
-    public void UpdatePlayerSpeed(float speed) {
-        playerSpeed = speed;
-    }
-    
 }
