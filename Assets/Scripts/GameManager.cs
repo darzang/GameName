@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 public class GameManager : MonoBehaviour {
 // Managers
     public TileManager tileManager;
-
+    public FragmentManager fragmentManager;
     public UIManager uiManager;
 
     // Player components
@@ -36,8 +36,7 @@ public class GameManager : MonoBehaviour {
     public int tryMax;
     public List<Fragment> mapFragments = new List<Fragment>();
     public List<GameObject> revealedTilesInRun;
-    public List<string> discoveredTiles = new List<string>();
-
+    public List<string> totalDiscoveredTiles = new List<string>();
 
     // Environment
     public GameObject ceiling;
@@ -51,31 +50,32 @@ public class GameManager : MonoBehaviour {
         LevelData levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
         if (levelData == null) {
             Debug.Log("No Data to load");
+            mapFragments = fragmentManager.GenerateRandomFragments(tileManager.GetAllTiles());
         }
         else {
             mapFragments = levelData.mapFragments;
             tryCount = levelData.tryCount + 1;
-            discoveredTiles = levelData.totalDiscoveredTiles;
-            foreach (Fragment fragment in mapFragments) {
-                if (!fragment.discovered) InstantiateFragment(fragment);
-                if (fragment.arrowRevealed) {
-                    GameObject tile = GameObject.Find(fragment.spawnTile);
-                    InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);
-                }
-            }
-
-            uiManager.DrawMap(discoveredTiles);
-            uiManager.UpdateDiscoveryText(discoveredTiles.Count, tileManager.GetMapSize());
+            totalDiscoveredTiles = levelData.totalDiscoveredTiles;
+            uiManager.DrawMap(totalDiscoveredTiles);
+            uiManager.UpdateDiscoveryText(totalDiscoveredTiles.Count, tileManager.GetMapSize());
             Debug.Log(
-                $"Data loaded: try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {discoveredTiles.Count}");
-            if (discoveredTiles.Count > 0) uiManager.AddInfoMessage("Previous data loaded");
+                $"Data loaded: try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {totalDiscoveredTiles.Count}");
+            if (totalDiscoveredTiles.Count > 0) uiManager.AddInfoMessage("Previous data loaded");
+        }
+
+        foreach (Fragment fragment in mapFragments) {
+            if (!fragment.discovered) InstantiateFragment(fragment);
+            if (fragment.arrowRevealed) {
+                GameObject tile = GameObject.Find(fragment.spawnTile);
+                InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);
+            }
         }
 
         playerData = FileManager.LoadPlayerDataFile();
         tryMax = playerData.levelCompleted + 5;
         InstantiatePlayer();
         if (levelData != null) {
-            uiManager.DrawMap(discoveredTiles);
+            uiManager.DrawMap(totalDiscoveredTiles);
         }
 
         playerAudio = player.GetComponent<AudioSource>();
@@ -91,7 +91,7 @@ public class GameManager : MonoBehaviour {
         if (tileManager.GetTileUnderPlayer() != currentTile) {
             currentTile = tileManager.GetTileUnderPlayer();
             uiManager.UpdateMiniMap();
-            uiManager.DrawMap(discoveredTiles);
+            uiManager.DrawMap(totalDiscoveredTiles);
             if (currentTile.CompareTag("Exit")) {
                 string sceneName = SceneManager.GetActiveScene().name;
                 FileManager.DeleteFile(sceneName);
@@ -99,6 +99,7 @@ public class GameManager : MonoBehaviour {
                 if (playerData.levelCompleted < levelNumber) {
                     playerData.levelCompleted += 1;
                 }
+
                 FileManager.SavePlayerDataFile(playerData);
                 uiManager.ShowExitUi();
             }
@@ -116,6 +117,7 @@ public class GameManager : MonoBehaviour {
                 lightAudio.clip = lightSounds[0];
                 uiManager.AddInfoMessage("Lamp enabled");
             }
+
             lightAudio.Play();
             playerLamp.enabled = !playerLamp.enabled;
         }
@@ -151,10 +153,7 @@ public class GameManager : MonoBehaviour {
 
     public void Retry() {
         if (tryCount < tryMax) {
-            Fragment currentFragment =
-                CreateFragment(tileManager.GetTilesNames(revealedTilesInRun), currentTile.name, tryCount);
-            mapFragments.Add(currentFragment);
-            FileManager.SaveLevelDataFile(new LevelData(tryCount, mapFragments, discoveredTiles),
+            FileManager.SaveLevelDataFile(new LevelData(tryCount, mapFragments, totalDiscoveredTiles),
                 SceneManager.GetActiveScene().name);
         }
         else {
@@ -169,7 +168,7 @@ public class GameManager : MonoBehaviour {
             Fragment currentFragment =
                 CreateFragment(tileManager.GetTilesNames(revealedTilesInRun), currentTile.name, tryCount);
             mapFragments.Add(currentFragment);
-            FileManager.SaveLevelDataFile(new LevelData(tryCount, mapFragments, discoveredTiles),
+            FileManager.SaveLevelDataFile(new LevelData(tryCount, mapFragments, totalDiscoveredTiles),
                 SceneManager.GetActiveScene().name);
         }
         else {
@@ -243,12 +242,12 @@ public class GameManager : MonoBehaviour {
         fragment.discovered = true;
         player.GetComponent<AudioSource>().PlayOneShot(fragmentPickupAudio);
         fragment.tiles.ForEach(tile => {
-            if (discoveredTiles.Count == 0 || !discoveredTiles.Contains(tile)) {
-                discoveredTiles.Add(tile);
+            if (totalDiscoveredTiles.Count == 0 || !totalDiscoveredTiles.Contains(tile)) {
+                totalDiscoveredTiles.Add(tile);
             }
         });
-        uiManager.DrawMap(discoveredTiles);
-        uiManager.UpdateDiscoveryText(discoveredTiles.Count, tileManager.GetMapSize());
+        uiManager.DrawMap(totalDiscoveredTiles);
+        uiManager.UpdateDiscoveryText(totalDiscoveredTiles.Count, tileManager.GetMapSize());
         uiManager.AddInfoMessage("Fragment picked up");
         // Randomly spawn arrow
 

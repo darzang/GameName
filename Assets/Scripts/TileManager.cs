@@ -79,6 +79,14 @@ public class TileManager : MonoBehaviour {
         return new List<GameObject>(GameObject.FindGameObjectsWithTag (type));
     }
 
+    public List<GameObject> GetAllTiles() {
+        List<GameObject> walls = GameObject.FindGameObjectsWithTag("Wall").ToList();
+        List<GameObject> obstacles = GameObject.FindGameObjectsWithTag("Obstacle").ToList();
+        List<GameObject> floors = GameObject.FindGameObjectsWithTag("Floor").ToList();
+        List<GameObject> exit = GameObject.FindGameObjectsWithTag("Exit").ToList();
+        return walls.Concat(obstacles.Concat(floors.Concat(exit))).ToList();
+    }
+
     public GameObject GetTileUnderPlayer () {
         Ray ray = new Ray (gameManager.player.transform.position, Vector3.down);
         return Physics.Raycast (ray, out RaycastHit hit, 10) ? hit.collider.gameObject : null;

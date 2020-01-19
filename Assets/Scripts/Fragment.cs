@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
+using Random = System.Random;
 
 [System.Serializable]
 public class Fragment {
@@ -14,5 +17,4 @@ public class Fragment {
         discovered = false;
         arrowRevealed = false;
     }
-    
-}
+    }
