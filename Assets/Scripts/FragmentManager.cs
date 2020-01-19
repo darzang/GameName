@@ -7,7 +7,6 @@ using Random = UnityEngine.Random;
 
 public class FragmentManager : MonoBehaviour {
     // Start is called before the first frame update
-
     public List<Fragment> GenerateRandomFragments(List<GameObject> tiles, List<GameObject> floorTiles,
         TileManager tileManager) {
         int nbFragments = (int) Math.Round(tiles.Count / 15.0);
@@ -136,5 +135,9 @@ public class FragmentManager : MonoBehaviour {
         }
 
         return closestFragment;
+    }
+
+    public void InstantiateFragment(Fragment fragment) {
+        
     }
 }

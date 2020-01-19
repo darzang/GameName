@@ -9209,8 +9209,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 841b57ee3d0056b4abe03e5ea438c184, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  difficulty: 
   tileManager: {fileID: 1942737561}
+  fragmentManager: {fileID: 1617449855}
   uiManager: {fileID: 435763045}
   playerPrefab: {fileID: 9136995392935929742, guid: f5d7b6cc7630fec498d6191d0ee75270,
     type: 3}
@@ -9229,14 +9229,22 @@ MonoBehaviour:
   fragments: {fileID: 1704834657}
   startingTile: {fileID: 0}
   currentTile: {fileID: 0}
-  exitRevealed: 0
   tryCount: 0
   tryMax: 0
   mapFragments: []
-  revealedTiles: []
-  discoveredTiles: []
+  revealedTilesInRun: []
+  totalDiscoveredTiles: []
   ceiling: {fileID: 1363304164}
-  discoveryRange: 0.75
+  playerData:
+    playerSpeed: 0
+    batteryMax: 0
+    fuelComsumption: 0
+    lightMultiplier: 0
+    lightConsumption: 0
+    discoveryRange: 0
+    levelCompleted: 0
+    onboardingDone: 0
+    spawnArrowChance: 0
 --- !u!1001 &463362487
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27814,6 +27822,49 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1616337507}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1617449854
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1617449856}
+  - component: {fileID: 1617449855}
+  m_Layer: 0
+  m_Name: FragmentManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1617449855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1617449854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bffa65c5c768764ab94530149d60347, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1617449856
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1617449854}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 5.4817357, y: -2.3669333, z: 3.741269}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1619160862
 PrefabInstance:
   m_ObjectHideFlags: 0
