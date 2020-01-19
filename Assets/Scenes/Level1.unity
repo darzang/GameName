@@ -876,6 +876,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bffa65c5c768764ab94530149d60347, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  wallPrefab: {fileID: 4345155007248232, guid: 3f42b47c5f893bb468d058ac8e5059c0, type: 3}
+  obstaclePrefab: {fileID: 4372593797964682, guid: 14be0063672697c468fd25e4670f3ab5,
+    type: 3}
+  floorPrefab: {fileID: 4460191914706220, guid: de45bfeb962f55545b93a84e0d8f138a,
+    type: 3}
+  exitPrefab: {fileID: 3830427674932654569, guid: 19c916e848d22034bb8008127516b320,
+    type: 3}
+  fragmentPrefab: {fileID: 6377249713866120990, guid: 1840936fa43ae6d4aa5f18dc7e0c3ecd,
+    type: 3}
 --- !u!4 &68185373
 Transform:
   m_ObjectHideFlags: 0

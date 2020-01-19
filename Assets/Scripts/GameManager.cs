@@ -63,7 +63,8 @@ public class GameManager : MonoBehaviour {
         }
 
         foreach (Fragment fragment in mapFragments) {
-            if (!fragment.discovered) InstantiateFragment(fragment);
+            if (!fragment.discovered) fragmentManager.InstantiateFragment(fragment);
+            // if (!fragment.discovered) InstantiateFragment(fragment);
             if (fragment.arrowRevealed) {
                 GameObject tile = GameObject.Find(fragment.spawnTile);
                 InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);

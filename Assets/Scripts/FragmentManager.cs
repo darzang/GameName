@@ -3,9 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
+using LightType = UnityEngine.LightType;
 using Random = UnityEngine.Random;
 
 public class FragmentManager : MonoBehaviour {
+    public Transform wallPrefab;
+    public Transform obstaclePrefab;
+    public Transform floorPrefab;
+    public Transform exitPrefab;
+
+    public Transform fragmentPrefab;
+
     // Start is called before the first frame update
     public List<Fragment> GenerateRandomFragments(List<GameObject> tiles, List<GameObject> floorTiles,
         TileManager tileManager) {
@@ -137,7 +146,53 @@ public class FragmentManager : MonoBehaviour {
         return closestFragment;
     }
 
-    public void InstantiateFragment(Fragment fragment) {
-        
+    public void InstantiateFragment(Fragment fragmentIn) {
+        GameObject spawnTile = GameObject.Find(fragmentIn.spawnTile);
+        Vector3 position = spawnTile.transform.position;
+        Transform fragment = Instantiate(fragmentPrefab, new Vector3(
+            position.x,
+            position.y + 0.35f,
+            position.z
+        ), Quaternion.identity);
+        fragment.name = $"Fragment_{fragmentIn.number}";
+        fragment.SetParent(GameObject.Find("Fragments").transform);
+        foreach (string tileName in fragmentIn.tiles) {
+            GameObject realTile = GameObject.Find(tileName);
+            Transform tilePrefab;
+            switch (realTile.tag) {
+                case "Wall":
+                    tilePrefab = wallPrefab;
+                    break;
+                case "Obstacle":
+                    tilePrefab = obstaclePrefab;
+                    break;
+                case "Exit":
+                    tilePrefab = exitPrefab;
+                    break;
+                case "Floor":
+                    tilePrefab = floorPrefab;
+                    break;
+                default:
+                    Debug.Log($"Tag not found for tile {tileName} with tag {realTile.tag}");
+                    tilePrefab = exitPrefab;
+                    break;
+            }
+
+
+            Transform fragmentTile = Instantiate(tilePrefab, new Vector3(
+                realTile.transform.position.x,
+                realTile.transform.position.y,
+                realTile.transform.position.z
+            ), Quaternion.identity);
+            if (tilePrefab == exitPrefab) {
+                fragmentTile.gameObject.GetComponentInChildren<Light>().enabled = false;
+            }
+
+            fragmentTile.gameObject.GetComponent<BoxCollider>().enabled = false;
+
+            fragmentTile.SetParent(fragment);
+        }
+        fragment.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
+       
     }
 }
