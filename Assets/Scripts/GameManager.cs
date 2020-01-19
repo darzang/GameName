@@ -46,11 +46,10 @@ public class GameManager : MonoBehaviour {
         tryCount = 1;
         ceiling.SetActive(true);
         tileManager.DoPathPlanning();
-
         LevelData levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
         if (levelData == null) {
             Debug.Log("No Data to load");
-            mapFragments = fragmentManager.GenerateRandomFragments(tileManager.GetAllTiles());
+            mapFragments = fragmentManager.GenerateRandomFragments(tileManager.GetAllTiles(), tileManager.GetTilesByType("Floor"), tileManager);
         }
         else {
             mapFragments = levelData.mapFragments;

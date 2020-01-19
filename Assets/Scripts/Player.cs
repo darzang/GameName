@@ -11,11 +11,15 @@ public class Player : MonoBehaviour {
     public GameManager gameManager;
 
     private void Awake() {
+        playerLamp = GameObject.Find("PlayerLamp").GetComponent<Light>();
         if (SceneManager.GetActiveScene().name != "MenuScene") {
             gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
             fuelCount = gameManager.playerData.batteryMax;
         }
-        playerLamp = GameObject.Find("PlayerLamp").GetComponent<Light>();
+        else {
+            playerLamp.enabled = true;
+        }
+
         charController = GetComponent<CharacterController>();
     }
 
@@ -31,7 +35,8 @@ public class Player : MonoBehaviour {
         if (playerLamp.enabled) {
             fuelCount -= gameManager.playerData.lightConsumption / 10 * (Time.deltaTime + 1);
         }
-        // if (Input.GetKeyUp("l")) fuelCount += 100;
+
+        if (Input.GetKeyUp("l")) fuelCount += 100;
         // if (Input.GetKeyUp("k")) fuelCount -= 100;
     }
 
@@ -43,6 +48,6 @@ public class Player : MonoBehaviour {
         Vector3 rightMovement = playerTransform.right * horizontalInput;
         Vector3 totalMovement = forwardMovement + rightMovement;
         charController.SimpleMove(totalMovement);
-        fuelCount -= gameManager.playerData.fuelComsumption * totalMovement.magnitude *(Time.deltaTime + 1) ;
+        fuelCount -= gameManager.playerData.fuelComsumption * totalMovement.magnitude * (Time.deltaTime + 1);
     }
 }

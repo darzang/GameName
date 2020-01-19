@@ -24,13 +24,27 @@ public class TileManager : MonoBehaviour {
         }
     }
 
-    private List<GameObject> GetNeighborTiles(GameObject tile) {
+    private List<GameObject> GetNeighborWalkableTiles(GameObject tile) {
         List<GameObject> neighborTiles = new List<GameObject>();
         RaycastHit hit;
         List<Vector3> directions = new List<Vector3> { Vector3.back, Vector3.forward, Vector3.left, Vector3.right };
         foreach (Vector3 direction in directions) {
             if (Physics.Raycast(tile.transform.position, direction,out hit, 1)) {
                 if(hit.collider.gameObject.CompareTag("Floor") || hit.collider.gameObject.CompareTag("Exit"))
+                    neighborTiles.Add(hit.collider.gameObject);
+            }
+        }
+        return neighborTiles;
+    }
+    
+    public List<GameObject> GetNeighborTiles(GameObject tile) {
+        List<GameObject> neighborTiles = new List<GameObject>();
+        RaycastHit hit;
+        List<Vector3> directions = new List<Vector3> { Vector3.back, Vector3.forward, Vector3.left, Vector3.right };
+        foreach (Vector3 direction in directions) {
+            if (Physics.Raycast(tile.transform.position, direction,out hit, 1)) {
+                GameObject neighor = hit.collider.gameObject;
+                if(neighor.CompareTag("Floor") || neighor.CompareTag("Exit") || neighor.CompareTag("Obstacle") ||  neighor.CompareTag("Wall"))
                     neighborTiles.Add(hit.collider.gameObject);
             }
         }
@@ -43,7 +57,7 @@ public class TileManager : MonoBehaviour {
             updated = false;
             foreach (GameObject tile in floorTiles) {
                 // Check Neighbor tiles
-                List<GameObject> neighborTiles = GetNeighborTiles(tile);
+                List<GameObject> neighborTiles = GetNeighborWalkableTiles(tile);
                 foreach (GameObject neighborTile in neighborTiles) {
                     if (neighborTile.CompareTag("Exit")) {
                         if (tile.GetComponent<Tile>().score == 1) continue;
