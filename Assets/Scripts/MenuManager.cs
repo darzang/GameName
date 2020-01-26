@@ -24,10 +24,8 @@ public class MenuManager : MonoBehaviour {
         if (playerData == null) {
             playerData = new PlayerData();
             FileManager.SavePlayerDataFile(playerData);
-        } else {
-            SetSkillsText();
         }
-
+        SetSkillsText();
         Debug.Log(JsonUtility.ToJson(playerData, true));
         Cursor.visible = false;
         anim = player.GetComponent<Animation>();
@@ -64,13 +62,13 @@ public class MenuManager : MonoBehaviour {
 
         switch (playerData.batteryMaxLevel) {
             case 0:
-                batteryMaxText.GetComponent<TextMeshPro>().text = "[][][]";
+                batteryMaxText.GetComponent<TextMeshPro>().text = "[1][2][4]";
                 break;
             case 1:
-                batteryMaxText.GetComponent<TextMeshPro>().text = "[v][][]";
+                batteryMaxText.GetComponent<TextMeshPro>().text = "[v][2][4]";
                 break;
             case 2:
-                batteryMaxText.GetComponent<TextMeshPro>().text = "[v][v][]";
+                batteryMaxText.GetComponent<TextMeshPro>().text = "[v][v][4]";
                 break;
             case 3:
                 batteryMaxText.GetComponent<TextMeshPro>().text = "[v][v][v]";
@@ -81,13 +79,13 @@ public class MenuManager : MonoBehaviour {
 
         switch (playerData.batteryUseLevel) {
             case 0:
-                batteryUseText.GetComponent<TextMeshPro>().text = "[][][]";
+                batteryUseText.GetComponent<TextMeshPro>().text = "[1][2][4]";
                 break;
             case 1:
-                batteryUseText.GetComponent<TextMeshPro>().text = "[v][][]";
+                batteryUseText.GetComponent<TextMeshPro>().text = "[v][2][4]";
                 break;
             case 2:
-                batteryUseText.GetComponent<TextMeshPro>().text = "[v][v][]";
+                batteryUseText.GetComponent<TextMeshPro>().text = "[v][v][4]";
                 break;
             case 3:
                 batteryUseText.GetComponent<TextMeshPro>().text = "[v][v][v]";
@@ -98,13 +96,13 @@ public class MenuManager : MonoBehaviour {
 
         switch (playerData.lightLevel) {
             case 0:
-                lightText.GetComponent<TextMeshPro>().text = "[][][]";
+                lightText.GetComponent<TextMeshPro>().text = "[1][2][4]";
                 break;
             case 1:
-                lightText.GetComponent<TextMeshPro>().text = "[v][][]";
+                lightText.GetComponent<TextMeshPro>().text = "[v][2][4]";
                 break;
             case 2:
-                lightText.GetComponent<TextMeshPro>().text = "[v][v][]";
+                lightText.GetComponent<TextMeshPro>().text = "[v][v][4]";
                 break;
             case 3:
                 lightText.GetComponent<TextMeshPro>().text = "[v][v][v]";
