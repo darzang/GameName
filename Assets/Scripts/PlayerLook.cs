@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerLook : MonoBehaviour {
     [SerializeField] private string mouseXInputName, mouseYInputName;
@@ -11,7 +12,9 @@ public class PlayerLook : MonoBehaviour {
     private void Awake () {
         LockCursor ();
         xAxisClamp = 0.0f;
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        if (SceneManager.GetActiveScene().name != "MenuScene") {
+            gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        }
     }
 
     private void LockCursor () {
@@ -19,7 +22,12 @@ public class PlayerLook : MonoBehaviour {
     }
 
     private void Update () {
-        if(!gameManager.gameIsPaused) CameraRotation ();
+        if (SceneManager.GetActiveScene().name != "MenuScene") {
+            if(!gameManager.gameIsPaused) CameraRotation ();
+        }
+        else {
+            CameraRotation();
+        }
     }
 
     private void CameraRotation () {

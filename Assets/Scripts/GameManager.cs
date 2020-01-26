@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour {
     public AudioClip[] lightSounds;
     public AudioClip batteryDeadAudio;
     private AudioSource playerAudio;
-    private bool isDead;
+    private bool isDead; 
     public AudioClip fragmentPickupAudio;
     public AudioClip youLostAudio;
     public GameObject arrows;
@@ -85,7 +85,7 @@ public class GameManager : MonoBehaviour {
         }
 
         playerData = FileManager.LoadPlayerDataFile();
-        tryMax = playerData.levelCompleted + 5;
+        tryMax = playerData.levelCompleted + 4;
         InstantiatePlayer();
         if (levelData != null) {
             uiManager.DrawMap(totalDiscoveredTiles);
@@ -96,6 +96,7 @@ public class GameManager : MonoBehaviour {
         lightAudio = playerLamp.GetComponent<AudioSource>();
         playerLamp.range = 1.5f * playerData.lightMultiplier;
         playerLamp.intensity = 1 * playerData.lightMultiplier;
+        playerLamp.spotAngle = playerLamp.spotAngle * playerData.lightMultiplier;
     }
 
     private void Update() {

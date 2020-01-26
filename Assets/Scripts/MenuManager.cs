@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour {
-
     private TextMeshPro text;
     public GameObject player;
     private Animation anim;
@@ -15,12 +14,20 @@ public class MenuManager : MonoBehaviour {
     public GameObject helpNextButton;
     public GameObject helpPreviousButton;
     public PlayerData playerData;
+    public GameObject batteryMaxText;
+    public GameObject batteryUseText;
+    public GameObject lightText;
+    public GameObject cashTexts;
+
     private void Start() {
-        playerData= FileManager.LoadPlayerDataFile();
+        playerData = FileManager.LoadPlayerDataFile();
         if (playerData == null) {
             playerData = new PlayerData();
             FileManager.SavePlayerDataFile(playerData);
+        } else {
+            SetSkillsText();
         }
+
         Debug.Log(JsonUtility.ToJson(playerData, true));
         Cursor.visible = false;
         anim = player.GetComponent<Animation>();
@@ -34,11 +41,81 @@ public class MenuManager : MonoBehaviour {
             if (hit.collider.gameObject.CompareTag("MenuButton")) {
                 text = hit.collider.gameObject.GetComponentInChildren<TextMeshPro>();
                 text.color = Color.blue;
-            } else if (text) {
+            }
+            else if (text) {
                 text.color = Color.yellow;
             }
         }
     }
+
+    private void SetSkillsText() {
+        // Set correct text for skills
+        if (!batteryMaxText) {
+            Debug.Log($"No batteryMaxText: {batteryMaxText}");
+        }
+
+        if (!batteryUseText) {
+            Debug.Log($"No batteryUseText: {batteryUseText}");
+        }
+
+        if (!lightText) {
+            Debug.Log($"No lightText: {lightText}");
+        }
+
+        switch (playerData.batteryMaxLevel) {
+            case 0:
+                batteryMaxText.GetComponent<TextMeshPro>().text = "[][][]";
+                break;
+            case 1:
+                batteryMaxText.GetComponent<TextMeshPro>().text = "[v][][]";
+                break;
+            case 2:
+                batteryMaxText.GetComponent<TextMeshPro>().text = "[v][v][]";
+                break;
+            case 3:
+                batteryMaxText.GetComponent<TextMeshPro>().text = "[v][v][v]";
+                GameObject.Find("BatteryMaxButton").GetComponent<TextMeshPro>().text = "MAXED";
+                GameObject.Find("BatteryMaxButton").GetComponent<BoxCollider>().enabled = false;
+                break;
+        }
+
+        switch (playerData.batteryUseLevel) {
+            case 0:
+                batteryUseText.GetComponent<TextMeshPro>().text = "[][][]";
+                break;
+            case 1:
+                batteryUseText.GetComponent<TextMeshPro>().text = "[v][][]";
+                break;
+            case 2:
+                batteryUseText.GetComponent<TextMeshPro>().text = "[v][v][]";
+                break;
+            case 3:
+                batteryUseText.GetComponent<TextMeshPro>().text = "[v][v][v]";
+                GameObject.Find("BatteryUseButton").GetComponent<TextMeshPro>().text = "MAXED";
+                GameObject.Find("BatteryUseButton").GetComponent<BoxCollider>().enabled = false;
+                break;
+        }
+
+        switch (playerData.lightLevel) {
+            case 0:
+                lightText.GetComponent<TextMeshPro>().text = "[][][]";
+                break;
+            case 1:
+                lightText.GetComponent<TextMeshPro>().text = "[v][][]";
+                break;
+            case 2:
+                lightText.GetComponent<TextMeshPro>().text = "[v][v][]";
+                break;
+            case 3:
+                lightText.GetComponent<TextMeshPro>().text = "[v][v][v]";
+                GameObject.Find("LightButton").GetComponent<TextMeshPro>().text = "MAXED";
+                GameObject.Find("LightButton").GetComponent<BoxCollider>().enabled = false;
+                break;
+        }
+
+        cashTexts.GetComponent<TextMeshPro>().text = $"COINS: {playerData.cash}";
+    }
+
     public void HandleClick(GameObject button) {
         Debug.Log($"Clicked on {button.name}");
         switch (button.name) {
@@ -47,6 +124,9 @@ public class MenuManager : MonoBehaviour {
                 break;
             case "CreditsButton":
                 anim.Play("MainToCredits");
+                break;
+            case "SkillsButton":
+                anim.Play("MainToSkills");
                 break;
             case "PlayButton":
                 anim.Play("MainToPlay");
@@ -62,6 +142,9 @@ public class MenuManager : MonoBehaviour {
                 break;
             case "OptionsBackButton":
                 anim.Play("OptionsToMain");
+                break;
+            case "SkillsBackButton":
+                anim.Play("SkillsToMain");
                 break;
             case "CreditsBackButton":
                 anim.Play("CreditsToMain");
@@ -90,15 +173,61 @@ public class MenuManager : MonoBehaviour {
             case "Level1Button":
                 SceneManager.LoadScene("Level1");
                 break;
-            case "Level2Button" :
-                if(playerData.levelCompleted > 0) SceneManager.LoadScene("Level2");
+            case "Level2Button":
+                if (playerData.levelCompleted > 0) SceneManager.LoadScene("Level2");
                 break;
-            case "Level3Button" :
-                if(playerData.levelCompleted > 1) SceneManager.LoadScene("Level3");
+            case "Level3Button":
+                if (playerData.levelCompleted > 1) SceneManager.LoadScene("Level3");
+                break;
+            case "BatteryMaxButton":
+                HandleUpgrade("BatteryMax", playerData.batteryMaxLevel);
+                break;
+            case "BatteryUseButton":
+                HandleUpgrade("BatteryUse", playerData.batteryUseLevel);
+                break;
+            case "LightButton":
+                HandleUpgrade("Light", playerData.lightLevel);
                 break;
             default:
                 Debug.LogError($"Case not covered {button.name}");
                 break;
+        }
+    }
+
+    private void HandleUpgrade(string skill, int currentLevel) {
+        int cost = 0;
+        switch (currentLevel) {
+            case 0:
+                cost = 1;
+                break;
+            case 1:
+                cost = 2;
+                break;
+            case 2:
+                cost = 4;
+                break;
+        }
+
+        if (playerData.cash >= cost) {
+            Debug.Log($"Upgrade {skill} possible");
+            switch (skill) {
+                case "BatteryMax":
+                    playerData.batteryMaxLevel += 1;
+                    playerData.batteryMax += 100;
+                    break;
+                case "BatteryUse":
+                    playerData.batteryUseLevel += 1;
+                    playerData.fuelComsumption -= 0.1f;
+                    break;
+                case "Light":
+                    playerData.lightLevel += 1;
+                    playerData.lightMultiplier += 0.1f;
+                    break;
+            }
+
+            playerData.cash -= cost;
+            SetSkillsText();
+            FileManager.SavePlayerDataFile(playerData);
         }
     }
 }
