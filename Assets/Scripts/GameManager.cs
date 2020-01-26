@@ -51,18 +51,28 @@ public class GameManager : MonoBehaviour {
         LevelData levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
         if (levelData == null) {
             Debug.Log("No Data to load");
-            mapFragments = fragmentManager.GenerateRandomFragments(tileManager.GetAllTiles(), tileManager.GetTilesByType("Floor"), tileManager);
+            mapFragments = fragmentManager.GenerateRandomFragments(tileManager.GetAllTiles(),
+                tileManager.GetTilesByType("Floor"), tileManager);
         }
         else {
-            mapFragments = levelData.mapFragments;
+            if (levelData.mapFragments == null) {
+                mapFragments = fragmentManager.GenerateRandomFragments(tileManager.GetAllTiles(),
+                    tileManager.GetTilesByType("Floor"), tileManager);
+            }
+            else {
+                mapFragments = levelData.mapFragments;
+                allFragmentsPickedUp = levelData.allFragmentsPickedUp;
+                totalDiscoveredTiles = levelData.totalDiscoveredTiles;
+                uiManager.DrawMap(totalDiscoveredTiles);
+                uiManager.UpdateDiscoveryText(totalDiscoveredTiles.Count, tileManager.GetMapSize());
+                if (totalDiscoveredTiles.Count > 0) uiManager.AddInfoMessage("Previous data loaded");
+            }
+
             tryCount = levelData.tryCount + 1;
-            allFragmentsPickedUp = levelData.allFragmentsPickedUp;
-            totalDiscoveredTiles = levelData.totalDiscoveredTiles;
-            uiManager.DrawMap(totalDiscoveredTiles);
-            uiManager.UpdateDiscoveryText(totalDiscoveredTiles.Count, tileManager.GetMapSize());
+
+
             Debug.Log(
                 $"Data loaded: try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {totalDiscoveredTiles.Count}");
-            if (totalDiscoveredTiles.Count > 0) uiManager.AddInfoMessage("Previous data loaded");
         }
 
         foreach (Fragment fragment in mapFragments) {
@@ -95,6 +105,8 @@ public class GameManager : MonoBehaviour {
             uiManager.UpdateMiniMap();
             uiManager.DrawMap(totalDiscoveredTiles);
             if (currentTile.CompareTag("Exit")) {
+                playerData.cash += 1;
+                uiManager.AddInfoMessage($"Obtained 1 coin, total : {playerData.cash}");
                 string sceneName = SceneManager.GetActiveScene().name;
                 // FileManager.DeleteFile(sceneName);
                 Int32.TryParse(sceneName.Substring(sceneName.Length - 1), out int levelNumber);
@@ -103,10 +115,13 @@ public class GameManager : MonoBehaviour {
                 }
 
                 FileManager.SavePlayerDataFile(playerData);
+                FileManager.SaveLevelDataFile(
+                    new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp),
+                    SceneManager.GetActiveScene().name);
                 uiManager.ShowExitUi();
             }
         }
-        
+
         // Toggle lamp
         if (Input.GetMouseButtonDown(0)) {
             if (playerLamp.enabled) {
@@ -129,7 +144,7 @@ public class GameManager : MonoBehaviour {
         }
 
         // Useful for now, to remove later
-        // if (Input.GetKeyUp("r")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
+        if (Input.GetKeyUp("r")) FileManager.DeleteFile(SceneManager.GetActiveScene().name);
         // if (Input.GetKeyUp("n")) NextLevel();
         if (Input.GetKeyUp("p") || Input.GetKeyUp(KeyCode.Escape)) {
             gameIsPaused = true;
@@ -150,6 +165,7 @@ public class GameManager : MonoBehaviour {
                 if (!tile.gameObject) {
                     Debug.LogError($"Trying to add {tile} which has null gameobject");
                 }
+
                 tileManager.AddToRevealedTiles(tile.gameObject, revealedTilesInRun);
             }
         }
@@ -159,11 +175,13 @@ public class GameManager : MonoBehaviour {
 
     public void Retry() {
         if (tryCount < tryMax) {
-            FileManager.SaveLevelDataFile(new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp),
+            FileManager.SaveLevelDataFile(
+                new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp),
                 SceneManager.GetActiveScene().name);
         }
         else {
-            FileManager.DeleteFile(SceneManager.GetActiveScene().name);
+            FileManager.SaveLevelDataFile(new LevelData(0, null, null, allFragmentsPickedUp),
+                SceneManager.GetActiveScene().name);
         }
 
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
@@ -174,7 +192,8 @@ public class GameManager : MonoBehaviour {
             Fragment currentFragment =
                 CreateFragment(tileManager.GetTilesNames(revealedTilesInRun), currentTile.name, tryCount);
             mapFragments.Add(currentFragment);
-            FileManager.SaveLevelDataFile(new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp),
+            FileManager.SaveLevelDataFile(
+                new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp),
                 SceneManager.GetActiveScene().name);
         }
         else {
@@ -228,7 +247,7 @@ public class GameManager : MonoBehaviour {
     public bool IsPreviousSpawnTile(GameObject tile) {
         return mapFragments.Any(fragment => fragment.spawnTile == tile.name);
     }
-    
+
     private Fragment CreateFragment(List<string> tiles, string spawnTile, int number) {
         return new Fragment(tiles, spawnTile, number);
     }
@@ -259,9 +278,12 @@ public class GameManager : MonoBehaviour {
 
         if (mapFragments.Where(fr => fr.discovered == true).ToList().Count == mapFragments.Count) {
             // All fragments have been found
-            uiManager.AddInfoMessage("You pickedup all the fragments");
-            FileManager.SaveLevelDataFile(new LevelData(tryCount, mapFragments, totalDiscoveredTiles, true), SceneManager.GetActiveScene().name);
+            playerData.cash += 1;
+            uiManager.AddInfoMessage("Map fully discovered");
+            uiManager.AddInfoMessage($"Obtained 1 coin, total : {playerData.cash}");
+            allFragmentsPickedUp = true;
         }
+
         Destroy(fragmentIn);
     }
 

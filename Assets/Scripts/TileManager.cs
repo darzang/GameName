@@ -108,7 +108,7 @@ public class TileManager : MonoBehaviour {
 
     public void AddToRevealedTiles (GameObject tile, List<GameObject> revealedTiles) {
         if (!HasBeenRevealed(tile, revealedTiles)) {
-            Debug.Log($"Adding {tile} to revealedTiles");
+            // Debug.Log($"Adding {tile} to revealedTiles");
             gameManager.revealedTilesInRun.Add(tile);
         }
     }
