@@ -12,7 +12,10 @@ public class FragmentManager : MonoBehaviour {
     public Transform obstaclePrefab;
     public Transform floorPrefab;
     public Transform exitPrefab;
-
+    public Material exitMaterial;
+    public Material WallMaterial;
+    public Material FloorMaterial;
+    public Material ObstacleMaterial;
     public Transform fragmentPrefab;
 
     // Start is called before the first frame update
@@ -149,6 +152,8 @@ public class FragmentManager : MonoBehaviour {
     public void InstantiateFragment(Fragment fragmentIn) {
         GameObject spawnTile = GameObject.Find(fragmentIn.spawnTile);
         Vector3 position = spawnTile.transform.position;
+        // Quaternion quaternion = Quaternion.identity;
+        // quaternion.z = 60;
         Transform fragment = Instantiate(fragmentPrefab, new Vector3(
             position.x,
             position.y + 0.35f,
@@ -156,24 +161,31 @@ public class FragmentManager : MonoBehaviour {
         ), Quaternion.identity);
         fragment.name = $"Fragment_{fragmentIn.number}";
         fragment.SetParent(GameObject.Find("Fragments").transform);
+        
         foreach (string tileName in fragmentIn.tiles) {
             GameObject realTile = GameObject.Find(tileName);
             Transform tilePrefab;
+            Material tileMaterial;
             switch (realTile.tag) {
                 case "Wall":
                     tilePrefab = wallPrefab;
+                    tileMaterial = WallMaterial;
                     break;
                 case "Obstacle":
                     tilePrefab = obstaclePrefab;
+                    tileMaterial = ObstacleMaterial;
                     break;
                 case "Exit":
                     tilePrefab = exitPrefab;
+                    tileMaterial = exitMaterial;
                     break;
                 case "Floor":
                     tilePrefab = floorPrefab;
+                    tileMaterial = FloorMaterial;
                     break;
                 default:
                     Debug.Log($"Tag not found for tile {tileName} with tag {realTile.tag}");
+                    tileMaterial = exitMaterial;
                     tilePrefab = exitPrefab;
                     break;
             }
@@ -188,11 +200,19 @@ public class FragmentManager : MonoBehaviour {
                 fragmentTile.gameObject.GetComponentInChildren<Light>().enabled = false;
             }
 
+            fragmentTile.gameObject.GetComponent<Renderer>().material = tileMaterial;
             fragmentTile.gameObject.GetComponent<BoxCollider>().enabled = false;
-
+            fragment.gameObject.isStatic = false;
+            fragmentTile.transform.localScale = new Vector3(1f,1f,1f);
+            if (tilePrefab == floorPrefab || tilePrefab == exitPrefab) {
+                Vector3 localScale = fragmentTile.transform.localScale;
+                localScale.y = 0.01f;
+                fragmentTile.transform.localScale = localScale;
+            }
+            // fragmentTile.transform.localScale = Vector3.one;
             fragmentTile.SetParent(fragment);
         }
         fragment.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
-       
+        // fragment.transform.rotation = Quaternion.Euler(0, 0, 60f);
     }
 }
