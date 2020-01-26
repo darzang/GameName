@@ -145,7 +145,6 @@ public class FragmentManager : MonoBehaviour {
                 closestFragment = fragment;
             }
         }
-
         return closestFragment;
     }
 

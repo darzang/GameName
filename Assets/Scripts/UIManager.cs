@@ -101,10 +101,7 @@ public class UIManager : MonoBehaviour {
 
     public void UpdateMiniMap() {
         foreach (GameObject tile in gameManager.revealedTilesInRun) {
-            if (!tile) {
-                Debug.LogError($"Tile {tile} is null in update?!");
-            }
-            else {
+            if (tile) {
                 AddTileToMiniMap(tile);
             }
         }
@@ -114,7 +111,7 @@ public class UIManager : MonoBehaviour {
         // Update scale
         Vector3 localScale = fuelBar.transform.localScale;
         localScale = new Vector3(
-            (float) (player.fuelCount / gameManager.playerData.batteryMax),
+             player.fuelCount / gameManager.playerData.batteryMax,
             localScale.y,
             localScale.z
         );
@@ -132,6 +129,7 @@ public class UIManager : MonoBehaviour {
     private void AddTileToMiniMap(GameObject tile) {
         if (!tile) {
             Debug.LogError($"Tile {tile} is null in addtile ?!");
+            return;
         }
         // Regenerate previously drawn tiles
         if (tileManager.HasBeenRevealed(tile, gameManager.revealedTilesInRun)) {
@@ -384,11 +382,6 @@ public class UIManager : MonoBehaviour {
         newTile.GetComponent<RectTransform>().sizeDelta = new Vector2(5, 5);
         newTile.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
         newImage.color = tileColor;
-
-        if (gameManager.IsPreviousSpawnTile(tile)) {
-            DrawSpawnTileInFragment(newTile, gameManager.GetSpawnTileTryNumber(tile));
-        }
-
         newTile.SetActive(true);
     }
 

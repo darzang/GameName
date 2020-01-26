@@ -42,6 +42,7 @@ public class GameManager : MonoBehaviour {
     public GameObject ceiling;
     public PlayerData playerData;
     public bool gameIsPaused;
+    public bool allFragmentsPickedUp;
 
     private void Awake() {
         tryCount = 1;
@@ -55,6 +56,7 @@ public class GameManager : MonoBehaviour {
         else {
             mapFragments = levelData.mapFragments;
             tryCount = levelData.tryCount + 1;
+            allFragmentsPickedUp = levelData.allFragmentsPickedUp;
             totalDiscoveredTiles = levelData.totalDiscoveredTiles;
             uiManager.DrawMap(totalDiscoveredTiles);
             uiManager.UpdateDiscoveryText(totalDiscoveredTiles.Count, tileManager.GetMapSize());
@@ -94,7 +96,7 @@ public class GameManager : MonoBehaviour {
             uiManager.DrawMap(totalDiscoveredTiles);
             if (currentTile.CompareTag("Exit")) {
                 string sceneName = SceneManager.GetActiveScene().name;
-                FileManager.DeleteFile(sceneName);
+                // FileManager.DeleteFile(sceneName);
                 Int32.TryParse(sceneName.Substring(sceneName.Length - 1), out int levelNumber);
                 if (playerData.levelCompleted < levelNumber) {
                     playerData.levelCompleted += 1;
@@ -157,7 +159,7 @@ public class GameManager : MonoBehaviour {
 
     public void Retry() {
         if (tryCount < tryMax) {
-            FileManager.SaveLevelDataFile(new LevelData(tryCount, mapFragments, totalDiscoveredTiles),
+            FileManager.SaveLevelDataFile(new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp),
                 SceneManager.GetActiveScene().name);
         }
         else {
@@ -172,7 +174,7 @@ public class GameManager : MonoBehaviour {
             Fragment currentFragment =
                 CreateFragment(tileManager.GetTilesNames(revealedTilesInRun), currentTile.name, tryCount);
             mapFragments.Add(currentFragment);
-            FileManager.SaveLevelDataFile(new LevelData(tryCount, mapFragments, totalDiscoveredTiles),
+            FileManager.SaveLevelDataFile(new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp),
                 SceneManager.GetActiveScene().name);
         }
         else {
@@ -226,15 +228,7 @@ public class GameManager : MonoBehaviour {
     public bool IsPreviousSpawnTile(GameObject tile) {
         return mapFragments.Any(fragment => fragment.spawnTile == tile.name);
     }
-
-    public int GetSpawnTileTryNumber(GameObject tile) {
-        foreach (Fragment fragment in mapFragments) {
-            if (fragment.spawnTile == tile.name) return fragment.number;
-        }
-
-        return 0;
-    }
-
+    
     private Fragment CreateFragment(List<string> tiles, string spawnTile, int number) {
         return new Fragment(tiles, spawnTile, number);
     }
@@ -261,6 +255,12 @@ public class GameManager : MonoBehaviour {
 
         if (fragment.arrowRevealed) {
             InstantiateArrow(currentTile.transform, currentTile.GetComponent<Tile>().action);
+        }
+
+        if (mapFragments.Where(fr => fr.discovered == true).ToList().Count == mapFragments.Count) {
+            // All fragments have been found
+            uiManager.AddInfoMessage("You pickedup all the fragments");
+            FileManager.SaveLevelDataFile(new LevelData(tryCount, mapFragments, totalDiscoveredTiles, true), SceneManager.GetActiveScene().name);
         }
         Destroy(fragmentIn);
     }
@@ -296,20 +296,5 @@ public class GameManager : MonoBehaviour {
         arrow.name = $"Arrow_{tileTransform.gameObject.name}";
         arrow.transform.eulerAngles = new Vector3(0, angle, 0);
         arrow.SetParent(arrows.transform);
-    }
-
-    public GameObject GetFurthestTile() {
-        GameObject[] floorTiles = GameObject.FindGameObjectsWithTag("Floor");
-        GameObject furthestTile = null;
-        int maxDistance = 0;
-        foreach (GameObject floorTile in floorTiles) {
-            if (floorTile.GetComponent<Tile>().score > maxDistance) {
-                maxDistance = floorTile.GetComponent<Tile>().score;
-                furthestTile = floorTile;
-            }
-        }
-
-        Debug.Log($"Furthest tile: {maxDistance}");
-        return furthestTile;
     }
 }
