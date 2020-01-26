@@ -43,6 +43,13 @@ public class UIManager : MonoBehaviour {
     private bool batteryLevelBlinking;
     private Quaternion initialRotation;
     private int totalInfoText = 0;
+    public Sprite wallSprite;
+    public Sprite obstacleSprite;
+    public Sprite exitSprite;
+    public Sprite floorSprite;
+
+    public Sprite playerSprite;
+    // public Canvas canvas;
 
     private void Awake() {
         Cursor.visible = false;
@@ -53,6 +60,8 @@ public class UIManager : MonoBehaviour {
 
     private void Start() {
         player = gameManager.player.GetComponent<Player>();
+        // canvas.renderMode = RenderMode.ScreenSpaceCamera;
+        // canvas.worldCamera = player.GetComponentInChildren<Camera>();
         DrawStartingMiniMap();
         tryCountText.text = $"Try number {gameManager.tryCount} / {gameManager.tryMax}";
     }
@@ -186,6 +195,7 @@ public class UIManager : MonoBehaviour {
         Basically only the anchor is different
          */
         Color32 tileColor = GetTileColor(tile.tag);
+        Sprite tileSprite = GetTileSprite(tile.tag);
         Vector3 position = tile.tag == "Player"
             ? gameManager.currentTile.transform.position
             : tile.transform.position;
@@ -203,7 +213,8 @@ public class UIManager : MonoBehaviour {
         );
         newTile.GetComponent<RectTransform>().sizeDelta = new Vector2(10, 10);
         newTile.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
-        newImage.color = tileColor;
+        // newImage.color = tileColor;
+        newImage.sprite = tileSprite;
         newTile.SetActive(true);
     }
 
@@ -220,10 +231,6 @@ public class UIManager : MonoBehaviour {
     public void DrawMap(List<string> tiles) {
         foreach (string tileName in tiles) {
             GameObject tile = GameObject.Find(tileName);
-            // if (!tile) {
-            //     Debug.Log($"No tile found for {tileName}");
-            //     continue;
-            // }
             if (tile == gameManager.currentTile) {
                 AddTileToMap(gameManager.player);
                 continue;
@@ -234,6 +241,7 @@ public class UIManager : MonoBehaviour {
     }
 
 
+    
     private Color32 GetTileColor(string tileTag) {
         switch (tileTag) {
             case "Wall":
@@ -249,6 +257,23 @@ public class UIManager : MonoBehaviour {
             default:
                 Debug.Log("TAG_NOT_FOUND_FOR_TILE: " + tileTag);
                 return floorColor;
+        }
+    }    
+    private Sprite GetTileSprite(string tileTag) {
+        switch (tileTag) {
+            case "Wall":
+                return wallSprite;
+            case "Floor":
+                return floorSprite;
+            case "Obstacle":
+                return obstacleSprite;
+            case "Player":
+                return playerSprite;
+            case "Exit":
+                return exitSprite;
+            default:
+                Debug.LogError("TAG_NOT_FOUND_FOR_TILE: " + tileTag);
+                return floorSprite;
         }
     }
 

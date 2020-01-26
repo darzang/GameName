@@ -5226,6 +5226,11 @@ MonoBehaviour:
   resetText: {fileID: 1564055048}
   infoTextPrefab: {fileID: 4033497113750988886, guid: 782d2132eb24a4144a9767d3f907a4c5,
     type: 3}
+  wallSprite: {fileID: 21300000, guid: 80b855a51122c9649a2a5ea92a11b4c3, type: 3}
+  obstacleSprite: {fileID: 21300000, guid: 3ee3508ea51337b4bbc24a50ab465905, type: 3}
+  exitSprite: {fileID: 21300000, guid: 3f8f5111b3533cd4c87ff773a9b7aad4, type: 3}
+  floorSprite: {fileID: 21300000, guid: 6508f296358ae8a44bea1113cb5e38d8, type: 3}
+  playerSprite: {fileID: 21300000, guid: 38648c6b24095994b995ee44814ae206, type: 3}
 --- !u!1001 &438281570
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -22873,7 +22878,7 @@ Canvas:
   m_GameObject: {fileID: 1848577525}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
