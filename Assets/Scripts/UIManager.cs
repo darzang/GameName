@@ -143,7 +143,7 @@ public class UIManager : MonoBehaviour {
         // Instantiate new tile and anchor it in the middle of the panel
         GameObject newTile = new GameObject($"MiniMap_{tile.gameObject.name}");
         Image newImage = newTile.AddComponent<Image>();
-        Color32 tileColor = GetTileColor(tile.tag);
+        Sprite tileSprite = GetTileSprite(tile.tag);
 
         newTile.GetComponent<RectTransform>().SetParent(miniMapPanel.transform);
         newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
@@ -153,7 +153,7 @@ public class UIManager : MonoBehaviour {
         // Set the position of the new tile
         if (tile == tileManager.GetTileUnderPlayer()) {
             newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
-            tileColor = playerColor;
+            tileSprite = playerSprite;
         }
         else {
             newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
@@ -165,9 +165,9 @@ public class UIManager : MonoBehaviour {
         // Set the size and scale of the tile
         newTile.GetComponent<RectTransform>().sizeDelta = new Vector2(10, 10);
         newTile.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
-        newImage.color = tileColor;
+        newImage.sprite = tileSprite;
 
-        if (tile == gameManager.startingTile) DrawSpawnTileInFragment(newTile);
+        // if (tile == gameManager.startingTile) DrawSpawnTileInFragment(newTile);
         newTile.SetActive(true);
     }
 
@@ -403,6 +403,7 @@ public class UIManager : MonoBehaviour {
     }
 
     public void HidePauseUi() {
+        gameManager.gameIsPaused = false;
         pausePanel.SetActive(false);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;

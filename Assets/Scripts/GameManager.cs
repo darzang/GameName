@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour {
     // Environment
     public GameObject ceiling;
     public PlayerData playerData;
+    public bool gameIsPaused;
 
     private void Awake() {
         tryCount = 1;
@@ -128,7 +129,10 @@ public class GameManager : MonoBehaviour {
         // Useful for now, to remove later
         // if (Input.GetKeyUp("r")) GameDataManager.EraseFile(SceneManager.GetActiveScene().name);
         // if (Input.GetKeyUp("n")) NextLevel();
-        if (Input.GetKeyUp("p") || Input.GetKeyUp(KeyCode.Escape)) uiManager.ShowPauseUi();
+        if (Input.GetKeyUp("p") || Input.GetKeyUp(KeyCode.Escape)) {
+            gameIsPaused = true;
+            uiManager.ShowPauseUi();
+        }
     }
 
     private bool CheckForTileDiscovery() {

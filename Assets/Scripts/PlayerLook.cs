@@ -6,10 +6,12 @@ public class PlayerLook : MonoBehaviour {
     [SerializeField] private Transform playerBody;
 
     private float xAxisClamp;
+    public GameManager gameManager;
 
     private void Awake () {
         LockCursor ();
         xAxisClamp = 0.0f;
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     private void LockCursor () {
@@ -17,7 +19,7 @@ public class PlayerLook : MonoBehaviour {
     }
 
     private void Update () {
-        CameraRotation ();
+        if(!gameManager.gameIsPaused) CameraRotation ();
     }
 
     private void CameraRotation () {
