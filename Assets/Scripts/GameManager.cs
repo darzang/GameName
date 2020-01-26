@@ -83,12 +83,11 @@ public class GameManager : MonoBehaviour {
         lightAudio = playerLamp.GetComponent<AudioSource>();
         playerLamp.range = 1.5f * playerData.lightMultiplier;
         playerLamp.intensity = 1 * playerData.lightMultiplier;
-        // StartCoroutine(tileManager.DoPathPlanningCoroutine());
     }
 
     private void Update() {
         // Is the player on a new tile ?
-        if (tileManager.GetTileUnderPlayer() != currentTile) {
+        if (tileManager.GetTileUnderPlayer() != currentTile || CheckForTileDiscovery()) {
             currentTile = tileManager.GetTileUnderPlayer();
             uiManager.UpdateMiniMap();
             uiManager.DrawMap(totalDiscoveredTiles);
@@ -104,9 +103,7 @@ public class GameManager : MonoBehaviour {
                 uiManager.ShowExitUi();
             }
         }
-
-        CheckForTileDiscovery();
-
+        
         // Toggle lamp
         if (Input.GetMouseButtonDown(0)) {
             if (playerLamp.enabled) {
@@ -134,7 +131,7 @@ public class GameManager : MonoBehaviour {
         if (Input.GetKeyUp("p") || Input.GetKeyUp(KeyCode.Escape)) uiManager.ShowPauseUi();
     }
 
-    private void CheckForTileDiscovery() {
+    private bool CheckForTileDiscovery() {
         bool needMapUpdate = false;
         Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, playerData.discoveryRange);
         foreach (Collider tile in hitColliders) {
@@ -144,11 +141,14 @@ public class GameManager : MonoBehaviour {
                     || tile.gameObject.CompareTag("Exit")
                     || tile.gameObject.CompareTag("Wall"))) {
                 needMapUpdate = true;
+                if (!tile.gameObject) {
+                    Debug.LogError($"Trying to add {tile} which has null gameobject");
+                }
                 tileManager.AddToRevealedTiles(tile.gameObject, revealedTilesInRun);
             }
         }
 
-        if (needMapUpdate) uiManager.UpdateMiniMap();
+        return needMapUpdate;
     }
 
     public void Retry() {
@@ -236,7 +236,6 @@ public class GameManager : MonoBehaviour {
     }
 
     public void PickupFragment(GameObject fragmentIn) {
-        Destroy(fragmentIn);
         int fragmentNumber = int.Parse(fragmentIn.name.Split('_')[1]);
         Fragment fragment = mapFragments.Find(frag => frag.number == fragmentNumber);
         fragment.discovered = true;
@@ -259,6 +258,7 @@ public class GameManager : MonoBehaviour {
         if (fragment.arrowRevealed) {
             InstantiateArrow(currentTile.transform, currentTile.GetComponent<Tile>().action);
         }
+        Destroy(fragmentIn);
     }
 
     public void InstantiateArrow(Transform tileTransform, string direction) {

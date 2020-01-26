@@ -91,7 +91,14 @@ public class UIManager : MonoBehaviour {
     }
 
     public void UpdateMiniMap() {
-        foreach (GameObject tile in gameManager.revealedTilesInRun) AddTileToMiniMap(tile);
+        foreach (GameObject tile in gameManager.revealedTilesInRun) {
+            if (!tile) {
+                Debug.LogError($"Tile {tile} is null in update?!");
+            }
+            else {
+                AddTileToMiniMap(tile);
+            }
+        }
     }
 
     private void UpdateBatteryLevel() {
@@ -114,18 +121,18 @@ public class UIManager : MonoBehaviour {
     }
 
     private void AddTileToMiniMap(GameObject tile) {
-        // Regenerate previously drawn tiles
-        Vector3 position = tile.transform.position;
-        if (tileManager.HasBeenRevealed(tile, gameManager.revealedTilesInRun)) {
-            Destroy(GameObject.Find($"MiniMap_{tile.gameObject.name}"));
+        if (!tile) {
+            Debug.LogError($"Tile {tile} is null in addtile ?!");
         }
-
-        if (!tileManager.HasBeenRevealed(tile, gameManager.revealedTilesInRun))
+        // Regenerate previously drawn tiles
+        if (tileManager.HasBeenRevealed(tile, gameManager.revealedTilesInRun)) {
+            if(GameObject.Find($"MiniMap_{tile.gameObject.name}")) Destroy(GameObject.Find($"MiniMap_{tile.gameObject.name}"));
+        } else {
             tileManager.AddToRevealedTiles(tile, gameManager.revealedTilesInRun);
-
+        }
+        
         // Instantiate new tile and anchor it in the middle of the panel
-        GameObject newTile =
-            new GameObject($"MiniMap_{tile.gameObject.name}");
+        GameObject newTile = new GameObject($"MiniMap_{tile.gameObject.name}");
         Image newImage = newTile.AddComponent<Image>();
         Color32 tileColor = GetTileColor(tile.tag);
 
