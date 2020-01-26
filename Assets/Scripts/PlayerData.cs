@@ -11,7 +11,7 @@ public class PlayerData: object {
     public bool onboardingDone;
     public int spawnArrowChance;
     public int cash;
-    public PlayerData(float playerSpeedIn = 1, int batteryMaxIn = 1200, float fuelComsumptionIn = 1, float lightMultiplierIn = 1, float lightConsumptionIn = 1, float discoveryRangeIn = 0.75f, int levelCompletedIn = 0, bool onboardingDoneIn = false, int spawnArrowChanceIn = 10, int cashIn =0) {
+    public PlayerData(float playerSpeedIn = 1, int batteryMaxIn = 1200, float fuelComsumptionIn = 1, float lightMultiplierIn = 1, float lightConsumptionIn = 1, float discoveryRangeIn = 0.75f, int levelCompletedIn = 0, bool onboardingDoneIn = false, int spawnArrowChanceIn = 10, int cashIn = 1) {
         playerSpeed = playerSpeedIn;
         batteryMax = batteryMaxIn;
         fuelComsumption = fuelComsumptionIn;
