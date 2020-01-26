@@ -31,7 +31,6 @@ public class FragmentManager : MonoBehaviour {
 
         // Create each fragment
         for (int i = 0; i < nbFragments; i++) {
-            Debug.Log($"Creating Fragment {i + 1}");
             List<string> tilesNameInFragments = new List<string>();
             List<GameObject> tilesInFragments = new List<GameObject>();
 
@@ -39,7 +38,6 @@ public class FragmentManager : MonoBehaviour {
             List<GameObject> floorTilesLeft = availableFloorTiles
                 .Where(floorTile => !tilesLeadingToIncompleteFragment.Find(tile => tile == floorTile)).ToList();
             if (floorTilesLeft.Count == 0) {
-                Debug.Log("No more fragment possible");
                 break;
             }
 
@@ -51,7 +49,6 @@ public class FragmentManager : MonoBehaviour {
             tilesInFragments.Add(firstTile);
 
             for (int j = 1; j < minFragmentSize; j++) {
-                Debug.Log($"Getting tile {j + 1} of Fragment {i + 1}");
                 // Get all neighbor tiles of current tiles in fragments
                 List<GameObject> availableNeighborTiles = new List<GameObject>();
                 foreach (GameObject tile in tilesInFragments) {
@@ -66,7 +63,6 @@ public class FragmentManager : MonoBehaviour {
                 }
 
                 if (availableNeighborTiles.Count == 0) {
-                    Debug.Log($"Fragment {i + 1} cannot be completed, no neighbor tiles for tile {j + 1}");
                     foreach (GameObject tile in tilesInFragments) {
                         availableTiles.Add(tile);
                         if (tile.CompareTag("Floor")) availableFloorTiles.Add(tile);
@@ -102,7 +98,6 @@ public class FragmentManager : MonoBehaviour {
                 fragments.Add(new Fragment(tilesNameInFragments, spawnTile, i + 1));
             }
             else {
-                Debug.Log($"Not enough tile in fragment {i + 1}, retrying");
                 i -= 1; // Retry to do another fragment starting from another tile
             }
         }
@@ -113,9 +108,6 @@ public class FragmentManager : MonoBehaviour {
             Fragment updatedFragment = fragments.Find(frg => frg == closestFragment);
             if (updatedFragment != null) {
                 updatedFragment.tiles.Add(tileLeft.name);
-            }
-            else {
-                Debug.Log("Something went wrong here");
             }
         }
 

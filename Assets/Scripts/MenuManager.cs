@@ -170,15 +170,6 @@ public class MenuManager : MonoBehaviour {
                 helpNextButton.SetActive(true);
                 helpPreviousButton.SetActive(false);
                 break;
-            case "Level1Button":
-                SceneManager.LoadScene("Level1");
-                break;
-            case "Level2Button":
-                if (playerData.levelCompleted > 0) SceneManager.LoadScene("Level2");
-                break;
-            case "Level3Button":
-                if (playerData.levelCompleted > 1) SceneManager.LoadScene("Level3");
-                break;
             case "BatteryMaxButton":
                 HandleUpgrade("BatteryMax", playerData.batteryMaxLevel);
                 break;
@@ -189,7 +180,25 @@ public class MenuManager : MonoBehaviour {
                 HandleUpgrade("Light", playerData.lightLevel);
                 break;
             default:
-                Debug.LogError($"Case not covered {button.name}");
+                if (button.name.Contains("Level")) {
+                    Debug.Log($"sub: {button.name.Substring(5,1)}");
+                    Int32.TryParse(button.name.Substring(5,1), out int levelNumber);
+                    if (levelNumber == 1) {
+                        Int32.TryParse(button.name.Substring(5,2), out int level10);
+                        if (level10 == 10) {
+                            levelNumber = 10;
+                        }
+                    }
+                    Debug.Log($"Clicked on button level {levelNumber}");
+
+                    if (playerData.levelCompleted > levelNumber - 2) {
+                        Debug.Log($"Loading level {levelNumber}");
+                        SceneManager.LoadScene($"Level{levelNumber}");
+                    }
+                    else {
+                        Debug.Log($"Can't load level {levelNumber}");
+                    }
+                }
                 break;
         }
     }

@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour {
     public Transform playerPrefab;
     public Transform fragmentPrefab;
     public Transform arrowPrefab;
+    public Transform batteryPrefab;
     public GameObject player;
     private Light playerLamp;
     private AudioSource lightAudio;
@@ -75,6 +76,12 @@ public class GameManager : MonoBehaviour {
                 $"Data loaded: try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {totalDiscoveredTiles.Count}");
         }
 
+        string sceneName = SceneManager.GetActiveScene().name;
+        Int32.TryParse(sceneName.Substring(sceneName.Length - 1), out int levelNumber);
+
+        tryMax = levelNumber + 3;
+        InstantiateBatteries();
+
         foreach (Fragment fragment in mapFragments) {
             if (!fragment.discovered) fragmentManager.InstantiateFragment(fragment);
             // if (!fragment.discovered) InstantiateFragment(fragment);
@@ -85,7 +92,7 @@ public class GameManager : MonoBehaviour {
         }
 
         playerData = FileManager.LoadPlayerDataFile();
-        tryMax = playerData.levelCompleted + 4;
+
         InstantiatePlayer();
         if (levelData != null) {
             uiManager.DrawMap(totalDiscoveredTiles);
@@ -251,6 +258,27 @@ public class GameManager : MonoBehaviour {
         fragment.SetParent(fragments.transform);
     }
 
+    private void InstantiateBatteries() {
+        List<GameObject> availablesFloorTiles = tileManager.GetTilesByType("Floor");
+        Debug.Log($"availableFloorTiles before {availablesFloorTiles.Count}");
+        foreach (Fragment fragment in mapFragments) {
+            availablesFloorTiles.Remove(GameObject.Find(fragment.spawnTile));
+        }
+
+        Debug.Log($"availableFloorTiles after {availablesFloorTiles.Count}");
+
+        for (int i = 0; i < tryMax; i++) {
+            GameObject spawnTile = availablesFloorTiles[Random.Range(0, availablesFloorTiles.Count - 1)];
+            Vector3 position = spawnTile.transform.position;
+            Transform battery = Instantiate(batteryPrefab, new Vector3(
+                position.x,
+                position.y + 0.35f,
+                position.z
+            ), Quaternion.identity);
+            availablesFloorTiles.Remove(spawnTile);
+        }
+    }
+
     public bool IsPreviousSpawnTile(GameObject tile) {
         return mapFragments.Any(fragment => fragment.spawnTile == tile.name);
     }
@@ -292,6 +320,12 @@ public class GameManager : MonoBehaviour {
         }
 
         Destroy(fragmentIn);
+    }
+
+    public void PickupBattery(GameObject batteryIn) {
+        player.GetComponent<Player>().fuelCount += (float) Math.Round(playerData.batteryMax / 5f);
+        uiManager.AddInfoMessage("Battery picked up");
+        Destroy(batteryIn);
     }
 
     public void InstantiateArrow(Transform tileTransform, string direction) {

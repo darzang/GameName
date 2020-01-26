@@ -5529,6 +5529,8 @@ MonoBehaviour:
     type: 3}
   arrowPrefab: {fileID: 3571792468748946464, guid: 1b264faa0166ec340babe252fb9b46b7,
     type: 3}
+  batteryPrefab: {fileID: 5878541371688319195, guid: 0b461ca252827154bbda9ec2264db2d9,
+    type: 3}
   player: {fileID: 0}
   lightSounds:
   - {fileID: 8300000, guid: aa6e66827baa5014e985b00727cc0559, type: 3}
@@ -5556,6 +5558,12 @@ MonoBehaviour:
     levelCompleted: 0
     onboardingDone: 0
     spawnArrowChance: 0
+    cash: 0
+    batteryMaxLevel: 0
+    batteryUseLevel: 0
+    lightLevel: 0
+  gameIsPaused: 0
+  allFragmentsPickedUp: 0
 --- !u!1001 &470203980
 PrefabInstance:
   m_ObjectHideFlags: 0
