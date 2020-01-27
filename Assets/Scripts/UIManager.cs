@@ -117,58 +117,71 @@ public class UIManager : MonoBehaviour {
     }
 
     private void AddTileToMiniMap(GameObject tile) {
+        GameObject existingMiniMapTile = GameObject.Find($"MiniMap_{tile.gameObject.name}");
+
         float distance = Vector3.Distance(tile.transform.position, player.gameObject.transform.position);
         if (distance > minDistanceMiniMap) {
-            // TODO: Maybe just disabled then later replace + reenable ? 
-            if (GameObject.Find($"MiniMap_{tile.gameObject.name}"))
-                Destroy(GameObject.Find($"MiniMap_{tile.gameObject.name}"));
-            return;
-        }
-
-        // Regenerate previously drawn tiles
-        if (tileManager.HasBeenRevealed(tile, gameManager.revealedTilesInRun)) {
-            // TODO: Maybe not destroy but replace the existing component ? 
-            if (GameObject.Find($"MiniMap_{tile.gameObject.name}"))
-                Destroy(GameObject.Find($"MiniMap_{tile.gameObject.name}"));
+            // TODO: Maybe just disabled then later replace + reenable ?
+            if (existingMiniMapTile) {
+                Debug.Log($"Existing object: {existingMiniMapTile.name}");
+                existingMiniMapTile.GetComponent<Image>().enabled = false;
+            }
         }
         else {
-            tileManager.AddToRevealedTiles(tile, gameManager.revealedTilesInRun);
+            if (!tileManager.HasBeenRevealed(tile, gameManager.revealedTilesInRun)) {
+                tileManager.AddToRevealedTiles(tile, gameManager.revealedTilesInRun);
+            }
+
+            // Instantiate new tile and anchor it in the middle of the panel
+
+            if (existingMiniMapTile) {
+                GameObject tileObject = GameObject.Find(existingMiniMapTile.name.Substring(8));
+                existingMiniMapTile.GetComponent<Image>().enabled = true;
+                if (tileObject == tileManager.GetTileUnderPlayer()) {
+                    existingMiniMapTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
+                    existingMiniMapTile.GetComponent<Image>().sprite = playerSprite;
+                }
+                else {
+                    if (tileObject == gameManager.previousTile) {
+                        existingMiniMapTile.GetComponent<Image>().sprite = floorSprite;
+                    }
+                    existingMiniMapTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
+                        tileManager.GetRelativePosition(tileManager.GetTileUnderPlayer(), tile)[0] * 10,
+                        tileManager.GetRelativePosition(tileManager.GetTileUnderPlayer(), tile)[1] * 10,
+                        0);
+                }
+            }
+            else {
+                Sprite tileSprite = GetTileSprite(tile.tag);
+                GameObject newTile = new GameObject($"MiniMap_{tile.gameObject.name}");
+                Image newImage = newTile.AddComponent<Image>();
+                newTile.GetComponent<RectTransform>().SetParent(miniMapPanel.transform);
+                newTile.GetComponent<RectTransform>().SetAsFirstSibling();
+                newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
+                newTile.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
+                newTile.GetComponent<RectTransform>().rotation = Quaternion.Euler(0f, 0f, 0f);
+
+                // Set the position of the new tile
+                if (tile == tileManager.GetTileUnderPlayer()) {
+                    newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
+                    tileSprite = playerSprite;
+                }
+                else {
+                    newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
+                        tileManager.GetRelativePosition(tileManager.GetTileUnderPlayer(), tile)[0] * 10,
+                        tileManager.GetRelativePosition(tileManager.GetTileUnderPlayer(), tile)[1] * 10,
+                        0);
+                }
+
+                // Set the size and scale of the tile
+                newTile.GetComponent<RectTransform>().sizeDelta = new Vector2(10, 10);
+                newTile.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                newImage.sprite = tileSprite;
+
+                // if (tile == gameManager.startingTile) DrawSpawnTileInFragment(newTile);
+                newTile.SetActive(true);
+            }
         }
-
-        if (!tile) {
-            Debug.Log("tile is null");
-        }
-
-        // Instantiate new tile and anchor it in the middle of the panel
-
-        Sprite tileSprite = GetTileSprite(tile.tag);
-        GameObject newTile = new GameObject($"MiniMap_{tile.gameObject.name}");
-        Image newImage = newTile.AddComponent<Image>();
-        newTile.GetComponent<RectTransform>().SetParent(miniMapPanel.transform);
-        newTile.GetComponent<RectTransform>().SetAsFirstSibling();
-        newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
-        newTile.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
-        newTile.GetComponent<RectTransform>().rotation = Quaternion.Euler(0f, 0f, 0f);
-
-        // Set the position of the new tile
-        if (tile == tileManager.GetTileUnderPlayer()) {
-            newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
-            tileSprite = playerSprite;
-        }
-        else {
-            newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
-                tileManager.GetRelativePosition(tileManager.GetTileUnderPlayer(), tile)[0] * 10,
-                tileManager.GetRelativePosition(tileManager.GetTileUnderPlayer(), tile)[1] * 10,
-                0);
-        }
-
-        // Set the size and scale of the tile
-        newTile.GetComponent<RectTransform>().sizeDelta = new Vector2(10, 10);
-        newTile.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
-        newImage.sprite = tileSprite;
-
-        // if (tile == gameManager.startingTile) DrawSpawnTileInFragment(newTile);
-        newTile.SetActive(true);
     }
 
     private void AddTileToMap(GameObject tile) {
@@ -249,7 +262,7 @@ public class UIManager : MonoBehaviour {
             }
         }
     }
-    
+
 
     public void ShowPauseUi() {
         pausePanel.SetActive(true);

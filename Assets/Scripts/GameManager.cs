@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour {
 
     // Tiles
     public GameObject startingTile;
+    public GameObject previousTile;
     public GameObject currentTile;
     public int tryCount;
     public int tryMax;
@@ -109,6 +110,7 @@ public class GameManager : MonoBehaviour {
     private void Update() {
         // Is the player on a new tile ?
         if (tileManager.GetTileUnderPlayer() != currentTile || CheckForTileDiscovery()) {
+            previousTile = currentTile;
             currentTile = tileManager.GetTileUnderPlayer();
             uiManager.UpdateMiniMap();
             uiManager.DrawMap(totalDiscoveredTiles);
