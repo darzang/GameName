@@ -81,7 +81,7 @@ public class UIManager : MonoBehaviour {
             Cursor.lockState = CursorLockMode.None;
         }
 
-        RotateMiniMap();
+        // RotateMiniMap();
     }
 
     private void RotateMiniMap() {
@@ -123,7 +123,6 @@ public class UIManager : MonoBehaviour {
         if (distance > minDistanceMiniMap) {
             // TODO: Maybe just disabled then later replace + reenable ?
             if (existingMiniMapTile) {
-                Debug.Log($"Existing object: {existingMiniMapTile.name}");
                 existingMiniMapTile.GetComponent<Image>().enabled = false;
             }
         }

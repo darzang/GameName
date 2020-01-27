@@ -51,11 +51,11 @@ public class MenuManager : MonoBehaviour {
         if (!batteryMaxText) {
             Debug.Log($"No batteryMaxText: {batteryMaxText}");
         }
-
+        
         if (!batteryUseText) {
             Debug.Log($"No batteryUseText: {batteryUseText}");
         }
-
+        
         if (!lightText) {
             Debug.Log($"No lightText: {lightText}");
         }

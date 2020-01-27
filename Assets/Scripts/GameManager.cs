@@ -178,10 +178,6 @@ public class GameManager : MonoBehaviour {
                     || tile.gameObject.CompareTag("Exit")
                     || tile.gameObject.CompareTag("Wall"))) {
                 needMapUpdate = true;
-                if (!tile.gameObject) {
-                    Debug.LogError($"Trying to add {tile} which has null gameobject");
-                }
-
                 tileManager.AddToRevealedTiles(tile.gameObject, revealedTilesInRun);
             }
         }
@@ -247,13 +243,10 @@ public class GameManager : MonoBehaviour {
 
     private void InstantiateBatteries() {
         List<GameObject> availablesFloorTiles = tileManager.GetTilesByType("Floor");
-        Debug.Log($"availableFloorTiles before {availablesFloorTiles.Count}");
         foreach (Fragment fragment in mapFragments) {
             availablesFloorTiles.Remove(GameObject.Find(fragment.spawnTile));
         }
-
-        Debug.Log($"availableFloorTiles after {availablesFloorTiles.Count}");
-
+        
         for (int i = 0; i < tryMax; i++) {
             GameObject spawnTile = availablesFloorTiles[Random.Range(0, availablesFloorTiles.Count - 1)];
             Vector3 position = spawnTile.transform.position;
