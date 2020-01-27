@@ -203,9 +203,6 @@ public class GameManager : MonoBehaviour {
 
     public void GiveUp() {
         if (tryCount < tryMax) {
-            Fragment currentFragment =
-                CreateFragment(tileManager.GetTilesNames(revealedTilesInRun), currentTile.name, tryCount);
-            mapFragments.Add(currentFragment);
             FileManager.SaveLevelDataFile(
                 new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp),
                 SceneManager.GetActiveScene().name);
@@ -246,18 +243,6 @@ public class GameManager : MonoBehaviour {
         currentTile = tile;
     }
 
-    private void InstantiateFragment(Fragment fragmentIn) {
-        GameObject spawnTile = GameObject.Find(fragmentIn.spawnTile);
-        Vector3 position = spawnTile.transform.position;
-        Transform fragment = Instantiate(fragmentPrefab, new Vector3(
-            position.x,
-            position.y + 0.35f,
-            position.z
-        ), Quaternion.identity);
-        fragment.name = $"Fragment_{fragmentIn.number}";
-        fragment.SetParent(fragments.transform);
-    }
-
     private void InstantiateBatteries() {
         List<GameObject> availablesFloorTiles = tileManager.GetTilesByType("Floor");
         Debug.Log($"availableFloorTiles before {availablesFloorTiles.Count}");
@@ -278,15 +263,7 @@ public class GameManager : MonoBehaviour {
             availablesFloorTiles.Remove(spawnTile);
         }
     }
-
-    public bool IsPreviousSpawnTile(GameObject tile) {
-        return mapFragments.Any(fragment => fragment.spawnTile == tile.name);
-    }
-
-    private Fragment CreateFragment(List<string> tiles, string spawnTile, int number) {
-        return new Fragment(tiles, spawnTile, number);
-    }
-
+    
     public void PickupFragment(GameObject fragmentIn) {
         int fragmentNumber = int.Parse(fragmentIn.name.Split('_')[1]);
         Fragment fragment = mapFragments.Find(frag => frag.number == fragmentNumber);

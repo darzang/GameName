@@ -126,6 +126,8 @@ public class TileManager : MonoBehaviour {
         float z = playerPosition.z - tilePosition.z;
         return new [] { x, z };
     }
+    
+    
 
     public List<string> GetTilesNames(List<GameObject> tileList) {
         List<string> tilesNames = new List<string>();

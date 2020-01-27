@@ -143,8 +143,6 @@ public class FragmentManager : MonoBehaviour {
     public void InstantiateFragment(Fragment fragmentIn) {
         GameObject spawnTile = GameObject.Find(fragmentIn.spawnTile);
         Vector3 position = spawnTile.transform.position;
-        // Quaternion quaternion = Quaternion.identity;
-        // quaternion.z = 60;
         Transform fragment = Instantiate(fragmentPrefab, new Vector3(
             position.x,
             position.y + 0.35f,
@@ -187,6 +185,8 @@ public class FragmentManager : MonoBehaviour {
                 realTile.transform.position.y,
                 realTile.transform.position.z
             ), Quaternion.identity);
+            fragmentTile.gameObject.name = $"FragmentTile_{realTile.name}";
+            fragmentTile.gameObject.tag = "Untagged";
             if (tilePrefab == exitPrefab) {
                 fragmentTile.gameObject.GetComponentInChildren<Light>().enabled = false;
             }
