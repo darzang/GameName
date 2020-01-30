@@ -186,6 +186,8 @@ public class FragmentManager : MonoBehaviour {
                 realTile.transform.position.z
             ), Quaternion.identity);
             fragmentTile.gameObject.name = $"FragmentTile_{realTile.name}";
+            fragmentTile.gameObject.isStatic = false;
+
             fragmentTile.gameObject.tag = "Untagged";
             if (tilePrefab == exitPrefab) {
                 fragmentTile.gameObject.GetComponentInChildren<Light>().enabled = false;

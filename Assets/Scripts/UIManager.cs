@@ -25,10 +25,8 @@ public class UIManager : MonoBehaviour {
     public GameObject miniMapPanel;
     public GameObject pausePanel;
     public GameObject mapPanel;
-    public GameObject mapFragmentsPanel;
     public GameObject buttonPanel;
     public Player player;
-    public GameObject fragmentPanelPrefab;
     public GameObject infoPanel;
     public TextMeshProUGUI discoveryText;
     public TextMeshProUGUI tryCountText;
