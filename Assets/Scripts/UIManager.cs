@@ -23,8 +23,8 @@ public class UIManager : MonoBehaviour {
     public Button pauseBackButton;
     public GameObject fuelBar;
     public GameObject miniMapPanel;
-    public GameObject pausePanel;
-    public GameObject mapPanel;
+    private GameObject pauseCanvas;
+    private GameObject mapCanvas;
     public GameObject buttonPanel;
     public Player player;
     public GameObject infoPanel;
@@ -42,10 +42,13 @@ public class UIManager : MonoBehaviour {
     public Sprite playerSprite;
 
     public float minDistanceMiniMap = 5;
+    private Canvas mainCanvas;
 
     private void Awake() {
         Cursor.visible = false;
-
+        mainCanvas = GameObject.Find("MainCanvas").GetComponent<Canvas>();
+        pauseCanvas = mainCanvas.transform.Find("PauseCanvas").gameObject;
+        mapCanvas = mainCanvas.transform.Find("MapCanvas").gameObject;
         retryButton.onClick.AddListener(gameManager.Retry);
         giveUpButton.onClick.AddListener(gameManager.GiveUp);
     }
@@ -54,6 +57,12 @@ public class UIManager : MonoBehaviour {
         player = gameManager.player.GetComponent<Player>();
         DrawStartingMiniMap();
         tryCountText.text = $"Try number {gameManager.tryCount} / {gameManager.tryMax}";
+    }
+
+    private void Instantiation() {
+        batteryDead = GameObject.Find("UICanvas");
+        
+
     }
 
     private void Update() {
@@ -193,7 +202,7 @@ public class UIManager : MonoBehaviour {
         GameObject newTile =
             new GameObject($"Map_{tile.gameObject.name}");
         Image newImage = newTile.AddComponent<Image>();
-        newTile.GetComponent<RectTransform>().SetParent(mapPanel.transform);
+        newTile.GetComponent<RectTransform>().SetParent(mapCanvas.transform);
 
         newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0, 0);
         newTile.GetComponent<RectTransform>().anchorMax = new Vector2(0, 0);
@@ -262,7 +271,7 @@ public class UIManager : MonoBehaviour {
 
 
     public void ShowPauseUi() {
-        pausePanel.SetActive(true);
+        pauseCanvas.SetActive(true);
         pauseResumeButton.onClick.AddListener(HidePauseUi);
         pauseRetryButton.onClick.AddListener(gameManager.Retry);
         pauseBackButton.onClick.AddListener(gameManager.GiveUp);
@@ -273,7 +282,7 @@ public class UIManager : MonoBehaviour {
 
     public void HidePauseUi() {
         gameManager.gameIsPaused = false;
-        pausePanel.SetActive(false);
+        pauseCanvas.SetActive(false);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         player.GetComponent<Player>().lockPlayer = false;
