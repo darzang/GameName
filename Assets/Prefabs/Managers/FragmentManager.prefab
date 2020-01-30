@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7748974775818772744
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7748974775818772750}
+  - component: {fileID: 7748974775818772751}
+  m_Layer: 0
+  m_Name: FragmentManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7748974775818772750
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7748974775818772744}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.0191846, y: 1.5189505, z: 5.8333683}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7748974775818772751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7748974775818772744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bffa65c5c768764ab94530149d60347, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  wallPrefab: {fileID: 4345155007248232, guid: 3f42b47c5f893bb468d058ac8e5059c0, type: 3}
+  obstaclePrefab: {fileID: 4372593797964682, guid: 14be0063672697c468fd25e4670f3ab5,
+    type: 3}
+  floorPrefab: {fileID: 4460191914706220, guid: de45bfeb962f55545b93a84e0d8f138a,
+    type: 3}
+  exitPrefab: {fileID: 3830427674932654569, guid: 19c916e848d22034bb8008127516b320,
+    type: 3}
+  exitMaterial: {fileID: 2100000, guid: 4847d4c98cf65ca48b00f7e2ba3bc651, type: 2}
+  WallMaterial: {fileID: 2100000, guid: 88fdc8854646c1d4d8a0bc276d466fec, type: 2}
+  FloorMaterial: {fileID: 2100000, guid: 483b54c86b4c29c408a545a374726537, type: 2}
+  ObstacleMaterial: {fileID: 2100000, guid: f33e3dabf34d3e544a34866a6911519b, type: 2}
+  fragmentPrefab: {fileID: 6377249713866120990, guid: 1840936fa43ae6d4aa5f18dc7e0c3ecd,
+    type: 3}
