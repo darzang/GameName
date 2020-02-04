@@ -25,12 +25,11 @@ public class UIManager : MonoBehaviour {
     public GameObject miniMapPanel;
     private GameObject pauseCanvas;
     private GameObject mapCanvas;
-    public GameObject buttonPanel;
+    public GameObject batteryDeadButtons;
     public Player player;
     public GameObject infoPanel;
     public TextMeshProUGUI discoveryText;
     public TextMeshProUGUI tryCountText;
-    public TextMeshProUGUI resetText;
     public GameObject infoTextPrefab;
     private bool batteryLevelBlinking;
     private Quaternion initialRotation;
@@ -78,10 +77,11 @@ public class UIManager : MonoBehaviour {
             batteryDead.SetActive(true);
             Cursor.visible = true;
             StopCoroutine(nameof(BlinkBatteryLevel));
-            buttonPanel.SetActive(true);
+            batteryDeadButtons.SetActive(true);
             if (gameManager.tryCount >= gameManager.tryMax) {
-                batteryDead.SetActive(false);
-                resetText.gameObject.SetActive(true);
+                batteryDead.GetComponent<TextMeshProUGUI>().fontSize = 18;
+                batteryDead.GetComponent<TextMeshProUGUI>().text =
+                    "Sorry, You die too much, you should be punished...\nHow about erasing your current progress ?\nYeah that sounds nice, Let's do that !";
                 GameObject.Find("GiveUpText").GetComponent<TextMeshProUGUI>().text = "Fuck off and die";
             }
 
