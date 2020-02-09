@@ -5,8 +5,13 @@ using System.Linq;
 using UnityEngine;
 public class TileManager : MonoBehaviour {
     private GameObject environment;
-    public GameManager gameManager;
+    private GameManager gameManager;
     public List<GameObject> floorTiles;
+
+    private void Start() {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+    }
+
     public int GetMapSize() {
         GameObject[] WallTiles = GameObject.FindGameObjectsWithTag ("Wall");
         GameObject[] ObstacleTiles = GameObject.FindGameObjectsWithTag ("Obstacle");

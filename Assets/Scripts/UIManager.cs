@@ -8,29 +8,27 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour {
-    public TileManager tileManager;
-    public GameManager gameManager;
-    public GameObject batteryDead;
-    public GameObject exitReached;
-    public GameObject exitReachedButtons;
-    public GameObject batteryLevel;
-    public Button retryButton;
-    public Button nextLevelButton;
-    public Button giveUpButton;
-    public Button backToMenuButton;
-    public Button pauseRetryButton;
-    public Button pauseResumeButton;
-    public Button pauseBackButton;
-    public GameObject fuelBar;
-    public GameObject miniMapPanel;
-    private GameObject pauseCanvas;
-    private GameObject mapCanvas;
-    public GameObject batteryDeadButtons;
-    public Player player;
-    public GameObject infoPanel;
-    public TextMeshProUGUI discoveryText;
-    public TextMeshProUGUI tryCountText;
-    public GameObject infoTextPrefab;
+    private TileManager tileManager;
+    private GameManager gameManager;
+    private GameObject batteryLevelText;
+    private GameObject batteryDeadText;
+    private GameObject exitReachedText;
+    private GameObject exitReachedButtons;
+    private Button retryButton;
+    private Button nextLevelButton;
+    private Button giveUpButton;
+    private Button backToMenuButton;
+    private Button pauseRetryButton;
+    private Button pauseResumeButton;
+    private Button pauseBackButton;
+    private GameObject batteryBar;
+    private GameObject miniMapPanel;
+    private Player player;
+    private GameObject infoPanel;
+    private TextMeshProUGUI discoveryText;
+    private TextMeshProUGUI tryCountText;
+
+
     private bool batteryLevelBlinking;
     private Quaternion initialRotation;
     private int totalInfoText = 0;
@@ -39,29 +37,76 @@ public class UIManager : MonoBehaviour {
     public Sprite exitSprite;
     public Sprite floorSprite;
     public Sprite playerSprite;
+    public GameObject infoTextPrefab;
 
     public float minDistanceMiniMap = 5;
-    private Canvas mainCanvas;
-
+    
+    private GameObject mainCanvas;
+    private GameObject pauseCanvas;
+    private GameObject mapCanvas;
+    private GameObject miniMapCanvas;
+    private GameObject batteryBarCanvas;
+    private GameObject infoCanvas;
+    private GameObject exitReachedCanvas;
+    private GameObject batteryDeadCanvas;
     private void Awake() {
         Cursor.visible = false;
-        mainCanvas = GameObject.Find("MainCanvas").GetComponent<Canvas>();
+        
+        // Variables instantiation
+        mainCanvas = GameObject.Find("MainCanvas").gameObject;
         pauseCanvas = mainCanvas.transform.Find("PauseCanvas").gameObject;
         mapCanvas = mainCanvas.transform.Find("MapCanvas").gameObject;
-        retryButton.onClick.AddListener(gameManager.Retry);
-        giveUpButton.onClick.AddListener(gameManager.GiveUp);
+        discoveryText = mapCanvas.transform.Find("DiscoveryText").GetComponent<TextMeshProUGUI>();
+        tryCountText = mapCanvas.transform.Find("TryCountText").GetComponent<TextMeshProUGUI>();
+        miniMapCanvas = mainCanvas.transform.Find("MiniMapCanvas").gameObject;
+        miniMapPanel = miniMapCanvas.transform.Find("MiniMapPanel").gameObject;
+        batteryBarCanvas = mainCanvas.transform.Find("BatteryBarCanvas").gameObject;
+        infoCanvas = mainCanvas.transform.Find("InfoCanvas").gameObject;
+        infoPanel = infoCanvas.transform.Find("InfoPanel").gameObject;
+        exitReachedCanvas = mainCanvas.transform.Find("ExitReachedCanvas").gameObject;
+        batteryDeadCanvas = mainCanvas.transform.Find("BatteryDeadCanvas").gameObject;
+
+        exitReachedText = exitReachedCanvas.transform.Find("ExitReachedText").gameObject;
+        exitReachedButtons = exitReachedCanvas.transform.Find("ExitReachedButtons").gameObject;
+        nextLevelButton = exitReachedButtons
+            .transform.Find("NextLevelButton").GetComponent<Button>();
+        backToMenuButton = exitReachedButtons
+            .transform.Find("BackToMenuButton").GetComponent<Button>();
+        giveUpButton = batteryDeadCanvas.transform.Find("BatteryDeadButtons")
+            .transform.Find("GiveUpButton").GetComponent<Button>();
+        retryButton = mainCanvas.transform.Find("BatteryDeadCanvas")
+            .transform.Find("BatteryDeadButtons")
+            .transform.Find("RetryButton").GetComponent<Button>();
+        pauseBackButton = mainCanvas.transform.Find("PauseCanvas")
+            .transform.Find("PauseBackButton").GetComponent<Button>();
+        pauseResumeButton = mainCanvas.transform.Find("PauseCanvas")
+            .transform.Find("PauseResumeButton").GetComponent<Button>();
+        pauseRetryButton = mainCanvas.transform.Find("PauseCanvas")
+            .transform.Find("PauseRetryButton").GetComponent<Button>();
+
+        batteryDeadText = batteryDeadCanvas.transform.Find("BatteryDeadText").gameObject;
+        batteryLevelText = batteryBarCanvas.transform.Find("BatteryLevelText").gameObject;
+        batteryBar = batteryBarCanvas.transform.Find("BatteryBar").gameObject;
+            
+
+        
+
     }
 
     private void Start() {
+        // Managers
+        tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        // Button listeners
         player = gameManager.player.GetComponent<Player>();
-        DrawStartingMiniMap();
+        retryButton.onClick.AddListener(gameManager.Retry);
+        giveUpButton.onClick.AddListener(gameManager.GiveUp);
+        if (gameManager.totalDiscoveredTiles.Count > 0) DrawMap(gameManager.totalDiscoveredTiles);
         tryCountText.text = $"Try number {gameManager.tryCount} / {gameManager.tryMax}";
     }
 
     private void Instantiation() {
-        batteryDead = GameObject.Find("UICanvas");
         
-
     }
 
     private void Update() {
@@ -73,22 +118,19 @@ public class UIManager : MonoBehaviour {
                 StartCoroutine(BlinkBatteryLevel());
         }
 
-        if (player.fuelCount <= 0 && !batteryDead.gameObject.activeSelf) {
-            batteryDead.SetActive(true);
+        if (player.fuelCount <= 0 && !batteryDeadCanvas.activeSelf) {
             Cursor.visible = true;
             StopCoroutine(nameof(BlinkBatteryLevel));
-            batteryDeadButtons.SetActive(true);
+            batteryDeadCanvas.SetActive(true);
             if (gameManager.tryCount >= gameManager.tryMax) {
-                batteryDead.GetComponent<TextMeshProUGUI>().fontSize = 18;
-                batteryDead.GetComponent<TextMeshProUGUI>().text =
+                batteryDeadText.GetComponent<TextMeshProUGUI>().fontSize = 18;
+                batteryDeadText.GetComponent<TextMeshProUGUI>().text =
                     "Sorry, You die too much, you should be punished...\nHow about erasing your current progress ?\nYeah that sounds nice, Let's do that !";
                 GameObject.Find("GiveUpText").GetComponent<TextMeshProUGUI>().text = "Fuck off and die";
             }
 
             Cursor.lockState = CursorLockMode.None;
         }
-
-        // RotateMiniMap();
     }
 
     private void RotateMiniMap() {
@@ -106,23 +148,19 @@ public class UIManager : MonoBehaviour {
 
     private void UpdateBatteryLevel() {
         // Update scale
-        Vector3 localScale = fuelBar.transform.localScale;
+        Vector3 localScale = batteryBar.transform.localScale;
         localScale = new Vector3(
             player.fuelCount / gameManager.playerData.batteryMax,
             localScale.y,
             localScale.z
         );
-        fuelBar.transform.localScale = localScale;
+        batteryBar.transform.localScale = localScale;
         // Update color
-        fuelBar.GetComponent<Image>().color = player.fuelCount > gameManager.playerData.batteryMax / 2
+        batteryBar.GetComponent<Image>().color = player.fuelCount > gameManager.playerData.batteryMax / 2
             ? new Color32((byte) (gameManager.playerData.batteryMax - player.fuelCount), 255, 0, 255)
             : new Color32(255, (byte) player.fuelCount, 0, 255);
     }
-
-    private void DrawStartingMiniMap() {
-        AddTileToMiniMap(gameManager.startingTile);
-    }
-
+    
     private void AddTileToMiniMap(GameObject tile) {
         GameObject existingMiniMapTile = GameObject.Find($"MiniMap_{tile.gameObject.name}");
 
@@ -250,20 +288,20 @@ public class UIManager : MonoBehaviour {
 
     private IEnumerator BlinkBatteryLevel() {
         batteryLevelBlinking = true;
-        TextMeshProUGUI batteryText = batteryLevel.GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI batteryText = batteryLevelText.GetComponent<TextMeshProUGUI>();
         while (true) {
             if (player.fuelCount > gameManager.playerData.batteryMax * 0.2) {
                 batteryText.text = "BATTERY LEVEL LOW";
-                batteryLevel.SetActive(true);
+                batteryLevelText.SetActive(true);
                 yield return new WaitForSeconds(0.4f);
-                batteryLevel.SetActive(false);
+                batteryLevelText.SetActive(false);
                 yield return new WaitForSeconds(0.4f);
             }
             else {
                 batteryText.text = "BATTERY LEVEL CRITICAL";
-                batteryLevel.SetActive(true);
+                batteryLevelText.SetActive(true);
                 yield return new WaitForSeconds(0.2f);
-                batteryLevel.SetActive(false);
+                batteryLevelText.SetActive(false);
                 yield return new WaitForSeconds(0.2f);
             }
         }
@@ -289,7 +327,7 @@ public class UIManager : MonoBehaviour {
     }
 
     public void ShowExitUi() {
-        exitReached.SetActive(true);
+        exitReachedText.SetActive(true);
         exitReachedButtons.SetActive(true);
         nextLevelButton.onClick.AddListener(gameManager.NextLevel);
         backToMenuButton.onClick.AddListener(gameManager.BackToMenu);
@@ -298,9 +336,9 @@ public class UIManager : MonoBehaviour {
         Cursor.lockState = CursorLockMode.None;
         player.GetComponent<Player>().lockPlayer = true;
         if (SceneManager.GetActiveScene().name == "Level3") {
-            exitReached.GetComponent<TextMeshProUGUI>().text =
+            exitReachedText.GetComponent<TextMeshProUGUI>().text =
                 "Congrats beta tester, you've been through all the levels !!";
-            exitReached.GetComponent<TextMeshProUGUI>().fontSize = 17;
+            exitReachedText.GetComponent<TextMeshProUGUI>().fontSize = 17;
             nextLevelButton.gameObject.SetActive(false);
             backToMenuButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
         }

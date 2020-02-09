@@ -37,19 +37,19 @@ public class GameManager : MonoBehaviour {
     public int tryCount;
     public int tryMax;
     public List<Fragment> mapFragments = new List<Fragment>();
-    public List<GameObject> revealedTilesInRun;
+    public List<GameObject> revealedTilesInRun = new List<GameObject>();
     public List<string> totalDiscoveredTiles = new List<string>();
 
     // Environment
     public GameObject ceiling;
     public PlayerData playerData;
+    public LevelData levelData;
     public bool gameIsPaused;
     public bool allFragmentsPickedUp;
 
     private void Awake() {
         tryCount = 1;
         ceiling.SetActive(true);
-        tileManager.DoPathPlanning();
         LevelData levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
         if (levelData == null) {
             Debug.Log("No Data to load");
@@ -57,6 +57,7 @@ public class GameManager : MonoBehaviour {
                 tileManager.GetTilesByType("Floor"), tileManager);
         }
         else {
+            Debug.Log("Data to load");
             if (levelData.mapFragments == null) {
                 mapFragments = fragmentManager.GenerateRandomFragments(tileManager.GetAllTiles(),
                     tileManager.GetTilesByType("Floor"), tileManager);
@@ -65,7 +66,6 @@ public class GameManager : MonoBehaviour {
                 mapFragments = levelData.mapFragments;
                 allFragmentsPickedUp = levelData.allFragmentsPickedUp;
                 totalDiscoveredTiles = levelData.totalDiscoveredTiles;
-                uiManager.DrawMap(totalDiscoveredTiles);
                 uiManager.UpdateDiscoveryText(totalDiscoveredTiles.Count, tileManager.GetMapSize());
                 if (totalDiscoveredTiles.Count > 0) uiManager.AddInfoMessage("Previous data loaded");
             }
@@ -95,10 +95,6 @@ public class GameManager : MonoBehaviour {
         playerData = FileManager.LoadPlayerDataFile();
 
         InstantiatePlayer();
-        if (levelData != null) {
-            uiManager.DrawMap(totalDiscoveredTiles);
-        }
-
         playerAudio = player.GetComponent<AudioSource>();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
@@ -107,6 +103,10 @@ public class GameManager : MonoBehaviour {
         playerLamp.spotAngle = playerLamp.spotAngle * playerData.lightMultiplier;
     }
 
+
+    private void Start() {
+        tileManager.DoPathPlanning();
+    }
     private void Update() {
         // Is the player on a new tile ?
         if (tileManager.GetTileUnderPlayer() != currentTile || CheckForTileDiscovery()) {
