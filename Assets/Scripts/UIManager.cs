@@ -93,7 +93,7 @@ public class UIManager : MonoBehaviour {
 
     }
 
-    private void Start() {
+    public void Instantiation() {
         // Managers
         tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -106,10 +106,6 @@ public class UIManager : MonoBehaviour {
         UpdateDiscoveryText(gameManager.totalDiscoveredTiles.Count, tileManager.GetMapSize());
         if (gameManager.totalDiscoveredTiles.Count > 0) AddInfoMessage("Previous data loaded");
 
-    }
-
-    private void Instantiation() {
-        
     }
 
     private void Update() {

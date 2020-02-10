@@ -37,7 +37,6 @@ public class GameManager : MonoBehaviour {
     public List<string> totalDiscoveredTiles = new List<string>();
 
     // Environment
-    public GameObject ceiling;
     public PlayerData playerData;
     public LevelData levelData;
     public bool gameIsPaused;
@@ -45,13 +44,12 @@ public class GameManager : MonoBehaviour {
 
     private void Awake() {
         tryCount = 1;
-        ceiling.SetActive(true);
         tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
         uiManager = GameObject.Find("UIManager").GetComponent<UIManager>();
         fragmentManager = GameObject.Find("FragmentManager").GetComponent<FragmentManager>();
         arrows = GameObject.Find("Arrows").gameObject;
-        
-        LevelData levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
+
+        levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
         if (levelData == null) {
             Debug.Log("No Data to load");
             mapFragments = fragmentManager.GenerateRandomFragments(tileManager.GetAllTiles(),
@@ -92,7 +90,10 @@ public class GameManager : MonoBehaviour {
         }
 
         playerData = FileManager.LoadPlayerDataFile();
+    }
 
+
+    private void Start() {
         tileManager.DoPathPlanning();
         InstantiatePlayer();
         playerAudio = player.GetComponent<AudioSource>();
@@ -101,12 +102,9 @@ public class GameManager : MonoBehaviour {
         playerLamp.range = 1.5f * playerData.lightMultiplier;
         playerLamp.intensity = 1 * playerData.lightMultiplier;
         playerLamp.spotAngle *= playerData.lightMultiplier;
+        uiManager.Instantiation();
     }
 
-
-    private void Start() {
-        
-    }
     private void Update() {
         // Is the player on a new tile ?
         if (tileManager.GetTileUnderPlayer() != currentTile || CheckForTileDiscovery()) {
@@ -233,7 +231,7 @@ public class GameManager : MonoBehaviour {
         Vector3 position = tile.transform.position;
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(
             position.x,
-            position.y + 0.53f,
+            0,
             position.z
         ), Quaternion.identity);
         player = playerTransform.gameObject;
@@ -245,7 +243,7 @@ public class GameManager : MonoBehaviour {
         foreach (Fragment fragment in mapFragments) {
             availablesFloorTiles.Remove(GameObject.Find(fragment.spawnTile));
         }
-        
+
         for (int i = 0; i < tryMax; i++) {
             GameObject spawnTile = availablesFloorTiles[Random.Range(0, availablesFloorTiles.Count - 1)];
             Vector3 position = spawnTile.transform.position;
@@ -255,9 +253,10 @@ public class GameManager : MonoBehaviour {
                 position.z
             ), Quaternion.identity);
             availablesFloorTiles.Remove(spawnTile);
+            battery.SetParent(GameObject.Find("Batteries").transform);
         }
     }
-    
+
     public void PickupFragment(GameObject fragmentIn) {
         int fragmentNumber = int.Parse(fragmentIn.name.Split('_')[1]);
         Fragment fragment = mapFragments.Find(frag => frag.number == fragmentNumber);

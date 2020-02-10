@@ -7,7 +7,7 @@ public class Player : MonoBehaviour {
     private CharacterController charController;
     public float fuelCount;
     private Light playerLamp;
-    public bool lockPlayer;
+    public bool lockPlayer = false;
     public GameManager gameManager;
 
     private void Awake() {
@@ -47,7 +47,7 @@ public class Player : MonoBehaviour {
         Vector3 forwardMovement = playerTransform.forward * verticalInput;
         Vector3 rightMovement = playerTransform.right * horizontalInput;
         Vector3 totalMovement = forwardMovement + rightMovement;
-        charController.SimpleMove(totalMovement);
         fuelCount -= gameManager.playerData.fuelComsumption * totalMovement.magnitude * (Time.deltaTime + 1);
+        charController.SimpleMove(totalMovement);
     }
 }

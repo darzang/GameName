@@ -416,6 +416,7 @@ MonoBehaviour:
   mouseYInputName: Mouse Y
   mouseSensitivity: 50
   playerBody: {fileID: 9136995392935929742}
+  gameManager: {fileID: 0}
 --- !u!1 &9136995392935929741
 GameObject:
   m_ObjectHideFlags: 0
@@ -443,7 +444,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9136995392935929741}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.12, y: 0.13, z: 8.2560005}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 9136995392673958705}
@@ -462,7 +463,7 @@ CharacterController:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Height: 0.8
+  m_Height: 0.7
   m_Radius: 0.2
   m_SlopeLimit: 45
   m_StepOffset: 0.3

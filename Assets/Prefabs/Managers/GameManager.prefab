@@ -25,7 +25,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7978820328755584369}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -6.8136034, y: -0.8348557, z: 3.194593}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -43,12 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 841b57ee3d0056b4abe03e5ea438c184, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tileManager: {fileID: 0}
-  fragmentManager: {fileID: 0}
-  uiManager: {fileID: 0}
   playerPrefab: {fileID: 9136995392935929742, guid: f5d7b6cc7630fec498d6191d0ee75270,
-    type: 3}
-  fragmentPrefab: {fileID: 6377249713866120990, guid: 1840936fa43ae6d4aa5f18dc7e0c3ecd,
     type: 3}
   arrowPrefab: {fileID: 3571792468748946464, guid: 1b264faa0166ec340babe252fb9b46b7,
     type: 3}
@@ -61,9 +56,6 @@ MonoBehaviour:
   batteryDeadAudio: {fileID: 8300000, guid: 00083f6d87530ea4ca00a182f4b627e5, type: 3}
   fragmentPickupAudio: {fileID: 8300000, guid: edf26447368d7a6499a1e77c6177b49f, type: 3}
   youLostAudio: {fileID: 8300000, guid: 781ff338100e70d418ef2b0f116b7e1e, type: 3}
-  arrows: {fileID: 0}
-  fragments: {fileID: 0}
-  startingTile: {fileID: 0}
   previousTile: {fileID: 0}
   currentTile: {fileID: 0}
   tryCount: 0
