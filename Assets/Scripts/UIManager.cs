@@ -103,6 +103,9 @@ public class UIManager : MonoBehaviour {
         giveUpButton.onClick.AddListener(gameManager.GiveUp);
         if (gameManager.totalDiscoveredTiles.Count > 0) DrawMap(gameManager.totalDiscoveredTiles);
         tryCountText.text = $"Try number {gameManager.tryCount} / {gameManager.tryMax}";
+        UpdateDiscoveryText(gameManager.totalDiscoveredTiles.Count, tileManager.GetMapSize());
+        if (gameManager.totalDiscoveredTiles.Count > 0) AddInfoMessage("Previous data loaded");
+
     }
 
     private void Instantiation() {

@@ -8,13 +8,12 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
 // Managers
-    public TileManager tileManager;
-    public FragmentManager fragmentManager;
-    public UIManager uiManager;
+    private TileManager tileManager;
+    private FragmentManager fragmentManager;
+    private UIManager uiManager;
 
     // Player components
     public Transform playerPrefab;
-    public Transform fragmentPrefab;
     public Transform arrowPrefab;
     public Transform batteryPrefab;
     public GameObject player;
@@ -26,12 +25,9 @@ public class GameManager : MonoBehaviour {
     private bool isDead;
     public AudioClip fragmentPickupAudio;
     public AudioClip youLostAudio;
-    public GameObject arrows;
-
-    public GameObject fragments;
+    private GameObject arrows;
 
     // Tiles
-    public GameObject startingTile;
     public GameObject previousTile;
     public GameObject currentTile;
     public int tryCount;
@@ -50,6 +46,11 @@ public class GameManager : MonoBehaviour {
     private void Awake() {
         tryCount = 1;
         ceiling.SetActive(true);
+        tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
+        uiManager = GameObject.Find("UIManager").GetComponent<UIManager>();
+        fragmentManager = GameObject.Find("FragmentManager").GetComponent<FragmentManager>();
+        arrows = GameObject.Find("Arrows").gameObject;
+        
         LevelData levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
         if (levelData == null) {
             Debug.Log("No Data to load");
@@ -66,8 +67,6 @@ public class GameManager : MonoBehaviour {
                 mapFragments = levelData.mapFragments;
                 allFragmentsPickedUp = levelData.allFragmentsPickedUp;
                 totalDiscoveredTiles = levelData.totalDiscoveredTiles;
-                uiManager.UpdateDiscoveryText(totalDiscoveredTiles.Count, tileManager.GetMapSize());
-                if (totalDiscoveredTiles.Count > 0) uiManager.AddInfoMessage("Previous data loaded");
             }
 
             tryCount = levelData.tryCount + 1;
@@ -94,18 +93,19 @@ public class GameManager : MonoBehaviour {
 
         playerData = FileManager.LoadPlayerDataFile();
 
+        tileManager.DoPathPlanning();
         InstantiatePlayer();
         playerAudio = player.GetComponent<AudioSource>();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
         playerLamp.range = 1.5f * playerData.lightMultiplier;
         playerLamp.intensity = 1 * playerData.lightMultiplier;
-        playerLamp.spotAngle = playerLamp.spotAngle * playerData.lightMultiplier;
+        playerLamp.spotAngle *= playerData.lightMultiplier;
     }
 
 
     private void Start() {
-        tileManager.DoPathPlanning();
+        
     }
     private void Update() {
         // Is the player on a new tile ?
@@ -224,7 +224,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private void InstantiatePlayer() {
-        // Get the furthest tile
+        // Get floor tiles
         List<GameObject> floorTiles = tileManager.GetTilesByType("Floor");
         floorTiles = floorTiles.OrderBy(t => t.GetComponent<Tile>().score).ToList();
         // Get 10 % furthest tiles
@@ -237,7 +237,6 @@ public class GameManager : MonoBehaviour {
             position.z
         ), Quaternion.identity);
         player = playerTransform.gameObject;
-        startingTile = tile;
         currentTile = tile;
     }
 
