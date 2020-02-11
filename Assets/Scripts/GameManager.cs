@@ -68,8 +68,6 @@ public class GameManager : MonoBehaviour {
             }
 
             tryCount = levelData.tryCount + 1;
-
-
             Debug.Log(
                 $"Data loaded: try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {totalDiscoveredTiles.Count}");
         }
@@ -77,12 +75,11 @@ public class GameManager : MonoBehaviour {
         string sceneName = SceneManager.GetActiveScene().name;
         Int32.TryParse(sceneName.Substring(sceneName.Length - 1), out int levelNumber);
 
-        tryMax = levelNumber + 3;
+        tryMax = 4;
         InstantiateBatteries();
 
         foreach (Fragment fragment in mapFragments) {
             if (!fragment.discovered) fragmentManager.InstantiateFragment(fragment);
-            // if (!fragment.discovered) InstantiateFragment(fragment);
             if (fragment.arrowRevealed) {
                 GameObject tile = GameObject.Find(fragment.spawnTile);
                 InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);

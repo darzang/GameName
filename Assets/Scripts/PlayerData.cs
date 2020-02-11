@@ -16,7 +16,7 @@ public class PlayerData : object {
     public int batteryUseLevel;
     public int lightLevel;
 
-    public PlayerData(float playerSpeedIn = 1, int batteryMaxIn = 1200, float fuelComsumptionIn = 1,
+    public PlayerData(float playerSpeedIn = 1, int batteryMaxIn = 1000, float fuelComsumptionIn = 1,
         float lightMultiplierIn = 1, float lightConsumptionIn = 1, float discoveryRangeIn = 1f,
         int levelCompletedIn = 0, bool onboardingDoneIn = false, int spawnArrowChanceIn = 10, int cashIn = 1) {
         playerSpeed = playerSpeedIn;

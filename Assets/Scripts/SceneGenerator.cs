@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SceneGenerator : MonoBehaviour {
     public Transform gameManagerPrefab;
@@ -20,15 +21,44 @@ public class SceneGenerator : MonoBehaviour {
     private GameObject lights;
 
     void Start() {
-        Maps maps = GetComponent<Maps>();
-        char[,] testMap = maps.Level1;
+        string[] mapToLoad = GetMapData(SceneManager.GetActiveScene().name);
+
         walls = GameObject.Find("Environment").transform.Find("Walls").gameObject;
         obstacles = GameObject.Find("Environment").transform.Find("Obstacles").gameObject;
         floor = GameObject.Find("Environment").transform.Find("Floor").gameObject;
         ceiling = GameObject.Find("Environment").transform.Find("Ceiling").gameObject;
         lights = GameObject.Find("Environment").transform.Find("Lights").gameObject;
-        CreateEnvironment(testMap);
+        CreateEnvironment(mapToLoad);
         InstantiateManagers();
+    }
+
+    string[] GetMapData(string sceneName) {
+        Maps maps = GetComponent<Maps>();
+        switch (sceneName) {
+            case "Level1":
+                return maps.level1;
+            case "Level2":
+                return maps.level2;
+            case "Level3":
+                return maps.level3;
+            case "Level4":
+                return maps.level4;
+            case "Level5":
+                return maps.level5;
+            case "Level6":
+                return maps.level6;
+            case "Level7":
+                return maps.level7;
+            case "Level8":
+                return maps.level8;
+            case "Level9":
+                return maps.level9;
+            case "Level10":
+                return maps.level10;
+            default:
+                Debug.LogError("RETURN DEFAULT MAP");
+                return maps.level1;
+        }
     }
 
     void InstantiateManagers() {
@@ -39,18 +69,18 @@ public class SceneGenerator : MonoBehaviour {
         Transform tileManagerObject = Instantiate(tileManagerPrefab, Vector3.zero, Quaternion.identity);
         tileManagerObject.gameObject.name = "TileManager";
         Transform gameManagerObject = Instantiate(gameManagerPrefab, Vector3.zero, Quaternion.identity);
-        gameManagerObject.gameObject.name = "GameManager";    
+        gameManagerObject.gameObject.name = "GameManager";
     }
 
     // Update is called once per frame
-    void CreateEnvironment(char[,] map) {
+    void CreateEnvironment(string[] map) {
         Transform environmentPrefab;
         int totalCount = 0;
-        for (int i = 0; i < map.GetLength(0); i++) {
-            for (int j = 0; j < map.GetLength(1); j++) {
+        for (int i = 0; i < map.Length; i++) {
+            for (int j = 0; j < map[i].Length; j++) {
                 float yAdjustment = 0;
                 GameObject parent;
-                switch (map[i, j]) {
+                switch (map[i][j]) {
                     case 'W':
                         environmentPrefab = wallPrefab;
                         parent = walls;
@@ -64,13 +94,13 @@ public class SceneGenerator : MonoBehaviour {
                         parent = floor;
                         yAdjustment = -0.45f;
                         break;
-                    case 'E':
+                    case 'X':
                         environmentPrefab = exitPrefab;
                         parent = floor;
                         yAdjustment = -0.45f;
                         break;
                     default:
-                        Debug.LogError("No prefab found ?!");
+                        Debug.LogError($"No prefab found ?! {map[i][j]}");
                         environmentPrefab = floorPrefab;
                         parent = floor;
                         break;
@@ -80,7 +110,7 @@ public class SceneGenerator : MonoBehaviour {
                 Vector3 position = new Vector3(i, 0 + yAdjustment, j);
                 Transform environmentObject = Instantiate(environmentPrefab, position, Quaternion.identity);
                 environmentObject.SetParent(parent.transform);
-                environmentObject.gameObject.name = $"{(map[i, j] == 'E' ? "Exit" : map[i, j].ToString())}_{i}_{j}";
+                environmentObject.gameObject.name = $"{(map[i][j] == 'X' ? "Exit" : map[i][j].ToString())}_{i}_{j}";
                 // Instantiate Ceiling above
                 Vector3 ceilingPosition = new Vector3(i, 0.5f, j);
                 Transform ceilingObject = Instantiate(ceilingPrefab, ceilingPosition, Quaternion.identity);
