@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -19,8 +21,11 @@ public class MenuManager : MonoBehaviour {
     public GameObject lightText;
     public GameObject cashTexts;
     private Light playerLamp;
+    private GameObject eyeLids;
+
 
     private void Start() {
+        ceiling.SetActive(true);
         playerLamp = player.GetComponentInChildren<Light>();
         playerData = FileManager.LoadPlayerDataFile();
         if (playerData == null) {
@@ -36,11 +41,18 @@ public class MenuManager : MonoBehaviour {
             playerLamp.spotAngle = 30 * playerData.lightMultiplier;
         }
 
+        anim = player.GetComponent<Animation>();
+        anim.Play("EyeLidOpen");
+        while (anim.IsPlaying("EyeLidOpen")) {
+            Delay(1f);
+        }
+
         SetSkillsText();
         Debug.Log(JsonUtility.ToJson(playerData, true));
         Cursor.visible = false;
-        anim = player.GetComponent<Animation>();
-        ceiling.SetActive(true);
+
+        eyeLids = player.transform.Find("EyeLids").gameObject;
+        eyeLids.SetActive(false);
         mainCamera = Camera.main;
     }
 
@@ -57,9 +69,10 @@ public class MenuManager : MonoBehaviour {
             }
             else if (text) {
                 text.color = Color.yellow;
-                if (text.fontSize >20) {
+                if (text.fontSize > 20) {
                     text.fontSize -= 5;
-                }            }
+                }
+            }
         }
     }
 
@@ -196,6 +209,12 @@ public class MenuManager : MonoBehaviour {
 
                     if (playerData.levelCompleted > levelNumber - 2) {
                         Debug.Log($"Loading level {levelNumber}");
+                        eyeLids.SetActive(true);
+                        anim.Play("EyeLidClose");
+                        while (anim.IsPlaying("EyeLidClose")) {
+                            Delay(1f);
+                        }
+
                         SceneManager.LoadScene($"Level{levelNumber}");
                     }
                     else {
@@ -245,5 +264,9 @@ public class MenuManager : MonoBehaviour {
             SetSkillsText();
             FileManager.SavePlayerDataFile(playerData);
         }
+    }
+
+    IEnumerator Delay(float duration) {
+        yield return new WaitForSeconds(duration);
     }
 }

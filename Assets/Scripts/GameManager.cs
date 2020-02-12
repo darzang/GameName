@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -17,6 +18,8 @@ public class GameManager : MonoBehaviour {
     public Transform arrowPrefab;
     public Transform batteryPrefab;
     public GameObject player;
+    private GameObject eyeLids;
+    private Animation anim;
     private Light playerLamp;
     private GameObject arrows;
 
@@ -27,8 +30,10 @@ public class GameManager : MonoBehaviour {
     public AudioClip batteryDeadAudio;
     public AudioClip fragmentPickupAudio;
     public AudioClip batteryPickupAudio;
-    public AudioClip youLostAudio;   
+    public AudioClip youLostAudio;
+
     private AudioSource playerAudio;
+
     // Tiles
     public GameObject previousTile;
     public GameObject currentTile;
@@ -101,6 +106,14 @@ public class GameManager : MonoBehaviour {
         playerLamp.range = 1.5f * playerData.lightMultiplier;
         playerLamp.intensity = 1 * playerData.lightMultiplier;
         playerLamp.spotAngle *= playerData.lightMultiplier;
+        eyeLids = player.transform.Find("EyeLids").gameObject;
+        anim = player.GetComponent<Animation>();
+        anim.Play("EyeLidOpen");
+        while (anim.IsPlaying("EyeLidOpen")) {
+            Delay(1f);
+        }
+
+        eyeLids.SetActive(false);
         uiManager.Instantiation();
     }
 
@@ -158,7 +171,7 @@ public class GameManager : MonoBehaviour {
 
         // Useful for now, to remove later
         if (Input.GetKeyUp("r")) FileManager.DeleteFile(SceneManager.GetActiveScene().name);
-        // if (Input.GetKeyUp("n")) NextLevel();
+        if (Input.GetKeyUp("n")) NextLevel();
         if (Input.GetKeyUp("p") || Input.GetKeyUp(KeyCode.Escape)) {
             gameIsPaused = true;
             uiManager.ShowPauseUi();
@@ -193,6 +206,13 @@ public class GameManager : MonoBehaviour {
                 SceneManager.GetActiveScene().name);
         }
 
+        eyeLids.SetActive(true);
+
+        anim.Play("EyeLidClose");
+        while (anim.IsPlaying("EyeLidClose")) {
+            Delay(1f);
+        }
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
@@ -206,10 +226,23 @@ public class GameManager : MonoBehaviour {
             FileManager.DeleteFile(SceneManager.GetActiveScene().name);
         }
 
+        eyeLids.SetActive(true);
+
+        anim.Play("EyeLidClose");
+        while (anim.IsPlaying("EyeLidClose")) {
+            Delay(1f);
+        }
+
         SceneManager.LoadScene("MenuScene");
     }
 
     public void BackToMenu() {
+        eyeLids.SetActive(true);
+        anim.Play("EyeLidClose");
+        while (anim.IsPlaying("EyeLidClose")) {
+            Delay(1f);
+        }
+
         SceneManager.LoadScene("MenuScene");
     }
 
@@ -217,6 +250,12 @@ public class GameManager : MonoBehaviour {
         string currentLevel = SceneManager.GetActiveScene().name;
         int levelNumber = int.Parse(currentLevel.Substring(currentLevel.Length - 1));
         string sceneToLoad = $"Level{levelNumber + 1}";
+        eyeLids.SetActive(true);
+        anim.Play("EyeLidClose");
+        while (anim.IsPlaying("EyeLidClose")) {
+            Delay(1f);
+        }
+
         SceneManager.LoadScene(sceneToLoad);
     }
 
@@ -329,5 +368,9 @@ public class GameManager : MonoBehaviour {
         arrow.name = $"Arrow_{tileTransform.gameObject.name}";
         arrow.transform.eulerAngles = new Vector3(0, angle, 0);
         arrow.SetParent(arrows.transform);
+    }
+
+    IEnumerator Delay(float duration) {
+        yield return new WaitForSeconds(duration);
     }
 }
