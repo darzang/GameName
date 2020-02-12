@@ -18,13 +18,24 @@ public class MenuManager : MonoBehaviour {
     public GameObject batteryUseText;
     public GameObject lightText;
     public GameObject cashTexts;
+    private Light playerLamp;
 
     private void Start() {
+        playerLamp = player.GetComponentInChildren<Light>();
         playerData = FileManager.LoadPlayerDataFile();
         if (playerData == null) {
             playerData = new PlayerData();
             FileManager.SavePlayerDataFile(playerData);
+            playerLamp.range = 2f;
+            playerLamp.intensity = 3;
+            playerLamp.spotAngle = 30;
         }
+        else {
+            playerLamp.range = 2f * playerData.lightMultiplier;
+            playerLamp.intensity = 3 * playerData.lightMultiplier;
+            playerLamp.spotAngle = 30 * playerData.lightMultiplier;
+        }
+
         SetSkillsText();
         Debug.Log(JsonUtility.ToJson(playerData, true));
         Cursor.visible = false;
@@ -47,15 +58,15 @@ public class MenuManager : MonoBehaviour {
     }
 
     private void SetSkillsText() {
-        // Set correct text for skills
+// Set correct text for skills
         if (!batteryMaxText) {
             Debug.Log($"No batteryMaxText: {batteryMaxText}");
         }
-        
+
         if (!batteryUseText) {
             Debug.Log($"No batteryUseText: {batteryUseText}");
         }
-        
+
         if (!lightText) {
             Debug.Log($"No lightText: {lightText}");
         }
@@ -179,14 +190,15 @@ public class MenuManager : MonoBehaviour {
                 break;
             default:
                 if (button.name.Contains("Level")) {
-                    Debug.Log($"sub: {button.name.Substring(5,1)}");
-                    Int32.TryParse(button.name.Substring(5,1), out int levelNumber);
+                    Debug.Log($"sub: {button.name.Substring(5, 1)}");
+                    Int32.TryParse(button.name.Substring(5, 1), out int levelNumber);
                     if (levelNumber == 1) {
-                        Int32.TryParse(button.name.Substring(5,2), out int level10);
+                        Int32.TryParse(button.name.Substring(5, 2), out int level10);
                         if (level10 == 10) {
                             levelNumber = 10;
                         }
                     }
+
                     Debug.Log($"Clicked on button level {levelNumber}");
 
                     if (playerData.levelCompleted > levelNumber - 2) {
@@ -197,6 +209,7 @@ public class MenuManager : MonoBehaviour {
                         Debug.Log($"Can't load level {levelNumber}");
                     }
                 }
+
                 break;
         }
     }
@@ -229,6 +242,9 @@ public class MenuManager : MonoBehaviour {
                 case "Light":
                     playerData.lightLevel += 1;
                     playerData.lightMultiplier += 0.1f;
+                    playerLamp.range = 2f * playerData.lightMultiplier;
+                    playerLamp.intensity = 3 * playerData.lightMultiplier;
+                    playerLamp.spotAngle = 30 * playerData.lightMultiplier;
                     break;
             }
 
