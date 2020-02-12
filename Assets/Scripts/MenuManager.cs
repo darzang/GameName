@@ -50,27 +50,20 @@ public class MenuManager : MonoBehaviour {
             if (hit.collider.gameObject.CompareTag("MenuButton")) {
                 text = hit.collider.gameObject.GetComponentInChildren<TextMeshPro>();
                 text.color = Color.blue;
+                if (text.fontSize < 20) {
+                    text.enableWordWrapping = false;
+                    text.fontSize += 5;
+                }
             }
             else if (text) {
                 text.color = Color.yellow;
-            }
+                if (text.fontSize >20) {
+                    text.fontSize -= 5;
+                }            }
         }
     }
 
     private void SetSkillsText() {
-// Set correct text for skills
-        if (!batteryMaxText) {
-            Debug.Log($"No batteryMaxText: {batteryMaxText}");
-        }
-
-        if (!batteryUseText) {
-            Debug.Log($"No batteryUseText: {batteryUseText}");
-        }
-
-        if (!lightText) {
-            Debug.Log($"No lightText: {lightText}");
-        }
-
         switch (playerData.batteryMaxLevel) {
             case 0:
                 batteryMaxText.GetComponent<TextMeshPro>().text = "[1][2][4]";

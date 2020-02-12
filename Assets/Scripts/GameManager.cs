@@ -18,15 +18,17 @@ public class GameManager : MonoBehaviour {
     public Transform batteryPrefab;
     public GameObject player;
     private Light playerLamp;
+    private GameObject arrows;
+
+    private bool isDead;
+
     private AudioSource lightAudio;
     public AudioClip[] lightSounds;
     public AudioClip batteryDeadAudio;
-    private AudioSource playerAudio;
-    private bool isDead;
     public AudioClip fragmentPickupAudio;
-    public AudioClip youLostAudio;
-    private GameObject arrows;
-
+    public AudioClip batteryPickupAudio;
+    public AudioClip youLostAudio;   
+    private AudioSource playerAudio;
     // Tiles
     public GameObject previousTile;
     public GameObject currentTile;
@@ -292,6 +294,7 @@ public class GameManager : MonoBehaviour {
     public void PickupBattery(GameObject batteryIn) {
         player.GetComponent<Player>().fuelCount += (float) Math.Round(playerData.batteryMax / 5f);
         uiManager.AddInfoMessage("Battery picked up");
+        playerAudio.PlayOneShot(batteryPickupAudio);
         Destroy(batteryIn);
     }
 
