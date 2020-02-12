@@ -1698,6 +1698,8 @@ Animation:
   - {fileID: 7400000, guid: 4b09c6f97c098c542a52c9dc4f8919e7, type: 2}
   - {fileID: 7400000, guid: af957ba843165c64e8b14d20732dbf6e, type: 2}
   - {fileID: 7400000, guid: 8c7ee2a860864e54aa7aa8799592d4c4, type: 2}
+  - {fileID: 7400000, guid: 5ec48a2cc2bcf8d4689da63c8bd65201, type: 2}
+  - {fileID: 7400000, guid: d7dab669600b2744c99d3d9153c02daa, type: 2}
   m_WrapMode: 0
   m_PlayAutomatically: 0
   m_AnimatePhysics: 0
@@ -13290,7 +13292,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1096985307
 Transform:
   m_ObjectHideFlags: 0
@@ -21798,7 +21800,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1892833635
 Transform:
   m_ObjectHideFlags: 0

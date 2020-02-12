@@ -44,10 +44,17 @@ public class MenuManager : MonoBehaviour {
         anim = player.GetComponent<Animation>();
         anim.Play("EyeLidOpen");
 
-        while (anim.isPlaying) {
+        if (anim.isPlaying) {
+            
             Debug.Log("Anim playing");
-            Delay(1f);
         }
+        else {
+            Debug.Log("Anim not playing");
+        }
+        // while (anim.isPlaying) {
+        //     Debug.Log("Anim playing");
+        //     Delay(1f);
+        // }
         Debug.Log("Anim done");
 
 
