@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -23,8 +24,11 @@ public class MenuManager : MonoBehaviour {
     private Light playerLamp;
     private GameObject eyeLids;
 
+    private bool initOver;
 
-    private void Start() {
+    async void Start() {
+        Debug.Log($"Start time: {Time.fixedTime}");
+
         ceiling.SetActive(true);
         playerLamp = player.GetComponentInChildren<Light>();
         playerData = FileManager.LoadPlayerDataFile();
@@ -41,47 +45,55 @@ public class MenuManager : MonoBehaviour {
             playerLamp.spotAngle = 30 * playerData.lightMultiplier;
         }
 
+        playerLamp.enabled = false;
         anim = player.GetComponent<Animation>();
+        Debug.Log($"time: {Time.fixedTime}");
         anim.Play("EyeLidOpen");
-
-        if (anim.isPlaying) {
-            
-            Debug.Log("Anim playing");
-        }
-        else {
-            Debug.Log("Anim not playing");
-        }
-        // while (anim.isPlaying) {
-        //     Debug.Log("Anim playing");
-        //     Delay(1f);
-        // }
+        Debug.Log("Opening");
+        Debug.Log($"time: {Time.fixedTime}");
+        await Task.Delay(TimeSpan.FromSeconds(3));
+        Debug.Log($"time: {Time.fixedTime}");
+        anim.Play("EyeLidClose");
+        Debug.Log("Closing");
+        await Task.Delay(TimeSpan.FromSeconds(3));
+        anim.Play("EyeLidOpen");
+        Debug.Log("Opening");
+        await Task.Delay(TimeSpan.FromSeconds(3));
+        anim.Play("EyeLidClose");
+        Debug.Log("Closing");
+        await Task.Delay(TimeSpan.FromSeconds(3));
+        anim.Play("EyeLidOpen");
+        Debug.Log("Opening");
+        await Task.Delay(TimeSpan.FromSeconds(3));
         Debug.Log("Anim done");
 
-
+        playerLamp.enabled = true;
         SetSkillsText();
         Debug.Log(JsonUtility.ToJson(playerData, true));
         Cursor.visible = false;
-
         eyeLids = player.transform.Find("EyeLids").gameObject;
         eyeLids.SetActive(false);
         mainCamera = Camera.main;
+        initOver = true;
     }
 
     private void Update() {
-        Ray forwardRay = mainCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(forwardRay, out RaycastHit hit, 10)) {
-            if (hit.collider.gameObject.CompareTag("MenuButton")) {
-                text = hit.collider.gameObject.GetComponentInChildren<TextMeshPro>();
-                text.color = Color.blue;
-                if (text.fontSize < 20) {
-                    text.enableWordWrapping = false;
-                    text.fontSize += 5;
+        if (initOver) {
+            Ray forwardRay = mainCamera.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(forwardRay, out RaycastHit hit, 10)) {
+                if (hit.collider.gameObject.CompareTag("MenuButton")) {
+                    text = hit.collider.gameObject.GetComponentInChildren<TextMeshPro>();
+                    text.color = Color.blue;
+                    if (text.fontSize < 20) {
+                        text.enableWordWrapping = false;
+                        text.fontSize += 5;
+                    }
                 }
-            }
-            else if (text) {
-                text.color = Color.yellow;
-                if (text.fontSize > 20) {
-                    text.fontSize -= 5;
+                else if (text) {
+                    text.color = Color.yellow;
+                    if (text.fontSize > 20) {
+                        text.fontSize -= 5;
+                    }
                 }
             }
         }
@@ -222,9 +234,7 @@ public class MenuManager : MonoBehaviour {
                         Debug.Log($"Loading level {levelNumber}");
                         eyeLids.SetActive(true);
                         anim.Play("EyeLidClose");
-                        while (anim.isPlaying) {
-                            Delay(1f);
-                        }
+
 
                         SceneManager.LoadScene($"Level{levelNumber}");
                     }

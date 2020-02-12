@@ -109,9 +109,6 @@ public class GameManager : MonoBehaviour {
         eyeLids = player.transform.Find("EyeLids").gameObject;
         anim = player.GetComponent<Animation>();
         anim.Play("EyeLidOpen");
-        while (anim.isPlaying) {
-            Delay(1f);
-        }
 
         eyeLids.SetActive(false);
         uiManager.Instantiation();
@@ -209,9 +206,6 @@ public class GameManager : MonoBehaviour {
         eyeLids.SetActive(true);
 
         anim.Play("EyeLidClose");
-        while (anim.isPlaying) {
-            Delay(1f);
-        }
 
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
@@ -229,9 +223,6 @@ public class GameManager : MonoBehaviour {
         eyeLids.SetActive(true);
 
         anim.Play("EyeLidClose");
-        while (anim.isPlaying) {
-            Delay(1f);
-        }
 
         SceneManager.LoadScene("MenuScene");
     }
@@ -239,9 +230,7 @@ public class GameManager : MonoBehaviour {
     public void BackToMenu() {
         eyeLids.SetActive(true);
         anim.Play("EyeLidClose");
-        while (anim.isPlaying) {
-            Delay(1f);
-        }
+
 
         SceneManager.LoadScene("MenuScene");
     }
@@ -252,9 +241,7 @@ public class GameManager : MonoBehaviour {
         string sceneToLoad = $"Level{levelNumber + 1}";
         eyeLids.SetActive(true);
         anim.Play("EyeLidClose");
-        while (anim.isPlaying) {
-            Delay(1f);
-        }
+
 
         SceneManager.LoadScene(sceneToLoad);
     }

@@ -3332,7 +3332,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '[1][2][4]'
+  m_text: '[v][2][4]'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7884a364e668a5b4ca2b493d73e57213, type: 2}
   m_sharedMaterial: {fileID: -3659142208697385324, guid: 7884a364e668a5b4ca2b493d73e57213,
@@ -4347,6 +4347,11 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0.186
       objectReference: {fileID: 0}
+    - target: {fileID: 799532429784286315, guid: f5d7b6cc7630fec498d6191d0ee75270,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3616702616067850109, guid: f5d7b6cc7630fec498d6191d0ee75270,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -4370,12 +4375,12 @@ PrefabInstance:
     - target: {fileID: 9136995392302655797, guid: f5d7b6cc7630fec498d6191d0ee75270,
         type: 3}
       propertyPath: m_Intensity
-      value: 2
+      value: 3.3000002
       objectReference: {fileID: 0}
     - target: {fileID: 9136995392302655797, guid: f5d7b6cc7630fec498d6191d0ee75270,
         type: 3}
       propertyPath: m_SpotAngle
-      value: 40
+      value: 33
       objectReference: {fileID: 0}
     - target: {fileID: 9136995392302655797, guid: f5d7b6cc7630fec498d6191d0ee75270,
         type: 3}
@@ -4390,7 +4395,12 @@ PrefabInstance:
     - target: {fileID: 9136995392302655797, guid: f5d7b6cc7630fec498d6191d0ee75270,
         type: 3}
       propertyPath: m_Range
-      value: 2
+      value: 2.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 9136995392302655797, guid: f5d7b6cc7630fec498d6191d0ee75270,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9136995392302656203, guid: f5d7b6cc7630fec498d6191d0ee75270,
         type: 3}
@@ -10363,7 +10373,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &877620870
 Transform:
   m_ObjectHideFlags: 0
@@ -28564,7 +28574,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: COINS:0
+  m_text: 'COINS: 0'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7884a364e668a5b4ca2b493d73e57213, type: 2}
   m_sharedMaterial: {fileID: -3659142208697385324, guid: 7884a364e668a5b4ca2b493d73e57213,
@@ -28634,9 +28644,9 @@ MonoBehaviour:
   m_margin: {x: 0, y: 2.4805682, z: 8.908291, w: 0}
   m_textInfo:
     textComponent: {fileID: 8623091825675159986}
-    characterCount: 7
+    characterCount: 8
     spriteCount: 0
-    spaceCount: 0
+    spaceCount: 1
     wordCount: 2
     linkCount: 0
     lineCount: 1
