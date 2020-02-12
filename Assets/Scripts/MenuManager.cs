@@ -43,9 +43,13 @@ public class MenuManager : MonoBehaviour {
 
         anim = player.GetComponent<Animation>();
         anim.Play("EyeLidOpen");
-        while (anim.IsPlaying("EyeLidOpen")) {
+
+        while (anim.isPlaying) {
+            Debug.Log("Anim playing");
             Delay(1f);
         }
+        Debug.Log("Anim done");
+
 
         SetSkillsText();
         Debug.Log(JsonUtility.ToJson(playerData, true));
@@ -211,7 +215,7 @@ public class MenuManager : MonoBehaviour {
                         Debug.Log($"Loading level {levelNumber}");
                         eyeLids.SetActive(true);
                         anim.Play("EyeLidClose");
-                        while (anim.IsPlaying("EyeLidClose")) {
+                        while (anim.isPlaying) {
                             Delay(1f);
                         }
 
