@@ -68,21 +68,13 @@ public class UIManager : MonoBehaviour {
 
         exitReachedText = exitReachedCanvas.transform.Find("ExitReachedText").gameObject;
         exitReachedButtons = exitReachedCanvas.transform.Find("ExitReachedButtons").gameObject;
-        nextLevelButton = exitReachedButtons
-            .transform.Find("NextLevelButton").GetComponent<Button>();
-        backToMenuButton = exitReachedButtons
-            .transform.Find("BackToMenuButton").GetComponent<Button>();
-        giveUpButton = batteryDeadCanvas.transform.Find("BatteryDeadButtons")
-            .transform.Find("GiveUpButton").GetComponent<Button>();
-        retryButton = mainCanvas.transform.Find("BatteryDeadCanvas")
-            .transform.Find("BatteryDeadButtons")
-            .transform.Find("RetryButton").GetComponent<Button>();
-        pauseBackButton = mainCanvas.transform.Find("PauseCanvas")
-            .transform.Find("PauseBackButton").GetComponent<Button>();
-        pauseResumeButton = mainCanvas.transform.Find("PauseCanvas")
-            .transform.Find("PauseResumeButton").GetComponent<Button>();
-        pauseRetryButton = mainCanvas.transform.Find("PauseCanvas")
-            .transform.Find("PauseRetryButton").GetComponent<Button>();
+        nextLevelButton = exitReachedButtons.transform.Find("NextLevelButton").GetComponent<Button>();
+        backToMenuButton = exitReachedButtons.transform.Find("BackToMenuButton").GetComponent<Button>();
+        giveUpButton = batteryDeadCanvas.transform.Find("BatteryDeadButtons").transform.Find("GiveUpButton").GetComponent<Button>();
+        retryButton = batteryDeadCanvas.transform.Find("BatteryDeadButtons").transform.Find("RetryButton").GetComponent<Button>();
+        pauseBackButton = pauseCanvas.transform.Find("PauseBackButton").GetComponent<Button>();
+        pauseResumeButton = pauseCanvas.transform.Find("PauseResumeButton").GetComponent<Button>();
+        pauseRetryButton = pauseCanvas .transform.Find("PauseRetryButton").GetComponent<Button>();
 
         batteryDeadText = batteryDeadCanvas.transform.Find("BatteryDeadText").gameObject;
         batteryLevelText = batteryBarCanvas.transform.Find("BatteryLevelText").gameObject;
@@ -101,11 +93,17 @@ public class UIManager : MonoBehaviour {
         player = gameManager.player.GetComponent<Player>();
         retryButton.onClick.AddListener(gameManager.Retry);
         giveUpButton.onClick.AddListener(gameManager.GiveUp);
+        pauseResumeButton.onClick.AddListener(HidePauseUi);
+        pauseRetryButton.onClick.AddListener(gameManager.Retry);
+        pauseBackButton.onClick.AddListener(gameManager.GiveUp);
         if (gameManager.totalDiscoveredTiles.Count > 0) DrawMap(gameManager.totalDiscoveredTiles);
         tryCountText.text = $"Try number {gameManager.tryCount} / {gameManager.tryMax}";
         UpdateDiscoveryText(gameManager.totalDiscoveredTiles.Count, tileManager.GetMapSize());
         if (gameManager.totalDiscoveredTiles.Count > 0) AddInfoMessage("Previous data loaded");
+    }
 
+    public void HideCanvas() {
+        mainCanvas.SetActive(false);
     }
 
     private void Update() {
@@ -309,9 +307,6 @@ public class UIManager : MonoBehaviour {
 
     public void ShowPauseUi() {
         pauseCanvas.SetActive(true);
-        pauseResumeButton.onClick.AddListener(HidePauseUi);
-        pauseRetryButton.onClick.AddListener(gameManager.Retry);
-        pauseBackButton.onClick.AddListener(gameManager.GiveUp);
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         player.GetComponent<Player>().lockPlayer = true;

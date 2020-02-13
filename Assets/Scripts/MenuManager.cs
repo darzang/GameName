@@ -27,7 +27,8 @@ public class MenuManager : MonoBehaviour {
     private bool initOver;
 
     async void Start() {
-        Debug.Log($"Start time: {Time.fixedTime}");
+        StartCoroutine("OpenEyes");
+
 
         ceiling.SetActive(true);
         playerLamp = player.GetComponentInChildren<Light>();
@@ -46,54 +47,59 @@ public class MenuManager : MonoBehaviour {
         }
 
         playerLamp.enabled = false;
-        anim = player.GetComponent<Animation>();
-        Debug.Log($"time: {Time.fixedTime}");
-        anim.Play("EyeLidOpen");
         Debug.Log("Opening");
-        Debug.Log($"time: {Time.fixedTime}");
-        await Task.Delay(TimeSpan.FromSeconds(3));
-        Debug.Log($"time: {Time.fixedTime}");
         anim.Play("EyeLidClose");
         Debug.Log("Closing");
-        await Task.Delay(TimeSpan.FromSeconds(3));
-        anim.Play("EyeLidOpen");
         Debug.Log("Opening");
-        await Task.Delay(TimeSpan.FromSeconds(3));
         anim.Play("EyeLidClose");
         Debug.Log("Closing");
-        await Task.Delay(TimeSpan.FromSeconds(3));
         anim.Play("EyeLidOpen");
         Debug.Log("Opening");
-        await Task.Delay(TimeSpan.FromSeconds(3));
         Debug.Log("Anim done");
 
-        playerLamp.enabled = true;
         SetSkillsText();
         Debug.Log(JsonUtility.ToJson(playerData, true));
         Cursor.visible = false;
-        eyeLids = player.transform.Find("EyeLids").gameObject;
-        eyeLids.SetActive(false);
         mainCamera = Camera.main;
         initOver = true;
     }
 
+    private IEnumerator OpenEyes() {
+        Debug.Log($"{Time.fixedTime} Calling Open ");
+        anim = player.GetComponent<Animation>();
+        eyeLids = player.transform.Find("EyeLids").gameObject;
+        anim.Play("EyeLidOpen");
+        yield return new WaitForSeconds(1);
+        eyeLids.SetActive(false);
+        playerLamp.enabled = true;
+        Debug.Log($"{Time.fixedTime} Open Over ");
+    }
+    private IEnumerator CloseEyes(int levelNumber) {
+        Debug.Log($"{Time.fixedTime} Calling Close ");
+        eyeLids.SetActive(true);
+        playerLamp.enabled = false;
+        anim.Play("EyeLidClose");
+        yield return new WaitForSeconds(1.2f);
+        Debug.Log($"{Time.fixedTime} Close Over Close ");
+        SceneManager.LoadScene($"Level{levelNumber}");
+    }
+    
+
     private void Update() {
-        if (initOver) {
-            Ray forwardRay = mainCamera.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(forwardRay, out RaycastHit hit, 10)) {
-                if (hit.collider.gameObject.CompareTag("MenuButton")) {
-                    text = hit.collider.gameObject.GetComponentInChildren<TextMeshPro>();
-                    text.color = Color.blue;
-                    if (text.fontSize < 20) {
-                        text.enableWordWrapping = false;
-                        text.fontSize += 5;
-                    }
+        Ray forwardRay = mainCamera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(forwardRay, out RaycastHit hit, 10)) {
+            if (hit.collider.gameObject.CompareTag("MenuButton")) {
+                text = hit.collider.gameObject.GetComponentInChildren<TextMeshPro>();
+                text.color = Color.blue;
+                if (text.fontSize < 20) {
+                    text.enableWordWrapping = false;
+                    text.fontSize += 5;
                 }
-                else if (text) {
-                    text.color = Color.yellow;
-                    if (text.fontSize > 20) {
-                        text.fontSize -= 5;
-                    }
+            }
+            else if (text) {
+                text.color = Color.yellow;
+                if (text.fontSize > 20) {
+                    text.fontSize -= 5;
                 }
             }
         }
@@ -235,8 +241,7 @@ public class MenuManager : MonoBehaviour {
                         eyeLids.SetActive(true);
                         anim.Play("EyeLidClose");
 
-
-                        SceneManager.LoadScene($"Level{levelNumber}");
+                        StartCoroutine(CloseEyes(levelNumber));
                     }
                     else {
                         Debug.Log($"Can't load level {levelNumber}");
@@ -285,9 +290,5 @@ public class MenuManager : MonoBehaviour {
             SetSkillsText();
             FileManager.SavePlayerDataFile(playerData);
         }
-    }
-
-    IEnumerator Delay(float duration) {
-        yield return new WaitForSeconds(duration);
     }
 }

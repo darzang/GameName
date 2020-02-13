@@ -108,10 +108,33 @@ public class GameManager : MonoBehaviour {
         playerLamp.spotAngle *= playerData.lightMultiplier;
         eyeLids = player.transform.Find("EyeLids").gameObject;
         anim = player.GetComponent<Animation>();
-        anim.Play("EyeLidOpen");
-
-        eyeLids.SetActive(false);
+        StartCoroutine(OpenEyes());
         uiManager.Instantiation();
+    }
+
+    private IEnumerator OpenEyes() {
+        Debug.Log($"{Time.fixedTime} Calling Open ");
+        anim.Play("EyeLidOpen");
+        yield return new WaitForSeconds(1);
+        eyeLids.SetActive(false);
+        Debug.Log($"{Time.fixedTime} Open Over ");
+    }
+
+    private IEnumerator CloseEyes(int levelNumber) {
+        Debug.Log($"Closing eyes: {levelNumber}");
+        Debug.Log($"{Time.fixedTime} Calling Close ");
+        eyeLids.SetActive(true);
+        playerLamp.enabled = false;
+        uiManager.HideCanvas();
+        anim.Play("EyeLidClose");
+        yield return new WaitForSeconds(1.2f);
+        Debug.Log($"{Time.fixedTime} Close Over Close ");
+        if (levelNumber == 0) {
+            SceneManager.LoadScene("MenuScene");
+        }
+        else {
+            SceneManager.LoadScene($"Level{levelNumber}");
+        }
     }
 
     private void Update() {
@@ -203,9 +226,9 @@ public class GameManager : MonoBehaviour {
                 SceneManager.GetActiveScene().name);
         }
 
-        eyeLids.SetActive(true);
-
-        anim.Play("EyeLidClose");
+        string currentLevel = SceneManager.GetActiveScene().name;
+        int levelNumber = int.Parse(currentLevel.Substring(currentLevel.Length - 1));
+        StartCoroutine(CloseEyes(levelNumber));
 
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
@@ -218,32 +241,22 @@ public class GameManager : MonoBehaviour {
         }
         else {
             FileManager.DeleteFile(SceneManager.GetActiveScene().name);
+            Debug.Log("GIVEUP: File deleted");
         }
-
-        eyeLids.SetActive(true);
-
-        anim.Play("EyeLidClose");
-
-        SceneManager.LoadScene("MenuScene");
+        Debug.Log("GIVEUP: Calling backToMenu");
+        BackToMenu();
+        Debug.Log("GIVEUP: Done");
     }
 
     public void BackToMenu() {
-        eyeLids.SetActive(true);
-        anim.Play("EyeLidClose");
-
-
-        SceneManager.LoadScene("MenuScene");
+        Debug.Log("BackToMenu");
+        StartCoroutine(CloseEyes(0));
     }
 
     public void NextLevel() {
         string currentLevel = SceneManager.GetActiveScene().name;
         int levelNumber = int.Parse(currentLevel.Substring(currentLevel.Length - 1));
-        string sceneToLoad = $"Level{levelNumber + 1}";
-        eyeLids.SetActive(true);
-        anim.Play("EyeLidClose");
-
-
-        SceneManager.LoadScene(sceneToLoad);
+        StartCoroutine(CloseEyes(levelNumber + 1));
     }
 
     private void InstantiatePlayer() {
