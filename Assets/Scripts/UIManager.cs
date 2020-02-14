@@ -329,11 +329,10 @@ public class UIManager : MonoBehaviour {
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         player.GetComponent<Player>().lockPlayer = true;
-        if (SceneManager.GetActiveScene().name == "Level3") {
+        if (SceneManager.GetActiveScene().name == "Level10") {
             exitReachedText.GetComponent<TextMeshProUGUI>().text =
                 "Congrats beta tester, you've been through all the levels !!";
             exitReachedText.GetComponent<TextMeshProUGUI>().fontSize = 17;
-            nextLevelButton.gameObject.SetActive(false);
             backToMenuButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
         }
     }

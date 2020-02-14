@@ -21,17 +21,20 @@ public class MenuManager : MonoBehaviour {
     public GameObject batteryUseText;
     public GameObject lightText;
     public GameObject cashTexts;
+    public AudioClip openingAudio;
     private Light playerLamp;
     private GameObject eyeLids;
+    private AudioSource playerAudio;
 
     private bool initOver;
 
     async void Start() {
-        StartCoroutine("OpenEyes");
+        StartCoroutine(nameof(OpenEyes));
 
 
         ceiling.SetActive(true);
         playerLamp = player.GetComponentInChildren<Light>();
+        playerAudio = player.GetComponent<AudioSource>();
         playerData = FileManager.LoadPlayerDataFile();
         if (playerData == null) {
             playerData = new PlayerData();
@@ -79,32 +82,12 @@ public class MenuManager : MonoBehaviour {
         eyeLids.SetActive(true);
         playerLamp.enabled = false;
         anim.Play("EyeLidClose");
-        yield return new WaitForSeconds(1.2f);
+        playerAudio.PlayOneShot(openingAudio);
+        yield return new WaitForSeconds(3f);
         Debug.Log($"{Time.fixedTime} Close Over Close ");
         SceneManager.LoadScene($"Level{levelNumber}");
     }
     
-
-    private void Update() {
-        Ray forwardRay = mainCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(forwardRay, out RaycastHit hit, 10)) {
-            if (hit.collider.gameObject.CompareTag("MenuButton")) {
-                text = hit.collider.gameObject.GetComponentInChildren<TextMeshPro>();
-                text.color = Color.blue;
-                if (text.fontSize < 20) {
-                    text.enableWordWrapping = false;
-                    text.fontSize += 5;
-                }
-            }
-            else if (text) {
-                text.color = Color.yellow;
-                if (text.fontSize > 20) {
-                    text.fontSize -= 5;
-                }
-            }
-        }
-    }
-
     private void SetSkillsText() {
         switch (playerData.batteryMaxLevel) {
             case 0:
@@ -214,13 +197,13 @@ public class MenuManager : MonoBehaviour {
                 helpNextButton.SetActive(true);
                 helpPreviousButton.SetActive(false);
                 break;
-            case "BatteryMaxButton":
+            case "BatteryMaxUpgradeButton":
                 HandleUpgrade("BatteryMax", playerData.batteryMaxLevel);
                 break;
-            case "BatteryUseButton":
+            case "BatteryUseUpgradeButton":
                 HandleUpgrade("BatteryUse", playerData.batteryUseLevel);
                 break;
-            case "LightButton":
+            case "LightUpgradeButton":
                 HandleUpgrade("Light", playerData.lightLevel);
                 break;
             default:

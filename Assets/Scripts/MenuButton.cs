@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 
 public class MenuButton : MonoBehaviour
@@ -15,6 +18,12 @@ public class MenuButton : MonoBehaviour
        menuManager.HandleClick(gameObject);
     }
 
+    private void OnMouseExit() {
+        transform.GetComponent<TextMeshPro>().fontSize -= 5;
 
+    }
 
+    private void OnMouseEnter() {
+        transform.GetComponent<TextMeshPro>().fontSize += 5;
+    }
 }

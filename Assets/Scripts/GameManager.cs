@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour {
     public AudioClip fragmentPickupAudio;
     public AudioClip batteryPickupAudio;
     public AudioClip youLostAudio;
+    public AudioClip openingAudio;
 
     private AudioSource playerAudio;
 
@@ -126,8 +127,9 @@ public class GameManager : MonoBehaviour {
         eyeLids.SetActive(true);
         playerLamp.enabled = false;
         uiManager.HideCanvas();
+        playerAudio.PlayOneShot(openingAudio);
         anim.Play("EyeLidClose");
-        yield return new WaitForSeconds(1.2f);
+        yield return new WaitForSeconds(3f);
         Debug.Log($"{Time.fixedTime} Close Over Close ");
         if (levelNumber == 0) {
             SceneManager.LoadScene("MenuScene");
@@ -179,7 +181,6 @@ public class GameManager : MonoBehaviour {
                 uiManager.AddInfoMessage("Lamp enabled");
             }
 
-            lightAudio.Play();
             playerLamp.enabled = !playerLamp.enabled;
         }
 

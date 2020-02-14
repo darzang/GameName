@@ -2750,7 +2750,7 @@ GameObject:
   - component: {fileID: 256398568}
   - component: {fileID: 256398567}
   m_Layer: 0
-  m_Name: LightButton
+  m_Name: LightUpgradeButton
   m_TagString: MenuButton
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2764,7 +2764,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 256398565}
   m_LocalRotation: {x: 0, y: 0.7071068, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 3.657}
+  m_LocalPosition: {x: 0, y: 0, z: 3.6}
   m_LocalScale: {x: 0.05000003, y: 0.05, z: -0.0038255325}
   m_Children: []
   m_Father: {fileID: 1509517460}
@@ -3290,7 +3290,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 309663275}
   m_LocalRotation: {x: 0, y: 0.7071068, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 3.033}
+  m_LocalPosition: {x: 0, y: 0, z: 2.95}
   m_LocalScale: {x: 0.05000003, y: 0.05, z: -0.0038255325}
   m_Children: []
   m_Father: {fileID: 1509517460}
@@ -4003,6 +4003,7 @@ MonoBehaviour:
   batteryUseText: {fileID: 2057779956}
   lightText: {fileID: 309663275}
   cashTexts: {fileID: 8623091825675159987}
+  openingAudio: {fileID: 8300000, guid: d867c50126b7633418f79e7a3e21b70c, type: 3}
 --- !u!1001 &357051416
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7449,7 +7450,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 597673855}
   m_LocalRotation: {x: 0, y: 0.7071068, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 3.033}
+  m_LocalPosition: {x: 0, y: 0, z: 2.95}
   m_LocalScale: {x: 0.05000003, y: 0.05, z: -0.0038255325}
   m_Children: []
   m_Father: {fileID: 1509517460}
@@ -21104,7 +21105,7 @@ GameObject:
   - component: {fileID: 1818552385}
   - component: {fileID: 1818552384}
   m_Layer: 0
-  m_Name: BatteryUseButton
+  m_Name: BatteryUseUpgradeButton
   m_TagString: MenuButton
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -21118,7 +21119,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1818552382}
   m_LocalRotation: {x: 0, y: 0.7071068, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 3.657}
+  m_LocalPosition: {x: 0, y: 0, z: 3.6}
   m_LocalScale: {x: 0.05000003, y: 0.05, z: -0.0038255325}
   m_Children: []
   m_Father: {fileID: 1509517460}
@@ -23648,7 +23649,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2057779956}
   m_LocalRotation: {x: 0, y: 0.7071068, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 3.033}
+  m_LocalPosition: {x: 0, y: 0, z: 2.95}
   m_LocalScale: {x: 0.05000003, y: 0.05, z: -0.0038255325}
   m_Children: []
   m_Father: {fileID: 1509517460}
@@ -24845,19 +24846,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &2428456504513685890
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8623091825675159987}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c6bafb2981fda947b81189942da0784, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  menuManager: {fileID: 0}
 --- !u!1001 &2895824906755452058
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -25071,7 +25059,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3155994963279170110}
   m_LocalRotation: {x: 0, y: 0.7071068, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 3.657}
+  m_LocalPosition: {x: 0, y: 0, z: 3.6}
   m_LocalScale: {x: 0.05000003, y: 0.05, z: -0.0038255325}
   m_Children: []
   m_Father: {fileID: 1509517460}
@@ -25111,7 +25099,7 @@ GameObject:
   - component: {fileID: 3155994963279170101}
   - component: {fileID: 9067053050016459279}
   m_Layer: 0
-  m_Name: BatteryMaxButton
+  m_Name: BatteryMaxUpgradeButton
   m_TagString: MenuButton
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28701,10 +28689,9 @@ GameObject:
   - component: {fileID: 8623091825675159997}
   - component: {fileID: 8623091825675159986}
   - component: {fileID: 8623091825675159992}
-  - component: {fileID: 2428456504513685890}
   m_Layer: 0
   m_Name: CashText
-  m_TagString: MenuButton
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
