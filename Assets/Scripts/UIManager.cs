@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -27,9 +26,9 @@ public class UIManager : MonoBehaviour {
     private GameObject infoPanel;
     private TextMeshProUGUI discoveryText;
     private TextMeshProUGUI tryCountText;
+    private TextMeshProUGUI batteryText;
 
 
-    private bool batteryLevelBlinking;
     private Quaternion initialRotation;
     private int totalInfoText = 0;
     public Sprite wallSprite;
@@ -40,7 +39,7 @@ public class UIManager : MonoBehaviour {
     public GameObject infoTextPrefab;
 
     public float minDistanceMiniMap = 5;
-    
+
     private GameObject mainCanvas;
     private GameObject pauseCanvas;
     private GameObject mapCanvas;
@@ -49,9 +48,12 @@ public class UIManager : MonoBehaviour {
     private GameObject infoCanvas;
     private GameObject exitReachedCanvas;
     private GameObject batteryDeadCanvas;
+
+    private bool batteryLevelBlinking = false;
+
     private void Awake() {
         Cursor.visible = false;
-        
+
         // Variables instantiation
         mainCanvas = GameObject.Find("MainCanvas").gameObject;
         pauseCanvas = mainCanvas.transform.Find("PauseCanvas").gameObject;
@@ -70,19 +72,18 @@ public class UIManager : MonoBehaviour {
         exitReachedButtons = exitReachedCanvas.transform.Find("ExitReachedButtons").gameObject;
         nextLevelButton = exitReachedButtons.transform.Find("NextLevelButton").GetComponent<Button>();
         backToMenuButton = exitReachedButtons.transform.Find("BackToMenuButton").GetComponent<Button>();
-        giveUpButton = batteryDeadCanvas.transform.Find("BatteryDeadButtons").transform.Find("GiveUpButton").GetComponent<Button>();
-        retryButton = batteryDeadCanvas.transform.Find("BatteryDeadButtons").transform.Find("RetryButton").GetComponent<Button>();
+        giveUpButton = batteryDeadCanvas.transform.Find("BatteryDeadButtons").transform.Find("GiveUpButton")
+            .GetComponent<Button>();
+        retryButton = batteryDeadCanvas.transform.Find("BatteryDeadButtons").transform.Find("RetryButton")
+            .GetComponent<Button>();
         pauseBackButton = pauseCanvas.transform.Find("PauseBackButton").GetComponent<Button>();
         pauseResumeButton = pauseCanvas.transform.Find("PauseResumeButton").GetComponent<Button>();
-        pauseRetryButton = pauseCanvas .transform.Find("PauseRetryButton").GetComponent<Button>();
+        pauseRetryButton = pauseCanvas.transform.Find("PauseRetryButton").GetComponent<Button>();
 
         batteryDeadText = batteryDeadCanvas.transform.Find("BatteryDeadText").gameObject;
         batteryLevelText = batteryBarCanvas.transform.Find("BatteryLevelText").gameObject;
+        batteryText = batteryLevelText.GetComponent<TextMeshProUGUI>();
         batteryBar = batteryBarCanvas.transform.Find("BatteryBar").gameObject;
-            
-
-        
-
     }
 
     public void Instantiation() {
@@ -109,14 +110,23 @@ public class UIManager : MonoBehaviour {
     private void Update() {
         RotateMiniMap();
         player.fuelCount = player.GetComponent<Player>().fuelCount;
-        if (player.fuelCount >= 0) {
+        if (player.fuelCount > 0) {
             UpdateBatteryLevel();
-            if (player.fuelCount <= gameManager.playerData.batteryMax * 0.5 && !batteryLevelBlinking)
-                StartCoroutine(BlinkBatteryLevel());
+            if (player.fuelCount > gameManager.playerData.batteryMax * 0.5) {
+                batteryText.text = "";
+            }
+            else if (player.fuelCount > gameManager.playerData.batteryMax * 0.2) {
+                batteryText.text = "BATTERY LEVEL LOW";
+                if (!batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel(0.5f));
+            }
+            else  {
+                batteryText.text = "BATTERY LEVEL CRITICAL";
+                if (!batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel(0.25f));
+            }
         }
-
-        if (player.fuelCount <= 0 && !batteryDeadCanvas.activeSelf) {
+        else if (!batteryDeadCanvas.activeSelf) {
             Cursor.visible = true;
+            batteryLevelText.SetActive(false);
             StopCoroutine(nameof(BlinkBatteryLevel));
             batteryDeadCanvas.SetActive(true);
             if (gameManager.tryCount >= gameManager.tryMax) {
@@ -157,7 +167,7 @@ public class UIManager : MonoBehaviour {
             ? new Color32((byte) (gameManager.playerData.batteryMax - player.fuelCount), 255, 0, 255)
             : new Color32(255, (byte) player.fuelCount, 0, 255);
     }
-    
+
     private void AddTileToMiniMap(GameObject tile) {
         GameObject existingMiniMapTile = GameObject.Find($"MiniMap_{tile.gameObject.name}");
 
@@ -186,6 +196,7 @@ public class UIManager : MonoBehaviour {
                     if (tileObject == gameManager.previousTile) {
                         existingMiniMapTile.GetComponent<Image>().sprite = floorSprite;
                     }
+
                     existingMiniMapTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
                         tileManager.GetRelativePosition(tileManager.GetTileUnderPlayer(), tile)[0] * 10,
                         tileManager.GetRelativePosition(tileManager.GetTileUnderPlayer(), tile)[1] * 10,
@@ -283,25 +294,13 @@ public class UIManager : MonoBehaviour {
         }
     }
 
-    private IEnumerator BlinkBatteryLevel() {
+    private IEnumerator BlinkBatteryLevel(float timeToWait) {
         batteryLevelBlinking = true;
-        TextMeshProUGUI batteryText = batteryLevelText.GetComponent<TextMeshProUGUI>();
-        while (true) {
-            if (player.fuelCount > gameManager.playerData.batteryMax * 0.2) {
-                batteryText.text = "BATTERY LEVEL LOW";
-                batteryLevelText.SetActive(true);
-                yield return new WaitForSeconds(0.4f);
-                batteryLevelText.SetActive(false);
-                yield return new WaitForSeconds(0.4f);
-            }
-            else {
-                batteryText.text = "BATTERY LEVEL CRITICAL";
-                batteryLevelText.SetActive(true);
-                yield return new WaitForSeconds(0.2f);
-                batteryLevelText.SetActive(false);
-                yield return new WaitForSeconds(0.2f);
-            }
-        }
+        batteryLevelText.SetActive(true);
+        yield return new WaitForSeconds(timeToWait);
+        batteryLevelText.SetActive(false);
+        yield return new WaitForSeconds(timeToWait);
+        batteryLevelBlinking = false;
     }
 
 
