@@ -104,8 +104,8 @@ public class GameManager : MonoBehaviour {
         playerAudio = player.GetComponent<AudioSource>();
         playerLamp = player.GetComponentInChildren<Light>();
         lightAudio = playerLamp.GetComponent<AudioSource>();
-        playerLamp.range = 1.5f * playerData.lightMultiplier;
-        playerLamp.intensity = 1 * playerData.lightMultiplier;
+        playerLamp.range *= playerData.lightMultiplier;
+        playerLamp.intensity *= playerData.lightMultiplier;
         playerLamp.spotAngle *= playerData.lightMultiplier;
         eyeLids = player.transform.Find("EyeLids").gameObject;
         anim = player.GetComponent<Animation>();

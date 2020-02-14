@@ -44,9 +44,9 @@ public class MenuManager : MonoBehaviour {
             playerLamp.spotAngle = 30;
         }
         else {
-            playerLamp.range = 2f * playerData.lightMultiplier;
-            playerLamp.intensity = 3 * playerData.lightMultiplier;
-            playerLamp.spotAngle = 30 * playerData.lightMultiplier;
+            playerLamp.range *= playerData.lightMultiplier;
+            playerLamp.intensity *= playerData.lightMultiplier;
+            playerLamp.spotAngle *= playerData.lightMultiplier;
         }
 
         playerLamp.enabled = false;
