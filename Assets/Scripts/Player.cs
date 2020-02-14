@@ -25,6 +25,8 @@ public class Player : MonoBehaviour {
 
     private void Update() {
         if (SceneManager.GetActiveScene().name == "MenuScene") return;
+        if (Input.GetKeyUp("l")) fuelCount += 100;
+        if (Input.GetKeyUp("k")) fuelCount -= 100;
         if (Input.GetKey("w") || Input.GetKey("a") || Input.GetKey("s") || Input.GetKey("d")
             || Input.GetKey("up") || Input.GetKey("left") || Input.GetKey("right") || Input.GetKey("down")) {
             if (fuelCount > 0 && !lockPlayer && !gameManager.gameIsPaused) {
@@ -35,9 +37,9 @@ public class Player : MonoBehaviour {
         if (playerLamp.enabled && !gameManager.gameIsPaused) {
             fuelCount -= gameManager.playerData.lightConsumption / 10 * (Time.deltaTime + 1);
         }
+        // TODO: this should check fuel count and send to gameManager 
 
-        if (Input.GetKeyUp("l")) fuelCount += 100;
-        if (Input.GetKeyUp("k")) fuelCount -= 100;
+
     }
 
     private void PlayerMovement() {

@@ -50,16 +50,6 @@ public class MenuManager : MonoBehaviour {
         }
 
         playerLamp.enabled = false;
-        Debug.Log("Opening");
-        anim.Play("EyeLidClose");
-        Debug.Log("Closing");
-        Debug.Log("Opening");
-        anim.Play("EyeLidClose");
-        Debug.Log("Closing");
-        anim.Play("EyeLidOpen");
-        Debug.Log("Opening");
-        Debug.Log("Anim done");
-
         SetSkillsText();
         Debug.Log(JsonUtility.ToJson(playerData, true));
         Cursor.visible = false;
