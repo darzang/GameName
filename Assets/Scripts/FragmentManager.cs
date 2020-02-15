@@ -137,6 +137,7 @@ public class FragmentManager : MonoBehaviour {
                 closestFragment = fragment;
             }
         }
+
         return closestFragment;
     }
 
@@ -145,13 +146,16 @@ public class FragmentManager : MonoBehaviour {
         Vector3 position = spawnTile.transform.position;
         Transform fragment = Instantiate(fragmentPrefab, new Vector3(
             position.x,
-            position.y + 0.35f,
+            position.y + 0.45f,
             position.z
         ), Quaternion.identity);
         fragment.name = $"Fragment_{fragmentIn.number}";
         fragment.SetParent(GameObject.Find("Fragments").transform);
-        
+
+        List<Vector3> tilesPositions = new List<Vector3>();
+        List<Transform> fragmentTiles = new List<Transform>();
         foreach (string tileName in fragmentIn.tiles) {
+            float floorOffset = 0;
             GameObject realTile = GameObject.Find(tileName);
             Transform tilePrefab;
             Material tileMaterial;
@@ -167,10 +171,12 @@ public class FragmentManager : MonoBehaviour {
                 case "Exit":
                     tilePrefab = exitPrefab;
                     tileMaterial = exitMaterial;
+                    floorOffset = 0.2f;
                     break;
                 case "Floor":
                     tilePrefab = floorPrefab;
                     tileMaterial = FloorMaterial;
+                    floorOffset = 0.2f;
                     break;
                 default:
                     Debug.Log($"Tag not found for tile {tileName} with tag {realTile.tag}");
@@ -181,10 +187,13 @@ public class FragmentManager : MonoBehaviour {
 
 
             Transform fragmentTile = Instantiate(tilePrefab, new Vector3(
-                realTile.transform.position.x,
-                realTile.transform.position.y,
-                realTile.transform.position.z
+                realTile.transform.position.x / 2,
+                realTile.transform.position.y + floorOffset,
+                realTile.transform.position.z / 2
             ), Quaternion.identity);
+            tilesPositions.Add(fragmentTile.transform.position);
+            fragmentTiles.Add(fragmentTile);
+            fragmentTile.SetParent(fragment);
             fragmentTile.gameObject.name = $"FragmentTile_{realTile.name}";
             fragmentTile.gameObject.isStatic = false;
 
@@ -196,16 +205,26 @@ public class FragmentManager : MonoBehaviour {
             fragmentTile.gameObject.GetComponent<Renderer>().material = tileMaterial;
             fragmentTile.gameObject.GetComponent<BoxCollider>().enabled = false;
             fragment.gameObject.isStatic = false;
-            fragmentTile.transform.localScale = new Vector3(1f,1f,1f);
+            fragmentTile.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
             if (tilePrefab == floorPrefab || tilePrefab == exitPrefab) {
                 Vector3 localScale = fragmentTile.transform.localScale;
-                localScale.y = 0.01f;
+                localScale.y = 0.02f;
                 fragmentTile.transform.localScale = localScale;
             }
-            // fragmentTile.transform.localScale = Vector3.one;
-            fragmentTile.SetParent(fragment);
+
         }
-        fragment.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
-        // fragment.transform.rotation = Quaternion.Euler(0, 0, 60f);
+        // Shift the tiles to be in center of parent gameObject
+        Vector3 offset = GetCenterPointBetween(tilesPositions);
+        foreach (Transform tile in fragmentTiles) {
+                tile.transform.position += offset;
+        }
+        fragment.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+    }     
+    Vector3 GetCenterPointBetween(List<Vector3> positions){
+        Vector3 center = new Vector3(0,0,0);
+        foreach (Vector3 position in positions) {
+            center += position;
+        }
+        return center /= positions.Count;
     }
 }

@@ -9,6 +9,8 @@ public class Player : MonoBehaviour {
     private Light playerLamp;
     public bool lockPlayer = false;
     public GameManager gameManager;
+    private bool doubleTap;
+    private float doubleTapTime;
 
     private void Awake() {
         playerLamp = GameObject.Find("PlayerLamp").GetComponent<Light>();
@@ -25,7 +27,6 @@ public class Player : MonoBehaviour {
 
     private void Update() {
         if (SceneManager.GetActiveScene().name == "MenuScene") return;
-        if (Input.GetKeyUp("l")) fuelCount += 100;
         if (Input.GetKeyUp("k")) fuelCount -= 100;
         if (Input.GetKey("w") || Input.GetKey("a") || Input.GetKey("s") || Input.GetKey("d")
             || Input.GetKey("up") || Input.GetKey("left") || Input.GetKey("right") || Input.GetKey("down")) {
@@ -34,12 +35,25 @@ public class Player : MonoBehaviour {
             }
         }
 
+        if (Input.GetKeyUp("l") && doubleTap) {
+            if (Time.time - doubleTapTime < 0.2f) {
+                doubleTapTime = 0f;
+                fuelCount += 300;
+                if (fuelCount > gameManager.playerData.batteryMax) fuelCount = gameManager.playerData.batteryMax;
+            }
+            doubleTap = false;
+        }
+
+        if (Input.GetKeyUp("l") && !doubleTap) {
+            doubleTap = true;
+            doubleTapTime = Time.time;
+        }
+
         if (playerLamp.enabled && !gameManager.gameIsPaused) {
             fuelCount -= gameManager.playerData.lightConsumption / 10 * (Time.deltaTime + 1);
         }
+
         // TODO: this should check fuel count and send to gameManager 
-
-
     }
 
     private void PlayerMovement() {
