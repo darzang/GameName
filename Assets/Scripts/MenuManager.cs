@@ -12,10 +12,6 @@ public class MenuManager : MonoBehaviour {
     private Animation anim;
     public GameObject ceiling;
     private Camera mainCamera;
-    public GameObject helpText1;
-    public GameObject helpText2;
-    public GameObject helpNextButton;
-    public GameObject helpPreviousButton;
     public PlayerData playerData;
     public GameObject batteryMaxText;
     public GameObject batteryUseText;
@@ -175,18 +171,6 @@ public class MenuManager : MonoBehaviour {
             case "ControlsBackButton":
                 anim.Play("ControlsToMain");
                 break;
-            case "HelpNextButton":
-                helpText1.SetActive(false);
-                helpText2.SetActive(true);
-                helpNextButton.SetActive(false);
-                helpPreviousButton.SetActive(true);
-                break;
-            case "HelpPreviousButton":
-                helpText1.SetActive(true);
-                helpText2.SetActive(false);
-                helpNextButton.SetActive(true);
-                helpPreviousButton.SetActive(false);
-                break;
             case "BatteryMaxUpgradeButton":
                 HandleUpgrade("BatteryMax", playerData.batteryMaxLevel);
                 break;
@@ -196,6 +180,8 @@ public class MenuManager : MonoBehaviour {
             case "LightUpgradeButton":
                 HandleUpgrade("Light", playerData.lightLevel);
                 break;
+            case "ButtonForward":
+                // TODO: change playerPrefs
             default:
                 if (button.name.Contains("Level")) {
                     Debug.Log($"sub: {button.name.Substring(5, 1)}");
@@ -220,7 +206,6 @@ public class MenuManager : MonoBehaviour {
                         Debug.Log($"Can't load level {levelNumber}");
                     }
                 }
-
                 break;
         }
     }
