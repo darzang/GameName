@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour {
     public AudioClip youLostAudio;
     public AudioClip openingAudio;
 
-    private AudioSource playerAudio;
+    private AudioSource playerSoundsAudioSource;
 
     // Tiles
     public GameObject previousTile;
@@ -101,12 +101,25 @@ public class GameManager : MonoBehaviour {
     private void Start() {
         tileManager.DoPathPlanning();
         InstantiatePlayer();
-        playerAudio = player.GetComponent<AudioSource>();
         playerLamp = player.GetComponentInChildren<Light>();
-        lightAudio = playerLamp.GetComponent<AudioSource>();
         playerLamp.range *= playerData.lightMultiplier;
         playerLamp.intensity *= playerData.lightMultiplier;
         playerLamp.spotAngle *= playerData.lightMultiplier;
+        playerSoundsAudioSource = player.transform.Find("SoundsAudioSource").GetComponent<AudioSource>();
+        lightAudio = playerLamp.GetComponent<AudioSource>();
+        if (PlayerPrefs.GetInt("EnableSounds") == 0) {
+            playerSoundsAudioSource.enabled = false;
+            lightAudio.enabled = false;
+            GameObject lights = GameObject.Find("Lights").gameObject;
+            foreach (AudioSource lightAudio in lights.transform.GetComponentsInChildren<AudioSource>()) {
+                lightAudio.enabled = false;
+            }
+        }
+
+        if (PlayerPrefs.GetInt("EnableMusic") == 0) {
+            player.transform.Find("BackgroundAudioSource").GetComponent<AudioSource>().enabled = false;
+        }
+
         eyeLids = player.transform.Find("EyeLids").gameObject;
         anim = player.GetComponent<Animation>();
         StartCoroutine(OpenEyes());
@@ -127,7 +140,7 @@ public class GameManager : MonoBehaviour {
         eyeLids.SetActive(true);
         playerLamp.enabled = false;
         uiManager.HideCanvas();
-        playerAudio.PlayOneShot(openingAudio);
+        playerSoundsAudioSource.PlayOneShot(openingAudio);
         anim.Play("EyeLidClose");
         yield return new WaitForSeconds(3f);
         Debug.Log($"{Time.fixedTime} Close Over Close ");
@@ -186,8 +199,8 @@ public class GameManager : MonoBehaviour {
 
         if (player.GetComponent<Player>().fuelCount <= 0 && !isDead) {
             isDead = true;
-            playerAudio.PlayOneShot(batteryDeadAudio);
-            if (tryCount >= tryMax) playerAudio.PlayOneShot(youLostAudio);
+            playerSoundsAudioSource.PlayOneShot(batteryDeadAudio);
+            if (tryCount >= tryMax) playerSoundsAudioSource.PlayOneShot(youLostAudio);
         }
 
         // Useful for now, to remove later
@@ -244,6 +257,7 @@ public class GameManager : MonoBehaviour {
             FileManager.DeleteFile(SceneManager.GetActiveScene().name);
             Debug.Log("GIVEUP: File deleted");
         }
+
         Debug.Log("GIVEUP: Calling backToMenu");
         BackToMenu();
         Debug.Log("GIVEUP: Done");
@@ -300,7 +314,7 @@ public class GameManager : MonoBehaviour {
         int fragmentNumber = int.Parse(fragmentIn.name.Split('_')[1]);
         Fragment fragment = mapFragments.Find(frag => frag.number == fragmentNumber);
         fragment.discovered = true;
-        player.GetComponent<AudioSource>().PlayOneShot(fragmentPickupAudio);
+        playerSoundsAudioSource.PlayOneShot(fragmentPickupAudio);
         fragment.tiles.ForEach(tile => {
             if (totalDiscoveredTiles.Count == 0 || !totalDiscoveredTiles.Contains(tile)) {
                 totalDiscoveredTiles.Add(tile);
@@ -334,7 +348,7 @@ public class GameManager : MonoBehaviour {
     public void PickupBattery(GameObject batteryIn) {
         player.GetComponent<Player>().fuelCount += (float) Math.Round(playerData.batteryMax / 5f);
         uiManager.AddInfoMessage("Battery picked up");
-        playerAudio.PlayOneShot(batteryPickupAudio);
+        playerSoundsAudioSource.PlayOneShot(batteryPickupAudio);
         Destroy(batteryIn);
     }
 

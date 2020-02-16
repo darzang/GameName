@@ -8,9 +8,9 @@ public class FragmentTrigger : MonoBehaviour {
 
     private void Start() {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        anim = GetComponent<Animation>();
-        anim.wrapMode = WrapMode.Loop;
-        anim.Play();
+        // anim = GetComponent<Animation>();
+        // anim.wrapMode = WrapMode.Loop;
+        // anim.Play();
     }
     
     private void OnTriggerEnter(Collider collider) {

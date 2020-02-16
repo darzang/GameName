@@ -20,17 +20,17 @@ public class MenuManager : MonoBehaviour {
     public AudioClip openingAudio;
     private Light playerLamp;
     private GameObject eyeLids;
-    private AudioSource playerAudio;
+    private AudioSource playerSoundsAudioSource;
 
     private bool initOver;
 
     async void Start() {
         StartCoroutine(nameof(OpenEyes));
-
+        InstantiatePlayerPrefs();
 
         ceiling.SetActive(true);
         playerLamp = player.GetComponentInChildren<Light>();
-        playerAudio = player.GetComponent<AudioSource>();
+        playerSoundsAudioSource = player.transform.Find("SoundsAudioSource").GetComponent<AudioSource>();
         playerData = FileManager.LoadPlayerDataFile();
         if (playerData == null) {
             playerData = new PlayerData();
@@ -53,6 +53,31 @@ public class MenuManager : MonoBehaviour {
         initOver = true;
     }
 
+    private void InstantiatePlayerPrefs() {
+        if (!PlayerPrefs.HasKey("EnableMusic")) {
+            PlayerPrefs.SetInt("EnableMusic", 1);
+            PlayerPrefs.SetInt("EnableSounds", 1);
+        }
+        else {
+            
+            if (PlayerPrefs.GetInt("EnableSounds") == 1) {
+                GameObject.Find("OptionsSoundsButton").GetComponent<TextMeshPro>().text = "V";
+            }
+            else {
+                GameObject.Find("OptionsSoundsButton").GetComponent<TextMeshPro>().text = "X";
+                player.transform.Find("SoundsAudioSource").GetComponent<AudioSource>().enabled = false;
+                SetFlickeringLightEnable(false);
+            }
+            if (PlayerPrefs.GetInt("EnableMusic") == 1) {
+                GameObject.Find("OptionsMusicButton").GetComponent<TextMeshPro>().text = "V";
+            }
+            else {
+                GameObject.Find("OptionsMusicButton").GetComponent<TextMeshPro>().text = "X";
+                player.transform.Find("BackgroundAudioSource").GetComponent<AudioSource>().enabled = false;
+            }
+        }
+    }
+
     private IEnumerator OpenEyes() {
         Debug.Log($"{Time.fixedTime} Calling Open ");
         anim = player.GetComponent<Animation>();
@@ -63,17 +88,18 @@ public class MenuManager : MonoBehaviour {
         playerLamp.enabled = true;
         Debug.Log($"{Time.fixedTime} Open Over ");
     }
+
     private IEnumerator CloseEyes(int levelNumber) {
         Debug.Log($"{Time.fixedTime} Calling Close ");
         eyeLids.SetActive(true);
         playerLamp.enabled = false;
         anim.Play("EyeLidClose");
-        playerAudio.PlayOneShot(openingAudio);
+        playerSoundsAudioSource.PlayOneShot(openingAudio);
         yield return new WaitForSeconds(3f);
         Debug.Log($"{Time.fixedTime} Close Over Close ");
         SceneManager.LoadScene($"Level{levelNumber}");
     }
-    
+
     private void SetSkillsText() {
         switch (playerData.batteryMaxLevel) {
             case 0:
@@ -127,6 +153,7 @@ public class MenuManager : MonoBehaviour {
         }
 
         cashTexts.GetComponent<TextMeshPro>().text = $"COINS: {playerData.cash}";
+
     }
 
     public void HandleClick(GameObject button) {
@@ -180,8 +207,32 @@ public class MenuManager : MonoBehaviour {
             case "LightUpgradeButton":
                 HandleUpgrade("Light", playerData.lightLevel);
                 break;
-            case "ButtonForward":
-                // TODO: change playerPrefs
+            case "OptionsMusicButton":
+                if (PlayerPrefs.GetInt("EnableMusic") == 1) {
+                    PlayerPrefs.SetInt("EnableMusic", 0);
+                    button.GetComponent<TextMeshPro>().text = "X";
+                    player.transform.Find("BackgroundAudioSource").GetComponent<AudioSource>().enabled = false;
+                } else {
+                    PlayerPrefs.SetInt("EnableMusic", 1);
+                    button.GetComponent<TextMeshPro>().text = "V";
+                    player.transform.Find("BackgroundAudioSource").GetComponent<AudioSource>().enabled = true;
+                }
+
+                break;
+            case "OptionsSoundsButton":
+                if (PlayerPrefs.GetInt("EnableSounds") == 1) {
+                    PlayerPrefs.SetInt("EnableSounds", 0);
+                    button.GetComponent<TextMeshPro>().text = "X";
+                    playerSoundsAudioSource.enabled = false;
+                    SetFlickeringLightEnable(false);
+
+                } else {
+                    PlayerPrefs.SetInt("EnableSounds", 1);
+                    button.GetComponent<TextMeshPro>().text = "V";
+                    playerSoundsAudioSource.enabled = true;
+                    SetFlickeringLightEnable(true);
+                }
+                break;
             default:
                 if (button.name.Contains("Level")) {
                     Debug.Log($"sub: {button.name.Substring(5, 1)}");
@@ -206,6 +257,7 @@ public class MenuManager : MonoBehaviour {
                         Debug.Log($"Can't load level {levelNumber}");
                     }
                 }
+
                 break;
         }
     }
@@ -247,6 +299,14 @@ public class MenuManager : MonoBehaviour {
             playerData.cash -= cost;
             SetSkillsText();
             FileManager.SavePlayerDataFile(playerData);
+        }
+    }
+
+    private void SetFlickeringLightEnable(bool state) {
+        GameObject lights = GameObject.Find("Lights").gameObject;
+        foreach (AudioSource lightAudio in lights.transform.GetComponentsInChildren<AudioSource>()) {
+            lightAudio.enabled = state;
+
         }
     }
 }
