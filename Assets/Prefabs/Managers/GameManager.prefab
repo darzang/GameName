@@ -58,6 +58,19 @@ MonoBehaviour:
   batteryPickupAudio: {fileID: 8300000, guid: edf26447368d7a6499a1e77c6177b49f, type: 3}
   youLostAudio: {fileID: 8300000, guid: 781ff338100e70d418ef2b0f116b7e1e, type: 3}
   openingAudio: {fileID: 8300000, guid: d867c50126b7633418f79e7a3e21b70c, type: 3}
+  welcomeToLevelAudio:
+  - {fileID: 8300000, guid: 517fd798f784da840bc88029f2d2884b, type: 3}
+  - {fileID: 8300000, guid: 045beaceee7b27c4e9bf9606d0924df2, type: 3}
+  - {fileID: 8300000, guid: c10b598ab3656b9458bcb6b334413a43, type: 3}
+  - {fileID: 8300000, guid: a3e6ca5802358bd4ead4ddbfc6b8835d, type: 3}
+  - {fileID: 8300000, guid: 14ddfe72410f0a041864c33807a6a67b, type: 3}
+  - {fileID: 8300000, guid: 38e3f152c1f9304469d9658984a823f0, type: 3}
+  - {fileID: 8300000, guid: 7664cb35d4449f444afb5941c0fa1afa, type: 3}
+  - {fileID: 8300000, guid: 657fa6c175c4d554cbc7e04ba04a615d, type: 3}
+  - {fileID: 8300000, guid: ac83512c53848ca47a0d890b794c2056, type: 3}
+  - {fileID: 8300000, guid: 0ed2da07704776a48a249daf4abf6ec3, type: 3}
+  congratulationsAudio: {fileID: 8300000, guid: 014a98aac2407c342970c26341aa47e2,
+    type: 3}
   previousTile: {fileID: 0}
   currentTile: {fileID: 0}
   tryCount: 0
@@ -86,3 +99,4 @@ MonoBehaviour:
     allFragmentsPickedUp: 0
   gameIsPaused: 0
   allFragmentsPickedUp: 0
+  levelNumber: 0

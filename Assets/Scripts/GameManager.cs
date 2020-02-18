@@ -21,9 +21,7 @@ public class GameManager : MonoBehaviour {
     private GameObject eyeLids;
     private Animation anim;
     private Light playerLamp;
-    private GameObject arrows;
 
-    private bool isDead;
 
     private AudioSource lightAudio;
     public AudioClip[] lightSounds;
@@ -32,6 +30,8 @@ public class GameManager : MonoBehaviour {
     public AudioClip batteryPickupAudio;
     public AudioClip youLostAudio;
     public AudioClip openingAudio;
+    public AudioClip[] welcomeToLevelAudio;
+    public AudioClip congratulationsAudio;
 
     private AudioSource playerSoundsAudioSource;
 
@@ -49,13 +49,17 @@ public class GameManager : MonoBehaviour {
     public LevelData levelData;
     public bool gameIsPaused;
     public bool allFragmentsPickedUp;
-
+    private GameObject arrows;
+    private GameObject batteries;
+    private bool isDead;
+    public int levelNumber;
     private void Awake() {
         tryCount = 1;
         tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
         uiManager = GameObject.Find("UIManager").GetComponent<UIManager>();
         fragmentManager = GameObject.Find("FragmentManager").GetComponent<FragmentManager>();
         arrows = GameObject.Find("Arrows").gameObject;
+        batteries = GameObject.Find("Batteries").gameObject;
 
         levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
         if (levelData == null) {
@@ -81,7 +85,7 @@ public class GameManager : MonoBehaviour {
         }
 
         string sceneName = SceneManager.GetActiveScene().name;
-        Int32.TryParse(sceneName.Substring(sceneName.Length - 1), out int levelNumber);
+        Int32.TryParse(sceneName.Substring(sceneName.Length - 1), out levelNumber);
 
         tryMax = 4;
         InstantiateBatteries();
@@ -115,11 +119,10 @@ public class GameManager : MonoBehaviour {
                 lightAudio.enabled = false;
             }
         }
-
         if (PlayerPrefs.GetInt("EnableMusic") == 0) {
             player.transform.Find("BackgroundAudioSource").GetComponent<AudioSource>().enabled = false;
         }
-
+        playerSoundsAudioSource.PlayOneShot(welcomeToLevelAudio[levelNumber -1]);
         eyeLids = player.transform.Find("EyeLids").gameObject;
         anim = player.GetComponent<Animation>();
         StartCoroutine(OpenEyes());
@@ -180,6 +183,7 @@ public class GameManager : MonoBehaviour {
                     new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp),
                     SceneManager.GetActiveScene().name);
                 uiManager.ShowExitUi();
+                playerSoundsAudioSource.PlayOneShot(congratulationsAudio);
             }
         }
 
@@ -306,7 +310,7 @@ public class GameManager : MonoBehaviour {
                 position.z
             ), Quaternion.identity);
             availablesFloorTiles.Remove(spawnTile);
-            battery.SetParent(GameObject.Find("Batteries").transform);
+            battery.SetParent(batteries.transform);
         }
     }
 
