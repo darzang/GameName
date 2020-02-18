@@ -163,19 +163,10 @@ public class GameManager : MonoBehaviour {
             uiManager.UpdateMiniMap();
             uiManager.DrawMap(totalDiscoveredTiles);
             if (currentTile.CompareTag("Exit")) {
-                string sceneName = SceneManager.GetActiveScene().name;
-                // FileManager.DeleteFile(sceneName);
-                Int32.TryParse(sceneName.Substring(sceneName.Length - 1), out int levelNumber);
                 if (playerData.levelCompleted < levelNumber) {
                     playerData.levelCompleted += 1;
-                    if (levelNumber % 5 == 0) {
-                        playerData.cash += 5;
-                        uiManager.AddInfoMessage($"Obtained 5 coin, total : {playerData.cash}");
-                    }
-                    else {
-                        playerData.cash += 1;
-                        uiManager.AddInfoMessage($"Obtained 1 coin, total : {playerData.cash}");
-                    }
+                    playerData.cash += 1;
+                    uiManager.AddInfoMessage($"Obtained 1 coin, total : {playerData.cash}");
                 }
 
                 FileManager.SavePlayerDataFile(playerData);
@@ -191,10 +182,12 @@ public class GameManager : MonoBehaviour {
         if (Input.GetMouseButtonDown(0)) {
             if (playerLamp.enabled) {
                 lightAudio.clip = lightSounds[1];
+                lightAudio.Play();
                 uiManager.AddInfoMessage("Lamp Disabled");
             }
             else {
                 lightAudio.clip = lightSounds[0];
+                lightAudio.Play();
                 uiManager.AddInfoMessage("Lamp enabled");
             }
 
