@@ -23,7 +23,6 @@ public class FragmentManager : MonoBehaviour {
         TileManager tileManager) {
         int nbFragments = (int) Math.Round(tiles.Count / 15.0);
         int minFragmentSize = (int) Math.Round((double) (tiles.Count / nbFragments));
-        Debug.Log($"{tiles.Count} tiles in map");
         List<Fragment> fragments = new List<Fragment>();
         List<GameObject> availableFloorTiles = floorTiles;
         List<GameObject> availableTiles = tiles;
@@ -179,7 +178,7 @@ public class FragmentManager : MonoBehaviour {
                     floorOffset = 0.2f;
                     break;
                 default:
-                    Debug.Log($"Tag not found for tile {tileName} with tag {realTile.tag}");
+                    Debug.LogError($"Tag not found for tile {tileName} with tag {realTile.tag}");
                     tileMaterial = exitMaterial;
                     tilePrefab = exitPrefab;
                     break;

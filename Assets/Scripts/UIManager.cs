@@ -103,11 +103,7 @@ public class UIManager : MonoBehaviour {
         UpdateDiscoveryText(gameManager.totalDiscoveredTiles.Count, tileManager.GetMapSize());
         if (gameManager.totalDiscoveredTiles.Count > 0) AddInfoMessage("Previous data loaded");
     }
-
-         public void OnPointerEnter(PointerEventData eventData)
-        {
-             Debug.Log("The cursor entered the selectable UI element.");
-         }
+    
     public void HideCanvas() {
         mainCanvas.SetActive(false);
     }

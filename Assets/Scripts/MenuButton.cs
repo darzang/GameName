@@ -20,7 +20,6 @@ public class MenuButton : MonoBehaviour
 
     private void OnMouseExit() {
         transform.GetComponent<TextMeshPro>().fontSize -= 5;
-
     }
 
     private void OnMouseEnter() {

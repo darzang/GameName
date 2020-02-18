@@ -122,7 +122,6 @@ public class GameManager : MonoBehaviour {
         if (PlayerPrefs.GetInt("EnableMusic") == 0) {
             player.transform.Find("BackgroundAudioSource").GetComponent<AudioSource>().enabled = false;
         }
-        playerSoundsAudioSource.PlayOneShot(welcomeToLevelAudio[levelNumber -1]);
         eyeLids = player.transform.Find("EyeLids").gameObject;
         anim = player.GetComponent<Animation>();
         StartCoroutine(OpenEyes());
@@ -130,23 +129,19 @@ public class GameManager : MonoBehaviour {
     }
 
     private IEnumerator OpenEyes() {
-        Debug.Log($"{Time.fixedTime} Calling Open ");
         anim.Play("EyeLidOpen");
         yield return new WaitForSeconds(1);
         eyeLids.SetActive(false);
-        Debug.Log($"{Time.fixedTime} Open Over ");
+        playerSoundsAudioSource.PlayOneShot(welcomeToLevelAudio[levelNumber -1]);
     }
 
     private IEnumerator CloseEyes(int levelNumber) {
-        Debug.Log($"Closing eyes: {levelNumber}");
-        Debug.Log($"{Time.fixedTime} Calling Close ");
         eyeLids.SetActive(true);
         playerLamp.enabled = false;
         uiManager.HideCanvas();
         playerSoundsAudioSource.PlayOneShot(openingAudio);
         anim.Play("EyeLidClose");
         yield return new WaitForSeconds(3f);
-        Debug.Log($"{Time.fixedTime} Close Over Close ");
         if (levelNumber == 0) {
             SceneManager.LoadScene("MenuScene");
         }
@@ -154,6 +149,7 @@ public class GameManager : MonoBehaviour {
             SceneManager.LoadScene($"Level{levelNumber}");
         }
     }
+    
 
     private void Update() {
         // Is the player on a new tile ?
@@ -252,16 +248,11 @@ public class GameManager : MonoBehaviour {
         }
         else {
             FileManager.DeleteFile(SceneManager.GetActiveScene().name);
-            Debug.Log("GIVEUP: File deleted");
         }
-
-        Debug.Log("GIVEUP: Calling backToMenu");
         BackToMenu();
-        Debug.Log("GIVEUP: Done");
     }
 
     public void BackToMenu() {
-        Debug.Log("BackToMenu");
         StartCoroutine(CloseEyes(0));
     }
 
