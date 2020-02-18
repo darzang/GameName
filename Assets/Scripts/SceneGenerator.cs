@@ -34,30 +34,31 @@ public class SceneGenerator : MonoBehaviour {
 
     string[] GetMapData(string sceneName) {
         Maps maps = GetComponent<Maps>();
+        // TODO: Check if there is something like return maps[sceneName];
         switch (sceneName) {
             case "Level1":
-                return maps.level1;
+                return maps.Level1;
             case "Level2":
-                return maps.level2;
+                return maps.Level2;
             case "Level3":
-                return maps.level3;
+                return maps.Level3;
             case "Level4":
-                return maps.level4;
+                return maps.Level4;
             case "Level5":
-                return maps.level5;
+                return maps.Level5;
             case "Level6":
-                return maps.level6;
+                return maps.Level6;
             case "Level7":
-                return maps.level7;
+                return maps.Level7;
             case "Level8":
-                return maps.level8;
+                return maps.Level8;
             case "Level9":
-                return maps.level9;
+                return maps.Level9;
             case "Level10":
-                return maps.level10;
+                return maps.Level10;
             default:
                 Debug.LogError("RETURN DEFAULT MAP");
-                return maps.level1;
+                return maps.Level1;
         }
     }
 

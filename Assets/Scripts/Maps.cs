@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Maps : MonoBehaviour {
     // It's ugly but it works
-    public string[] level1 = {
+    public string[] Level1 = {
         "WWWWWWWWWWWW",
         "WFFFOFFFOFFW",
         "WFOFFFOFOOFW",
@@ -19,7 +19,7 @@ public class Maps : MonoBehaviour {
         "WWWWWWWWWWWW"
     };
 
-    public string[] level2 = {
+    public string[] Level2 = {
         "WWWWWWWWWWWW",
         "WFFFFFFFFFFW",
         "WFOFOOOFOOFW",
@@ -34,7 +34,7 @@ public class Maps : MonoBehaviour {
         "WWWWWWWWWWWW"
     };
 
-    public string[] level3 = {
+    public string[] Level3 = {
         "WWWWWWWWWWWW",
         "WFFFFFFFFFFW",
         "WFFOFOFOFOFW",
@@ -48,7 +48,7 @@ public class Maps : MonoBehaviour {
         "WFFOXFFFFFFW",
         "WWWWWWWWWWWW"
     };
-    public string[] level4 = {
+    public string[] Level4 = {
         "WWWWWWWWWWWW",
         "WFFFFFOFFFFW",
         "WFOOOFXFOOFW",
@@ -62,7 +62,7 @@ public class Maps : MonoBehaviour {
         "WFFOFFFOFFFW",
         "WWWWWWWWWWWW"
     };
-    public string[] level5 = {
+    public string[] Level5 = {
         "WWWWWWWWWWWW",
         "WFFFFFOFFFFW",
         "WFOFOFFFOFFW",
@@ -76,29 +76,50 @@ public class Maps : MonoBehaviour {
         "WFFOFFFOFFFW",
         "WWWWWWWWWWWW"
     };
-    public string[] level6 = {
+    public string[] Level6 = {
         "WWWWWWWWWWWW",
         "WFFFFFFXFFFW",
         "WWWWWWWWWWWW"
     };
-    public string[] level7 = {
+    public string[] Level7 = {
         "WWWWWWWWWWWW",
         "WFFFFFFXFFFW",
         "WWWWWWWWWWWW"
     };
-    public string[] level8 = {
+    public string[] Level8 = {
         "WWWWWWWWWWWW",
         "WFFFFFFXFFFW",
         "WWWWWWWWWWWW"
     };
-    public string[] level9 = {
-        "WWWWWWWWWWWW",
-        "WFFFFFFXFFFW",
-        "WWWWWWWWWWWW"
+    public string[] Level9 = {
+        "WWWWWWWWWWWWWW",
+        "WFFFFFFFFFFFOW",
+        "WFOFFOFFFFFOFW",
+        "WFFOFFOFFFOFFW",
+        "WOFFOFFOFFFFFW",
+        "WFOFFOFFOOFOOW",
+        "WFFFOFOFFFFFFW",
+        "WOFOFFFOFFOFOW",
+        "WFFFOFFOOFFOFW",
+        "WOFOFOFOFOFFFW",
+        "WFFOFFFFFFOFFW",
+        "WFOFFOOFOFFOFW",
+        "WFFFOXFFOFFFFW",
+        "WWWWWWWWWWWWWW"
     };
-    public string[] level10 = {
-        "WWWWWWWWWWWW",
-        "WFFFFFFXFFFW",
-        "WWWWWWWWWWWW"
+    public string[] Level10 = {
+        "WWWWWWWWWWWWWW",
+        "WOFFFFFFFFFFFW",
+        "WFOFFOFOFOOOFW",
+        "WFFOFOFOFFFFFW",
+        "WOFFFOFOFOFFOW",
+        "WFFOFFFFFFOFFW",
+        "WFOFFFOFFFFOFW",
+        "WFFOFOFFOOFFFW",
+        "WOFFFFOFOFOFOW",
+        "WFFOFFOFFFFFFW",
+        "WFOFOFFOOOOOFW",
+        "WFFFFFFFFFFFFW",
+        "WWWWWWWWWWWWWW",
     };
 }

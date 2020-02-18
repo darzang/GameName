@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -94,7 +95,7 @@ public class UIManager : MonoBehaviour {
         player = gameManager.player.GetComponent<Player>();
         retryButton.onClick.AddListener(gameManager.Retry);
         giveUpButton.onClick.AddListener(gameManager.GiveUp);
-        pauseResumeButton.onClick.AddListener(HidePauseUi);
+        pauseResumeButton.onClick.AddListener(ResumeGame);
         pauseRetryButton.onClick.AddListener(gameManager.Retry);
         pauseBackButton.onClick.AddListener(gameManager.GiveUp);
         if (gameManager.totalDiscoveredTiles.Count > 0) DrawMap(gameManager.totalDiscoveredTiles);
@@ -103,6 +104,10 @@ public class UIManager : MonoBehaviour {
         if (gameManager.totalDiscoveredTiles.Count > 0) AddInfoMessage("Previous data loaded");
     }
 
+         public void OnPointerEnter(PointerEventData eventData)
+        {
+             Debug.Log("The cursor entered the selectable UI element.");
+         }
     public void HideCanvas() {
         mainCanvas.SetActive(false);
     }
@@ -311,7 +316,7 @@ public class UIManager : MonoBehaviour {
         player.GetComponent<Player>().lockPlayer = true;
     }
 
-    public void HidePauseUi() {
+    public void ResumeGame() {
         gameManager.gameIsPaused = false;
         pauseCanvas.SetActive(false);
         Cursor.visible = false;
