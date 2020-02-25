@@ -105,12 +105,7 @@ public class GameManager : MonoBehaviour {
     private void Start() {
         tileManager.DoPathPlanning();
         InstantiatePlayer();
-        playerLamp = player.GetComponentInChildren<Light>();
-        playerLamp.range *= playerData.lightMultiplier;
-        playerLamp.intensity *= playerData.lightMultiplier;
-        playerLamp.spotAngle *= playerData.lightMultiplier;
-        playerSoundsAudioSource = player.transform.Find("SoundsAudioSource").GetComponent<AudioSource>();
-        lightAudio = playerLamp.GetComponent<AudioSource>();
+
         if (PlayerPrefs.GetInt("EnableSounds") == 0) {
             playerSoundsAudioSource.enabled = false;
             lightAudio.enabled = false;
@@ -122,8 +117,7 @@ public class GameManager : MonoBehaviour {
         if (PlayerPrefs.GetInt("EnableMusic") == 0) {
             player.transform.Find("BackgroundAudioSource").GetComponent<AudioSource>().enabled = false;
         }
-        eyeLids = player.transform.Find("EyeLids").gameObject;
-        anim = player.GetComponent<Animation>();
+
         StartCoroutine(OpenEyes());
         uiManager.Instantiation();
     }
@@ -277,6 +271,15 @@ public class GameManager : MonoBehaviour {
         ), Quaternion.identity);
         player = playerTransform.gameObject;
         currentTile = tile;
+        playerLamp = player.GetComponentInChildren<Light>();
+        playerLamp.enabled = false;
+        playerLamp.range *= playerData.lightMultiplier;
+        playerLamp.intensity *= playerData.lightMultiplier;
+        playerLamp.spotAngle *= playerData.lightMultiplier;
+        playerSoundsAudioSource = player.transform.Find("SoundsAudioSource").GetComponent<AudioSource>();
+        lightAudio = playerLamp.GetComponent<AudioSource>();
+        eyeLids = GameObject.Find("EyeLids").gameObject;
+        anim = player.GetComponent<Animation>();
     }
 
     private void InstantiateBatteries() {

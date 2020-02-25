@@ -133,7 +133,7 @@ public class UIManager : MonoBehaviour {
             if (gameManager.tryCount >= gameManager.tryMax) {
                 batteryDeadText.GetComponent<TextMeshProUGUI>().fontSize = 18;
                 batteryDeadText.GetComponent<TextMeshProUGUI>().text =
-                    "Sorry, You die too much, you should be punished...\nHow about erasing your current progress ?\nYeah that sounds nice, Let's do that !";
+                    "Sorry, You die too much, you should be punished...\nHow about erasing your current level progress ?\nYeah that sounds nice, Let's do that !";
                 GameObject.Find("GiveUpText").GetComponent<TextMeshProUGUI>().text = "Fuck off and die";
             }
 
@@ -246,6 +246,8 @@ public class UIManager : MonoBehaviour {
         Vector3 position = tile.tag == "Player"
             ? gameManager.currentTile.transform.position
             : tile.transform.position;
+        GameObject existingTile = GameObject.Find($"Map_{tile.gameObject.name}");
+        if (existingTile) Destroy(existingTile);
         GameObject newTile =
             new GameObject($"Map_{tile.gameObject.name}");
         Image newImage = newTile.AddComponent<Image>();
@@ -272,7 +274,6 @@ public class UIManager : MonoBehaviour {
                 AddTileToMap(gameManager.player);
                 continue;
             }
-
             AddTileToMap(tile);
         }
     }

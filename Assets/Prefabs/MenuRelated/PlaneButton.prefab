@@ -231,4 +231,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c6bafb2981fda947b81189942da0784, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  defaultMaterial: {fileID: 2100000, guid: f13d4aa96293d5d449d3d51672b01947, type: 2}
+  glowingMaterial: {fileID: 2100000, guid: f7bffc4a90b2d8b4d96add96802045f8, type: 2}
   menuManager: {fileID: 0}

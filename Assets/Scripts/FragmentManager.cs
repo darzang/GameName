@@ -145,7 +145,7 @@ public class FragmentManager : MonoBehaviour {
         Vector3 position = spawnTile.transform.position;
         Transform fragment = Instantiate(fragmentPrefab, new Vector3(
             position.x,
-            position.y + 0.45f,
+            position.y + 0.35f,
             position.z
         ), Quaternion.identity);
         fragment.name = $"Fragment_{fragmentIn.number}";

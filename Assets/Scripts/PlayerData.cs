@@ -15,6 +15,11 @@ public class PlayerData : object {
     public int batteryMaxLevel;
     public int batteryUseLevel;
     public int lightLevel;
+    public int baseBatteryMax;
+    public int baseBatteryUse;
+    public int baseLightAngle;
+    public int baseLightIntensity;
+    public int baseLightRange;
 
     public PlayerData(float playerSpeedIn = 1, int batteryMaxIn = 1000, float fuelComsumptionIn = 1,
         float lightMultiplierIn = 1, float lightConsumptionIn = 1, float discoveryRangeIn = 1f,
@@ -32,5 +37,10 @@ public class PlayerData : object {
         batteryMaxLevel = 0;
         batteryUseLevel = 0;
         lightLevel = 0;
+        baseBatteryMax = 1000;
+        baseBatteryUse = 1;
+        baseLightIntensity = 3;
+        baseLightAngle = 60;
+        baseLightRange = 2;
     }
 }
