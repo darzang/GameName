@@ -29,7 +29,7 @@ AnimationClip:
         outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
       - serializedVersion: 3
         time: 2.5
-        value: {x: 0, y: 0.1, z: 0.2}
+        value: {x: 0, y: 0.09, z: 0.2}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -39,7 +39,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: EyeLids/Top
+    path: PlayerCamera/EyeLids/Top
   - curve:
       serializedVersion: 2
       m_Curve:
@@ -54,7 +54,7 @@ AnimationClip:
         outWeight: {x: 0.33333334, y: 0.33333334, z: 0.33333334}
       - serializedVersion: 3
         time: 2.5
-        value: {x: 0, y: -0.1, z: 0.2}
+        value: {x: 0, y: -0.09, z: 0.2}
         inSlope: {x: 0, y: 0, z: 0}
         outSlope: {x: 0, y: 0, z: 0}
         tangentMode: 0
@@ -64,7 +64,7 @@ AnimationClip:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-    path: EyeLids/Bottom
+    path: PlayerCamera/EyeLids/Bottom
   m_ScaleCurves: []
   m_FloatCurves: []
   m_PPtrCurves: []
@@ -122,7 +122,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.x
-    path: EyeLids/Top
+    path: PlayerCamera/EyeLids/Top
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -139,7 +139,7 @@ AnimationClip:
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 2.5
-        value: 0.1
+        value: 0.09
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -150,7 +150,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.y
-    path: EyeLids/Top
+    path: PlayerCamera/EyeLids/Top
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -178,7 +178,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.z
-    path: EyeLids/Top
+    path: PlayerCamera/EyeLids/Top
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -206,7 +206,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.x
-    path: EyeLids/Bottom
+    path: PlayerCamera/EyeLids/Bottom
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -223,7 +223,7 @@ AnimationClip:
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 2.5
-        value: -0.1
+        value: -0.09
         inSlope: 0
         outSlope: 0
         tangentMode: 136
@@ -234,7 +234,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.y
-    path: EyeLids/Bottom
+    path: PlayerCamera/EyeLids/Bottom
     classID: 4
     script: {fileID: 0}
   - curve:
@@ -262,7 +262,7 @@ AnimationClip:
       m_PostInfinity: 2
       m_RotationOrder: 4
     attribute: m_LocalPosition.z
-    path: EyeLids/Bottom
+    path: PlayerCamera/EyeLids/Bottom
     classID: 4
     script: {fileID: 0}
   m_EulerEditorCurves: []

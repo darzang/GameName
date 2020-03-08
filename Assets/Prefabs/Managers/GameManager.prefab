@@ -59,7 +59,7 @@ MonoBehaviour:
   youLostAudio: {fileID: 8300000, guid: 781ff338100e70d418ef2b0f116b7e1e, type: 3}
   openingAudio: {fileID: 8300000, guid: d867c50126b7633418f79e7a3e21b70c, type: 3}
   welcomeToLevelAudio:
-  - {fileID: 8300000, guid: 517fd798f784da840bc88029f2d2884b, type: 3}
+  - {fileID: 8300000, guid: 1ce369082df36a048aeec95871ec3e9a, type: 3}
   - {fileID: 8300000, guid: 045beaceee7b27c4e9bf9606d0924df2, type: 3}
   - {fileID: 8300000, guid: c10b598ab3656b9458bcb6b334413a43, type: 3}
   - {fileID: 8300000, guid: a3e6ca5802358bd4ead4ddbfc6b8835d, type: 3}
@@ -92,6 +92,11 @@ MonoBehaviour:
     batteryMaxLevel: 0
     batteryUseLevel: 0
     lightLevel: 0
+    baseBatteryMax: 0
+    baseBatteryUse: 0
+    baseLightAngle: 0
+    baseLightIntensity: 0
+    baseLightRange: 0
   levelData:
     tryCount: 0
     mapFragments: []
