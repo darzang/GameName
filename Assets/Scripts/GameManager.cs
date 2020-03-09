@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -53,6 +54,9 @@ public class GameManager : MonoBehaviour {
     private GameObject batteries;
     private bool isDead;
     public int levelNumber;
+    public int onboardingStage = 1;
+    public string[] keyPressed = new string[4];
+
     private void Awake() {
         tryCount = 1;
         tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
@@ -114,6 +118,7 @@ public class GameManager : MonoBehaviour {
                 lightAudio.enabled = false;
             }
         }
+
         if (PlayerPrefs.GetInt("EnableMusic") == 0) {
             player.transform.Find("BackgroundAudioSource").GetComponent<AudioSource>().enabled = false;
         }
@@ -122,30 +127,11 @@ public class GameManager : MonoBehaviour {
         uiManager.Instantiation();
     }
 
-    private IEnumerator OpenEyes() {
-        anim.Play("EyeLidOpen");
-        yield return new WaitForSeconds(1);
-        eyeLids.SetActive(false);
-        playerSoundsAudioSource.PlayOneShot(welcomeToLevelAudio[levelNumber -1]);
-    }
-
-    private IEnumerator CloseEyes(int levelNumber) {
-        eyeLids.SetActive(true);
-        playerLamp.enabled = false;
-        uiManager.HideCanvas();
-        playerSoundsAudioSource.PlayOneShot(openingAudio);
-        anim.Play("EyeLidClose");
-        yield return new WaitForSeconds(3f);
-        if (levelNumber == 0) {
-            SceneManager.LoadScene("MenuScene");
-        }
-        else {
-            SceneManager.LoadScene($"Level{levelNumber}");
-        }
-    }
-    
 
     private void Update() {
+        if (!playerData.onboardingDone) {
+            HandleOnboarding();
+        }
         // Is the player on a new tile ?
         if (tileManager.GetTileUnderPlayer() != currentTile || CheckForTileDiscovery()) {
             previousTile = currentTile;
@@ -184,6 +170,11 @@ public class GameManager : MonoBehaviour {
             playerLamp.enabled = !playerLamp.enabled;
         }
 
+        if (Input.GetMouseButtonDown(1)) {
+            onboardingStage++;
+            Debug.Log(($"Onboarding stage: {onboardingStage}"));
+        }
+
         if (player.GetComponent<Player>().fuelCount <= 0 && !isDead) {
             isDead = true;
             playerSoundsAudioSource.PlayOneShot(batteryDeadAudio);
@@ -196,6 +187,55 @@ public class GameManager : MonoBehaviour {
         if (Input.GetKeyUp("p") || Input.GetKeyUp(KeyCode.Escape)) {
             gameIsPaused = true;
             uiManager.ShowPauseUi();
+        }
+    }
+
+    private void HandleOnboarding() {
+        switch (onboardingStage) {
+            case 1:
+                    uiManager.onboardingText.gameObject.SetActive(true);
+                    uiManager.onboardingText.text = "Move with WASD keys\n Rotate around with the mouse";
+
+                break;
+            case 2:
+                if (!uiManager.onboardingText.text.Contains("left mouse button")) {
+                    uiManager.onboardingText.text =
+                        "Toggle your lamp with left mouse button \n Be careful, it consumes your battery";
+                }
+
+                break;
+            case 3:
+                if (!uiManager.onboardingText.text.Contains("bottom left")) {
+                    uiManager.onboardingText.text = "Your can see your battery in the bottom left corner";
+                    StartCoroutine(uiManager.OnboardingBlinkBattery());
+                }
+
+                break;
+            default:
+                // ".."
+                break;
+        }
+    }
+
+    private IEnumerator OpenEyes() {
+        anim.Play("EyeLidOpen");
+        yield return new WaitForSeconds(1);
+        eyeLids.SetActive(false);
+        playerSoundsAudioSource.PlayOneShot(welcomeToLevelAudio[levelNumber - 1]);
+    }
+
+    private IEnumerator CloseEyes(int levelNumber) {
+        eyeLids.SetActive(true);
+        playerLamp.enabled = false;
+        uiManager.HideCanvas();
+        playerSoundsAudioSource.PlayOneShot(openingAudio);
+        anim.Play("EyeLidClose");
+        yield return new WaitForSeconds(3f);
+        if (levelNumber == 0) {
+            SceneManager.LoadScene("MenuScene");
+        }
+        else {
+            SceneManager.LoadScene($"Level{levelNumber}");
         }
     }
 
@@ -243,6 +283,7 @@ public class GameManager : MonoBehaviour {
         else {
             FileManager.DeleteFile(SceneManager.GetActiveScene().name);
         }
+
         BackToMenu();
     }
 

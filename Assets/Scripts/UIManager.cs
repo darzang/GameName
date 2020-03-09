@@ -10,6 +10,7 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour {
     private TileManager tileManager;
     private GameManager gameManager;
+    [HideInInspector] public TextMeshProUGUI onboardingText;
     private GameObject batteryLevelText;
     private GameObject batteryDeadText;
     private GameObject exitReachedText;
@@ -22,6 +23,7 @@ public class UIManager : MonoBehaviour {
     private Button pauseResumeButton;
     private Button pauseBackButton;
     private GameObject batteryBar;
+    private Image batteryBarImage;
     private GameObject miniMapPanel;
     private Player player;
     private GameObject infoPanel;
@@ -49,6 +51,7 @@ public class UIManager : MonoBehaviour {
     private GameObject infoCanvas;
     private GameObject exitReachedCanvas;
     private GameObject batteryDeadCanvas;
+    private GameObject onboardingCanvas;
 
     private bool batteryLevelBlinking = false;
 
@@ -68,7 +71,6 @@ public class UIManager : MonoBehaviour {
         infoPanel = infoCanvas.transform.Find("InfoPanel").gameObject;
         exitReachedCanvas = mainCanvas.transform.Find("ExitReachedCanvas").gameObject;
         batteryDeadCanvas = mainCanvas.transform.Find("BatteryDeadCanvas").gameObject;
-
         exitReachedText = exitReachedCanvas.transform.Find("ExitReachedText").gameObject;
         exitReachedButtons = exitReachedCanvas.transform.Find("ExitReachedButtons").gameObject;
         nextLevelButton = exitReachedButtons.transform.Find("NextLevelButton").GetComponent<Button>();
@@ -80,11 +82,14 @@ public class UIManager : MonoBehaviour {
         pauseBackButton = pauseCanvas.transform.Find("PauseBackButton").GetComponent<Button>();
         pauseResumeButton = pauseCanvas.transform.Find("PauseResumeButton").GetComponent<Button>();
         pauseRetryButton = pauseCanvas.transform.Find("PauseRetryButton").GetComponent<Button>();
+        onboardingCanvas = mainCanvas.transform.Find("OnboardingCanvas").gameObject;
+        onboardingText = onboardingCanvas.transform.Find("OnboardingText").GetComponent<TextMeshProUGUI>();
 
         batteryDeadText = batteryDeadCanvas.transform.Find("BatteryDeadText").gameObject;
         batteryLevelText = batteryBarCanvas.transform.Find("BatteryLevelText").gameObject;
         batteryText = batteryLevelText.GetComponent<TextMeshProUGUI>();
         batteryBar = batteryBarCanvas.transform.Find("BatteryBar").gameObject;
+        batteryBarImage = batteryBar.GetComponent<Image>();
     }
 
     public void Instantiation() {
@@ -103,10 +108,6 @@ public class UIManager : MonoBehaviour {
         UpdateDiscoveryText(gameManager.totalDiscoveredTiles.Count, tileManager.GetMapSize());
         if (gameManager.totalDiscoveredTiles.Count > 0) AddInfoMessage("Previous data loaded");
     }
-    
-    public void HideCanvas() {
-        mainCanvas.SetActive(false);
-    }
 
     private void Update() {
         RotateMiniMap();
@@ -120,7 +121,7 @@ public class UIManager : MonoBehaviour {
                 batteryText.text = "BATTERY LEVEL LOW";
                 if (!batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel(0.5f));
             }
-            else  {
+            else {
                 batteryText.text = "BATTERY LEVEL CRITICAL";
                 if (!batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel(0.25f));
             }
@@ -139,6 +140,11 @@ public class UIManager : MonoBehaviour {
 
             Cursor.lockState = CursorLockMode.None;
         }
+    }
+
+
+    public void HideCanvas() {
+        mainCanvas.SetActive(false);
     }
 
     private void RotateMiniMap() {
@@ -164,9 +170,18 @@ public class UIManager : MonoBehaviour {
         );
         batteryBar.transform.localScale = localScale;
         // Update color
-        batteryBar.GetComponent<Image>().color = player.fuelCount > gameManager.playerData.batteryMax / 2
+        batteryBarImage.color = player.fuelCount > gameManager.playerData.batteryMax / 2
             ? new Color32((byte) (gameManager.playerData.batteryMax - player.fuelCount), 255, 0, 255)
             : new Color32(255, (byte) player.fuelCount, 0, 255);
+    }
+
+    public IEnumerator OnboardingBlinkBattery() {
+        float targetTime = 3.0f;
+        while (targetTime >= 0.0f) {
+            batteryBarImage.color = batteryBarImage.color == Color.red ? Color.yellow : Color.red;
+            targetTime -= Time.deltaTime;
+            yield return new WaitForSeconds(0.5f);
+        }
     }
 
     private void AddTileToMiniMap(GameObject tile) {
@@ -274,6 +289,7 @@ public class UIManager : MonoBehaviour {
                 AddTileToMap(gameManager.player);
                 continue;
             }
+
             AddTileToMap(tile);
         }
     }
