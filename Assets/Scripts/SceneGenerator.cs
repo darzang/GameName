@@ -35,6 +35,7 @@ public class SceneGenerator : MonoBehaviour {
     string[] GetMapData(string sceneName) {
         Maps maps = GetComponent<Maps>();
         // TODO: Check if there is something like return maps[sceneName];
+        // TODO: Yes, dictionnary ! 
         switch (sceneName) {
             case "Level1":
                 return maps.Level1;
@@ -50,12 +51,6 @@ public class SceneGenerator : MonoBehaviour {
                 return maps.Level6;
             case "Level7":
                 return maps.Level7;
-            case "Level8":
-                return maps.Level8;
-            case "Level9":
-                return maps.Level9;
-            case "Level10":
-                return maps.Level10;
             default:
                 Debug.LogError("RETURN DEFAULT MAP");
                 return maps.Level1;

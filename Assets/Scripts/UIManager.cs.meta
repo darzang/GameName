@@ -3,7 +3,14 @@ guid: 21719a979ce25b24aa379f60153588aa
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - wallSprite: {fileID: 21300000, guid: 80b855a51122c9649a2a5ea92a11b4c3, type: 3}
+  - obstacleSprite: {fileID: 21300000, guid: 3ee3508ea51337b4bbc24a50ab465905, type: 3}
+  - exitSprite: {fileID: 21300000, guid: 3f8f5111b3533cd4c87ff773a9b7aad4, type: 3}
+  - floorSprite: {fileID: 21300000, guid: 6508f296358ae8a44bea1113cb5e38d8, type: 3}
+  - playerSprite: {fileID: 21300000, guid: 38648c6b24095994b995ee44814ae206, type: 3}
+  - infoTextPrefab: {fileID: 4033497113750988886, guid: 782d2132eb24a4144a9767d3f907a4c5,
+      type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

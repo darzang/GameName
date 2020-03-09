@@ -63,8 +63,6 @@ public class MenuManager : MonoBehaviour {
                 }
 
                 if (levelNumber > maxLevelAvailable) {
-                    Debug.Log($"Modifying {child.name}");
-                    child.GetComponent<TextMeshPro>().color = Color.red;
                     child.GetComponent<MeshRenderer>().material = levelNotAvailableMaterial;
                 }
             }

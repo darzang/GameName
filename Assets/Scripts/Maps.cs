@@ -76,22 +76,8 @@ public class Maps : MonoBehaviour {
         "WFFOFFFOFFFW",
         "WWWWWWWWWWWW"
     };
+
     public string[] Level6 = {
-        "WWWWWWWWWWWW",
-        "WFFFFFFXFFFW",
-        "WWWWWWWWWWWW"
-    };
-    public string[] Level7 = {
-        "WWWWWWWWWWWW",
-        "WFFFFFFXFFFW",
-        "WWWWWWWWWWWW"
-    };
-    public string[] Level8 = {
-        "WWWWWWWWWWWW",
-        "WFFFFFFXFFFW",
-        "WWWWWWWWWWWW"
-    };
-    public string[] Level9 = {
         "WWWWWWWWWWWWWW",
         "WFFFFFFFFFFFOW",
         "WFOFFOFFFFFOFW",
@@ -107,7 +93,7 @@ public class Maps : MonoBehaviour {
         "WFFFOXFFOFFFFW",
         "WWWWWWWWWWWWWW"
     };
-    public string[] Level10 = {
+    public string[] Level7 = {
         "WWWWWWWWWWWWWW",
         "WOFFFFFFFFFFFW",
         "WFOFFOFOFOOOFW",

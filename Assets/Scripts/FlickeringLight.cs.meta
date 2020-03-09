@@ -3,7 +3,9 @@ guid: 0f7d3531e7ee35d43a1afb49b39f4b56
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - lampOn: {fileID: 2100000, guid: 6a26c29b0186b3949a52130085310c48, type: 2}
+  - lampOff: {fileID: 2100000, guid: 43e1eaee58e6e1f42a8e6d905a406298, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
