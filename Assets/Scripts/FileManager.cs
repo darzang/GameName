@@ -29,17 +29,15 @@ public class FileManager : MonoBehaviour {
         if (File.Exists(path)) {
             Debug.Log($"Opening levelData file at: {path}");
             file = File.OpenRead(path);
-            Debug.Log($"File {fileName}.dat opened");
         }
         else {
-            Debug.LogError($"File {fileName}.dat not found");
+            Debug.LogWarning($"File {fileName}.dat not found");
             return null;
         }
 
         BinaryFormatter bf = new BinaryFormatter();
         LevelData data = (LevelData) bf.Deserialize(file);
         file.Close();
-        Debug.Log($"File {fileName}.dat closed");
         return data;
     }
     
@@ -49,17 +47,15 @@ public class FileManager : MonoBehaviour {
         if (File.Exists(path)) {
             Debug.Log($"Opening playerData file at: {path}");
             file = File.OpenRead(path);
-            Debug.Log($"File PlayerData.dat opened");
         }
         else {
-            Debug.LogError($"File PlayerData.dat not found");
+            Debug.LogWarning($"File PlayerData.dat not found");
             return null;
         }
 
         BinaryFormatter bf = new BinaryFormatter();
         PlayerData data = (PlayerData) bf.Deserialize(file);
         file.Close();
-        Debug.Log($"File PlayerData.dat closed");
         return data;
     }
 

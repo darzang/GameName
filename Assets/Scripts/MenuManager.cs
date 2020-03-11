@@ -95,24 +95,20 @@ public class MenuManager : MonoBehaviour {
     }
 
     private IEnumerator OpenEyes() {
-        Debug.Log($"{Time.fixedTime} Calling Open ");
         anim = player.GetComponent<Animation>();
         eyeLids = GameObject.Find("EyeLids").gameObject;
         anim.Play("EyeLidOpen");
         yield return new WaitForSeconds(1);
         eyeLids.SetActive(false);
         playerLamp.enabled = true;
-        Debug.Log($"{Time.fixedTime} Open Over ");
     }
 
     private IEnumerator CloseEyes(int levelNumber) {
-        Debug.Log($"{Time.fixedTime} Calling Close ");
         eyeLids.SetActive(true);
         playerLamp.enabled = false;
         anim.Play("EyeLidClose");
         playerSoundsAudioSource.PlayOneShot(openingAudio);
         yield return new WaitForSeconds(3f);
-        Debug.Log($"{Time.fixedTime} Close Over Close ");
         SceneManager.LoadScene($"Level{levelNumber}");
     }
 

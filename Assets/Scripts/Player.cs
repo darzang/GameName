@@ -11,7 +11,7 @@ public class Player : MonoBehaviour {
     public GameManager gameManager;
     private bool doubleTap;
     private float doubleTapTime;
-
+    private string[] playerMovementKeyNames = {"w", "a", "s", "d", "up", "down", "left", "right"};
     private void Awake() {
         playerLamp = GameObject.Find("PlayerLamp").GetComponent<Light>();
         if (SceneManager.GetActiveScene().name != "MenuScene") {

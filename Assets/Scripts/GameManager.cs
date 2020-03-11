@@ -54,8 +54,9 @@ public class GameManager : MonoBehaviour {
     private GameObject batteries;
     private bool isDead;
     public int levelNumber;
-    public int onboardingStage = 1;
+    public int onboardingStage = 0;
     public string[] keyPressed = new string[4];
+    private bool incrementOnboardingIsRunning = false;
 
     private void Awake() {
         tryCount = 1;
@@ -132,6 +133,7 @@ public class GameManager : MonoBehaviour {
         if (!playerData.onboardingDone) {
             HandleOnboarding();
         }
+
         // Is the player on a new tile ?
         if (tileManager.GetTileUnderPlayer() != currentTile || CheckForTileDiscovery()) {
             previousTile = currentTile;
@@ -190,29 +192,69 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    private void HandleOnboarding() {
-        switch (onboardingStage) {
-            case 1:
-                    uiManager.onboardingText.gameObject.SetActive(true);
-                    uiManager.onboardingText.text = "Move with WASD keys\n Rotate around with the mouse";
+    private IEnumerator IncrementOnboardingAfter(float seconds = 3f, string stageText = "") {
+        Debug.Log($"Starting coroutine for stage {onboardingStage}");
+        incrementOnboardingIsRunning = true;
+        if (onboardingStage != 0) {
+            uiManager.onboardingText.text = stageText;
+            uiManager.onboardingText.gameObject.SetActive(true);
+            yield return new WaitForSeconds(seconds);
+            uiManager.onboardingText.gameObject.SetActive(false);
+        }
+        else {
+            yield return new WaitForSeconds(seconds);
+        }
+        incrementOnboardingIsRunning = false;
+        onboardingStage++;
+    }
 
+    private void HandleOnboarding() {
+        // TODO: Make text in Array / Dictionnary for cleaner/ easier to maintain code
+        float timeBetweenStages = 4f;
+        switch (onboardingStage) {
+            case 0:
+                if (!incrementOnboardingIsRunning) {
+                    StartCoroutine(IncrementOnboardingAfter(2f));
+                }
+                break;
+            case 1:
+                if (!incrementOnboardingIsRunning) {
+                    StartCoroutine(IncrementOnboardingAfter(timeBetweenStages, "Move with WASD keys. Look around with the mouse"));
+                }
                 break;
             case 2:
-                if (!uiManager.onboardingText.text.Contains("left mouse button")) {
-                    uiManager.onboardingText.text =
-                        "Toggle your lamp with left mouse button \n Be careful, it consumes your battery";
-                }
-
-                break;
-            case 3:
-                if (!uiManager.onboardingText.text.Contains("bottom left")) {
-                    uiManager.onboardingText.text = "Your can see your battery in the bottom left corner";
+                if (!incrementOnboardingIsRunning) {
+                    StartCoroutine(IncrementOnboardingAfter(timeBetweenStages,
+                        "Toggle your lamp with left mouse button. Be careful, it consumes your battery"));
                     StartCoroutine(uiManager.OnboardingBlinkBattery());
                 }
-
+                break;
+            case 3:
+                if (!incrementOnboardingIsRunning) {
+                    StartCoroutine(IncrementOnboardingAfter(timeBetweenStages, "Find the exit before your battery runs out. Collect batteries to recharge on the go"));
+                } 
+                break;
+            case 4:
+                if (!incrementOnboardingIsRunning) {
+                    StartCoroutine(IncrementOnboardingAfter(timeBetweenStages,
+                        "Collect fragments of the map to discover it permanently."));
+                }
+                break;
+            case 5:
+                if (!incrementOnboardingIsRunning) {
+                    StartCoroutine(IncrementOnboardingAfter(timeBetweenStages, "You get a coin for discovering the whole map and reaching the exit. Use these coins to upgrade your skills in the menu"));
+                }
+                break;
+            case 6:
+                if (!incrementOnboardingIsRunning) {
+                    StartCoroutine(IncrementOnboardingAfter(timeBetweenStages, "Good luck.\n Don't die too much :)"));
+                }
+                break;
+            case 7:
+                uiManager.onboardingText.gameObject.SetActive(false);
+                playerData.onboardingDone = true;
                 break;
             default:
-                // ".."
                 break;
         }
     }

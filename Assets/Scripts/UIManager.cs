@@ -54,6 +54,8 @@ public class UIManager : MonoBehaviour {
     private GameObject onboardingCanvas;
 
     private bool batteryLevelBlinking = false;
+    [HideInInspector]
+    public bool batteryOnboardingBlinking = false;
 
     private void Awake() {
         Cursor.visible = false;
@@ -134,8 +136,7 @@ public class UIManager : MonoBehaviour {
             if (gameManager.tryCount >= gameManager.tryMax) {
                 batteryDeadText.GetComponent<TextMeshProUGUI>().fontSize = 18;
                 batteryDeadText.GetComponent<TextMeshProUGUI>().text =
-                    "Sorry, You die too much, you should be punished...\nHow about erasing your current level progress ?\nYeah that sounds nice, Let's do that !";
-                GameObject.Find("GiveUpText").GetComponent<TextMeshProUGUI>().text = "Fuck off and die";
+                    "Well, I told you, don't die too much...\n And one more map exploration lost forever...";
             }
 
             Cursor.lockState = CursorLockMode.None;
@@ -170,18 +171,21 @@ public class UIManager : MonoBehaviour {
         );
         batteryBar.transform.localScale = localScale;
         // Update color
-        batteryBarImage.color = player.fuelCount > gameManager.playerData.batteryMax / 2
-            ? new Color32((byte) (gameManager.playerData.batteryMax - player.fuelCount), 255, 0, 255)
-            : new Color32(255, (byte) player.fuelCount, 0, 255);
+        if (!batteryOnboardingBlinking) {
+            batteryBarImage.color = player.fuelCount > gameManager.playerData.batteryMax / 2
+                ? new Color32((byte) (gameManager.playerData.batteryMax - player.fuelCount), 255, 0, 255)
+                : new Color32(255, (byte) player.fuelCount, 0, 255);
+        }
     }
 
     public IEnumerator OnboardingBlinkBattery() {
-        float targetTime = 3.0f;
-        while (targetTime >= 0.0f) {
+        batteryOnboardingBlinking = true;
+        while (gameManager.onboardingStage == 2) {
             batteryBarImage.color = batteryBarImage.color == Color.red ? Color.yellow : Color.red;
-            targetTime -= Time.deltaTime;
             yield return new WaitForSeconds(0.5f);
         }
+        batteryOnboardingBlinking = false;
+        yield return null;
     }
 
     private void AddTileToMiniMap(GameObject tile) {

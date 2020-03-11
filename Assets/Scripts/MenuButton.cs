@@ -30,7 +30,6 @@ public class MenuButton : MonoBehaviour
 
     private void OnMouseEnter() {
         if (transform.GetComponent<TextMeshPro>().material == levelNotAvailableMaterial) return;
-        Debug.Log($"Mouse enter: {gameObject.name}, material: {transform.GetComponent<TextMeshPro>().material} \n levelNotAvaiableMat: {levelNotAvailableMaterial} ");
         defaultMaterial = transform.GetComponent<MeshRenderer>().material;
         transform.GetComponent<MeshRenderer>().material = glowingMaterial;
         if (!gameObject.name.Contains("ButtonLevel")) {
