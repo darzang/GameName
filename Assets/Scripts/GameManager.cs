@@ -172,10 +172,10 @@ public class GameManager : MonoBehaviour {
             playerLamp.enabled = !playerLamp.enabled;
         }
 
-        if (Input.GetMouseButtonDown(1)) {
-            onboardingStage++;
-            Debug.Log(($"Onboarding stage: {onboardingStage}"));
-        }
+        // if (Input.GetMouseButtonDown(1)) {
+        //     onboardingStage++;
+        //     Debug.Log(($"Onboarding stage: {onboardingStage}"));
+        // }
 
         if (player.GetComponent<Player>().fuelCount <= 0 && !isDead) {
             isDead = true;
@@ -184,8 +184,9 @@ public class GameManager : MonoBehaviour {
         }
 
         // Useful for now, to remove later
-        if (Input.GetKeyUp("r")) FileManager.DeleteFile(SceneManager.GetActiveScene().name);
-        if (Input.GetKeyUp("n")) NextLevel();
+        // if (Input.GetKeyUp("r")) FileManager.DeleteFile(SceneManager.GetActiveScene().name);
+        // if (Input.GetKeyUp("n")) NextLevel();
+        // if (Input.GetKeyUp("k")) FileManager.DeleteFile("playerData");
         if (Input.GetKeyUp("p") || Input.GetKeyUp(KeyCode.Escape)) {
             gameIsPaused = true;
             uiManager.ShowPauseUi();
@@ -253,6 +254,7 @@ public class GameManager : MonoBehaviour {
             case 7:
                 uiManager.onboardingText.gameObject.SetActive(false);
                 playerData.onboardingDone = true;
+                FileManager.SavePlayerDataFile(playerData);
                 break;
             default:
                 break;

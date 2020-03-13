@@ -96,7 +96,7 @@ public class Maps : MonoBehaviour {
     public string[] Level7 = {
         "WWWWWWWWWWWWWW",
         "WOFFFFFFFFFFFW",
-        "WFOFFOFOFOOOFW",
+        "WXOFFOFOFOOOFW",
         "WFFOFOFOFFFFFW",
         "WOFFFOFOFOFFOW",
         "WFFOFFFFFFOFFW",

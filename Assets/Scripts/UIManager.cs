@@ -350,7 +350,7 @@ public class UIManager : MonoBehaviour {
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         player.GetComponent<Player>().lockPlayer = true;
-        if (SceneManager.GetActiveScene().name == "Level10") {
+        if (SceneManager.GetActiveScene().name == "Level7") {
             exitReachedText.GetComponent<TextMeshProUGUI>().text =
                 "Congrats beta tester, you've been through all the levels !!";
             exitReachedText.GetComponent<TextMeshProUGUI>().fontSize = 17;
