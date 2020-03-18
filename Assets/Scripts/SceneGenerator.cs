@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class SceneGenerator : MonoBehaviour {
@@ -14,50 +12,50 @@ public class SceneGenerator : MonoBehaviour {
     public Transform floorPrefab;
     public Transform ceilingPrefab;
     public Transform lightPrefab;
-    private GameObject walls;
-    private GameObject obstacles;
-    private GameObject floor;
-    private GameObject ceiling;
-    private GameObject lights;
+    private GameObject _walls;
+    private GameObject _obstacles;
+    private GameObject _floor;
+    private GameObject _ceiling;
+    private GameObject _lights;
 
-    void Start() {
+    private void Start() {
         string[] mapToLoad = GetMapData(SceneManager.GetActiveScene().name);
 
-        walls = GameObject.Find("Environment").transform.Find("Walls").gameObject;
-        obstacles = GameObject.Find("Environment").transform.Find("Obstacles").gameObject;
-        floor = GameObject.Find("Environment").transform.Find("Floor").gameObject;
-        ceiling = GameObject.Find("Environment").transform.Find("Ceiling").gameObject;
-        lights = GameObject.Find("Environment").transform.Find("Lights").gameObject;
+        _walls = GameObject.Find("Environment").transform.Find("Walls").gameObject;
+        _obstacles = GameObject.Find("Environment").transform.Find("Obstacles").gameObject;
+        _floor = GameObject.Find("Environment").transform.Find("Floor").gameObject;
+        _ceiling = GameObject.Find("Environment").transform.Find("Ceiling").gameObject;
+        _lights = GameObject.Find("Environment").transform.Find("Lights").gameObject;
         CreateEnvironment(mapToLoad);
         InstantiateManagers();
     }
 
-    string[] GetMapData(string sceneName) {
+    private string[] GetMapData(string sceneName) {
         Maps maps = GetComponent<Maps>();
         // TODO: Check if there is something like return maps[sceneName];
-        // TODO: Yes, dictionnary ! 
+        // TODO: Yes, dictionary ! 
         switch (sceneName) {
             case "Level1":
-                return maps.Level1;
+                return maps.level1;
             case "Level2":
-                return maps.Level2;
+                return maps.level2;
             case "Level3":
-                return maps.Level3;
+                return maps.level3;
             case "Level4":
-                return maps.Level4;
+                return maps.level4;
             case "Level5":
-                return maps.Level5;
+                return maps.level5;
             case "Level6":
-                return maps.Level6;
+                return maps.level6;
             case "Level7":
-                return maps.Level7;
+                return maps.level7;
             default:
                 Debug.LogError("RETURN DEFAULT MAP");
-                return maps.Level1;
+                return maps.level1;
         }
     }
 
-    void InstantiateManagers() {
+    private void InstantiateManagers() {
         Transform fragmentManagerObject = Instantiate(fragmentManager, Vector3.zero, Quaternion.identity);
         fragmentManagerObject.gameObject.name = "FragmentManager";
         Transform uiManagerObject = Instantiate(uiManagerPrefab, Vector3.zero, Quaternion.identity);
@@ -69,36 +67,36 @@ public class SceneGenerator : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void CreateEnvironment(string[] map) {
-        Transform environmentPrefab;
+    private void CreateEnvironment(string[] map) {
         int totalCount = 0;
         for (int i = 0; i < map.Length; i++) {
             for (int j = 0; j < map[i].Length; j++) {
                 float yAdjustment = 0;
                 GameObject parent;
+                Transform environmentPrefab;
                 switch (map[i][j]) {
                     case 'W':
                         environmentPrefab = wallPrefab;
-                        parent = walls;
+                        parent = _walls;
                         break;
                     case 'O':
                         environmentPrefab = obstaclePrefab;
-                        parent = obstacles;
+                        parent = _obstacles;
                         break;
                     case 'F':
                         environmentPrefab = floorPrefab;
-                        parent = floor;
+                        parent = _floor;
                         yAdjustment = -0.45f;
                         break;
                     case 'X':
                         environmentPrefab = exitPrefab;
-                        parent = floor;
+                        parent = _floor;
                         yAdjustment = -0.45f;
                         break;
                     default:
                         Debug.LogError($"No prefab found ?! {map[i][j]}");
                         environmentPrefab = floorPrefab;
-                        parent = floor;
+                        parent = _floor;
                         break;
                 }
 
@@ -110,13 +108,13 @@ public class SceneGenerator : MonoBehaviour {
                 // Instantiate Ceiling above
                 Vector3 ceilingPosition = new Vector3(i, 0.5f, j);
                 Transform ceilingObject = Instantiate(ceilingPrefab, ceilingPosition, Quaternion.identity);
-                ceilingObject.SetParent(ceiling.transform);
+                ceilingObject.SetParent(_ceiling.transform);
                 ceilingObject.gameObject.name = $"C_{i}_{j}";
                 // Instantiate Light
                 if (totalCount % 3 == 1) {
                     Vector3 lightPosition = new Vector3(i, 0.45f, j);
                     Transform lightObject = Instantiate(lightPrefab, lightPosition, Quaternion.identity);
-                    lightObject.SetParent(lights.transform);
+                    lightObject.SetParent(_lights.transform);
                     lightObject.gameObject.name = $"L_{i}_{j}";
                 }
 

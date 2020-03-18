@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+
 // ReSharper disable StringLiteralTypo
 
 public class Maps : MonoBehaviour {
     // It's ugly but it works
-    public string[] Level1 = {
+    public string[] level1 = {
         "WWWWWWWWWWWW",
         "WFFFOFFFOFFW",
         "WFOFFFOFOOFW",
@@ -19,7 +19,7 @@ public class Maps : MonoBehaviour {
         "WWWWWWWWWWWW"
     };
 
-    public string[] Level2 = {
+    public string[] level2 = {
         "WWWWWWWWWWWW",
         "WFFFFFFFFFFW",
         "WFOFOOOFOOFW",
@@ -34,7 +34,7 @@ public class Maps : MonoBehaviour {
         "WWWWWWWWWWWW"
     };
 
-    public string[] Level3 = {
+    public string[] level3 = {
         "WWWWWWWWWWWW",
         "WFFFFFFFFFFW",
         "WFFOFOFOFOFW",
@@ -48,7 +48,7 @@ public class Maps : MonoBehaviour {
         "WFFOXFFFFFFW",
         "WWWWWWWWWWWW"
     };
-    public string[] Level4 = {
+    public string[] level4 = {
         "WWWWWWWWWWWW",
         "WFFFFFOFFFFW",
         "WFOOOFXFOOFW",
@@ -62,7 +62,7 @@ public class Maps : MonoBehaviour {
         "WFFOFFFOFFFW",
         "WWWWWWWWWWWW"
     };
-    public string[] Level5 = {
+    public string[] level5 = {
         "WWWWWWWWWWWW",
         "WFFFFFOFFFFW",
         "WFOFOFFFOFFW",
@@ -77,7 +77,7 @@ public class Maps : MonoBehaviour {
         "WWWWWWWWWWWW"
     };
 
-    public string[] Level6 = {
+    public string[] level6 = {
         "WWWWWWWWWWWWWW",
         "WFFFFFFFFFFFOW",
         "WFOFFOFFFFFOFW",
@@ -93,7 +93,7 @@ public class Maps : MonoBehaviour {
         "WFFFOXFFOFFFFW",
         "WWWWWWWWWWWWWW"
     };
-    public string[] Level7 = {
+    public string[] level7 = {
         "WWWWWWWWWWWWWW",
         "WOFFFFFFFFFFFW",
         "WXOFFOFOFOOOFW",
@@ -106,6 +106,6 @@ public class Maps : MonoBehaviour {
         "WFFOFFOFFFFFFW",
         "WFOFOFFOOOOOFW",
         "WFFFFFFFFFFFFW",
-        "WWWWWWWWWWWWWW",
+        "WWWWWWWWWWWWWW"
     };
 }

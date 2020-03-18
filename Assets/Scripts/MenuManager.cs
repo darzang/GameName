@@ -1,27 +1,23 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[RequireComponent(typeof(AudioSource))]
 public class MenuManager : MonoBehaviour {
-    private TextMeshPro text;
+    private TextMeshPro _text;
     public GameObject player;
-    private Animation anim;
+    private Animation _anim;
     public GameObject ceiling;
-    private Camera mainCamera;
     public PlayerData playerData;
     public GameObject batteryMaxText;
     public GameObject batteryUseText;
     public GameObject lightText;
     public GameObject cashTexts;
     public AudioClip openingAudio;
-    private Light playerLamp;
-    private GameObject eyeLids;
-    private AudioSource playerSoundsAudioSource;
-    public Material levelAvailableMaterial;
+    private Light _playerLamp;
+    private GameObject _eyeLids;
+    private AudioSource _playerSoundsAudioSource;
     public Material levelNotAvailableMaterial;
 
     private void Start() {
@@ -29,24 +25,23 @@ public class MenuManager : MonoBehaviour {
         InstantiatePlayerPrefs();
 
         ceiling.SetActive(true);
-        playerLamp = player.GetComponentInChildren<Light>();
-        playerSoundsAudioSource = player.transform.Find("SoundsAudioSource").GetComponent<AudioSource>();
+        _playerLamp = player.GetComponentInChildren<Light>();
+        _playerSoundsAudioSource = player.transform.Find("SoundsAudioSource").GetComponent<AudioSource>();
         playerData = FileManager.LoadPlayerDataFile();
         if (playerData == null) {
             playerData = new PlayerData();
             FileManager.SavePlayerDataFile(playerData);
         }
         else {
-            playerLamp.range *= playerData.lightMultiplier;
-            playerLamp.intensity *= playerData.lightMultiplier;
-            playerLamp.spotAngle *= playerData.lightMultiplier;
+            _playerLamp.range *= playerData.lightMultiplier;
+            _playerLamp.intensity *= playerData.lightMultiplier;
+            _playerLamp.spotAngle *= playerData.lightMultiplier;
         }
 
-        playerLamp.enabled = false;
+        _playerLamp.enabled = false;
         SetSkillsText();
         Debug.Log(JsonUtility.ToJson(playerData, true));
         Cursor.visible = false;
-        mainCamera = Camera.main;
         HandleAvailableLevels();
     }
 
@@ -56,15 +51,14 @@ public class MenuManager : MonoBehaviour {
         for (int i = 0; i < playMenu.transform.childCount; i++) {
             // Filter PlayTitle and PlayBackButton
             GameObject child = playMenu.transform.GetChild(i).gameObject;
-            if (child.name.Contains("Level")) {
-                Int32.TryParse(child.name.Substring(child.name.Length - 1, 1), out int levelNumber);
-                if (levelNumber == 0) {
-                    levelNumber = 10;
-                }
+            if (!child.name.Contains("Level")) continue;
+            int.TryParse(child.name.Substring(child.name.Length - 1, 1), out int levelNumber);
+            if (levelNumber == 0) {
+                levelNumber = 10;
+            }
 
-                if (levelNumber > maxLevelAvailable) {
-                    child.GetComponent<MeshRenderer>().material = levelNotAvailableMaterial;
-                }
+            if (levelNumber > maxLevelAvailable) {
+                child.GetComponent<MeshRenderer>().material = levelNotAvailableMaterial;
             }
         }
     }
@@ -95,19 +89,19 @@ public class MenuManager : MonoBehaviour {
     }
 
     private IEnumerator OpenEyes() {
-        anim = player.GetComponent<Animation>();
-        eyeLids = GameObject.Find("EyeLids").gameObject;
-        anim.Play("EyeLidOpen");
+        _anim = player.GetComponent<Animation>();
+        _eyeLids = GameObject.Find("EyeLids").gameObject;
+        _anim.Play("EyeLidOpen");
         yield return new WaitForSeconds(1);
-        eyeLids.SetActive(false);
-        playerLamp.enabled = true;
+        _eyeLids.SetActive(false);
+        _playerLamp.enabled = true;
     }
 
     private IEnumerator CloseEyes(int levelNumber) {
-        eyeLids.SetActive(true);
-        playerLamp.enabled = false;
-        anim.Play("EyeLidClose");
-        playerSoundsAudioSource.PlayOneShot(openingAudio);
+        _eyeLids.SetActive(true);
+        _playerLamp.enabled = false;
+        _anim.Play("EyeLidClose");
+        _playerSoundsAudioSource.PlayOneShot(openingAudio);
         yield return new WaitForSeconds(3f);
         SceneManager.LoadScene($"Level{levelNumber}");
     }
@@ -171,43 +165,43 @@ public class MenuManager : MonoBehaviour {
         Debug.Log($"Clicked on {button.name}");
         switch (button.name) {
             case "OptionsButton":
-                anim.Play("MainToOptions");
+                _anim.Play("MainToOptions");
                 break;
             case "CreditsButton":
-                anim.Play("MainToCredits");
+                _anim.Play("MainToCredits");
                 break;
             case "SkillsButton":
-                anim.Play("MainToSkills");
+                _anim.Play("MainToSkills");
                 break;
             case "PlayButton":
-                anim.Play("MainToPlay");
+                _anim.Play("MainToPlay");
                 break;
             case "HelpButton":
-                anim.Play("MainToHelp");
+                _anim.Play("MainToHelp");
                 break;
             case "ControlsButton":
-                anim.Play("MainToControls");
+                _anim.Play("MainToControls");
                 break;
             case "QuitButton":
                 Application.Quit(); // Doesn't work with Unity editor
                 break;
             case "OptionsBackButton":
-                anim.Play("OptionsToMain");
+                _anim.Play("OptionsToMain");
                 break;
             case "SkillsBackButton":
-                anim.Play("SkillsToMain");
+                _anim.Play("SkillsToMain");
                 break;
             case "CreditsBackButton":
-                anim.Play("CreditsToMain");
+                _anim.Play("CreditsToMain");
                 break;
             case "PlayBackButton":
-                anim.Play("PlayToMain");
+                _anim.Play("PlayToMain");
                 break;
             case "HelpBackButton":
-                anim.Play("HelpToMain");
+                _anim.Play("HelpToMain");
                 break;
             case "ControlsBackButton":
-                anim.Play("ControlsToMain");
+                _anim.Play("ControlsToMain");
                 break;
             case "BatteryMaxUpgradeButton":
                 HandleUpgrade("BatteryMax", playerData.batteryMaxLevel);
@@ -235,36 +229,32 @@ public class MenuManager : MonoBehaviour {
                 if (PlayerPrefs.GetInt("EnableSounds") == 1) {
                     PlayerPrefs.SetInt("EnableSounds", 0);
                     button.GetComponent<TextMeshPro>().text = "X";
-                    playerSoundsAudioSource.enabled = false;
+                    _playerSoundsAudioSource.enabled = false;
                     SetFlickeringLightEnable(false);
                 }
                 else {
                     PlayerPrefs.SetInt("EnableSounds", 1);
                     button.GetComponent<TextMeshPro>().text = "V";
-                    playerSoundsAudioSource.enabled = true;
+                    _playerSoundsAudioSource.enabled = true;
                     SetFlickeringLightEnable(true);
                 }
-
                 break;
             default:
                 if (button.name.Contains("Level")) {
-                    Int32.TryParse(button.name.Substring(button.name.Length - 1, 1), out int levelNumber);
+                    int.TryParse(button.name.Substring(button.name.Length - 1, 1), out int levelNumber);
                     if (levelNumber == 0) {
                         levelNumber = 10;
                     }
-
                     if (playerData.levelCompleted > levelNumber - 2) {
                         Debug.Log($"Loading level {levelNumber}");
-                        eyeLids.SetActive(true);
-                        anim.Play("EyeLidClose");
-
+                        _eyeLids.SetActive(true);
+                        _anim.Play("EyeLidClose");
                         StartCoroutine(CloseEyes(levelNumber));
                     }
                     else {
                         Debug.Log($"Can't load level {levelNumber}");
                     }
                 }
-
                 break;
         }
     }
@@ -283,37 +273,36 @@ public class MenuManager : MonoBehaviour {
                 break;
         }
 
-        if (playerData.cash >= cost) {
-            Debug.Log($"Upgrade {skill} possible");
-            switch (skill) {
-                case "BatteryMax":
-                    if (playerData.batteryMaxLevel < 3) {
-                        // TODO: Make this clean
-                        playerData.batteryMaxLevel += 1;
-                        playerData.batteryMax += 100;
-                    }
-                    break;
-                case "BatteryUse":
-                    if (playerData.batteryUseLevel < 3) {
-                        playerData.batteryUseLevel += 1;
-                        playerData.fuelComsumption -= 0.1f;
-                    }
-                    break;
-                case "Light":
-                    if (playerData.lightLevel < 3) {
-                        playerData.lightLevel += 1;
-                        playerData.lightMultiplier += 0.1f;
-                        playerLamp.range = playerData.baseLightRange * playerData.lightMultiplier;
-                        playerLamp.intensity = playerData.baseLightIntensity * playerData.lightMultiplier;
-                        playerLamp.spotAngle = playerData.baseLightAngle * playerData.lightMultiplier;
-                    }
-                    break;
-            }
-
-            playerData.cash -= cost;
-            SetSkillsText();
-            FileManager.SavePlayerDataFile(playerData);
+        if (playerData.cash < cost) return;
+        Debug.Log($"Upgrade {skill} possible");
+        switch (skill) {
+            case "BatteryMax":
+                if (playerData.batteryMaxLevel < 3) {
+                    // TODO: Make this clean
+                    playerData.batteryMaxLevel += 1;
+                    playerData.batteryMax += 100;
+                }
+                break;
+            case "BatteryUse":
+                if (playerData.batteryUseLevel < 3) {
+                    playerData.batteryUseLevel += 1;
+                    playerData.fuelConsumption -= 0.1f;
+                }
+                break;
+            case "Light":
+                if (playerData.lightLevel < 3) {
+                    playerData.lightLevel += 1;
+                    playerData.lightMultiplier += 0.1f;
+                    _playerLamp.range = playerData.baseLightRange * playerData.lightMultiplier;
+                    _playerLamp.intensity = playerData.baseLightIntensity * playerData.lightMultiplier;
+                    _playerLamp.spotAngle = playerData.baseLightAngle * playerData.lightMultiplier;
+                }
+                break;
         }
+
+        playerData.cash -= cost;
+        SetSkillsText();
+        FileManager.SavePlayerDataFile(playerData);
     }
 
     private void SetFlickeringLightEnable(bool state) {

@@ -4,25 +4,24 @@ using UnityEngine.SceneManagement;
 public class Player : MonoBehaviour {
     [SerializeField] private string horizontalInputName;
     [SerializeField] private string verticalInputName;
-    private CharacterController charController;
+    private CharacterController _charController;
     public float fuelCount;
-    private Light playerLamp;
-    public bool lockPlayer = false;
+    private Light _playerLamp;
+    public bool lockPlayer;
     public GameManager gameManager;
-    private bool doubleTap;
-    private float doubleTapTime;
-    private string[] playerMovementKeyNames = {"w", "a", "s", "d", "up", "down", "left", "right"};
+    private bool _doubleTap;
+    private float _doubleTapTime;
     private void Awake() {
-        playerLamp = GameObject.Find("PlayerLamp").GetComponent<Light>();
+        _playerLamp = GameObject.Find("PlayerLamp").GetComponent<Light>();
         if (SceneManager.GetActiveScene().name != "MenuScene") {
             gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
             fuelCount = gameManager.playerData.batteryMax;
         }
         else {
-            playerLamp.enabled = true;
+            _playerLamp.enabled = true;
         }
 
-        charController = GetComponent<CharacterController>();
+        _charController = GetComponent<CharacterController>();
     }
 
     private void Update() {
@@ -35,21 +34,21 @@ public class Player : MonoBehaviour {
             }
         }
 
-        if (Input.GetKeyUp("l") && doubleTap) {
-            if (Time.time - doubleTapTime < 0.2f) {
-                doubleTapTime = 0f;
+        if (Input.GetKeyUp("l") && _doubleTap) {
+            if (Time.time - _doubleTapTime < 0.2f) {
+                _doubleTapTime = 0f;
                 fuelCount += 300;
                 if (fuelCount > gameManager.playerData.batteryMax) fuelCount = gameManager.playerData.batteryMax;
             }
-            doubleTap = false;
+            _doubleTap = false;
         }
 
-        if (Input.GetKeyUp("l") && !doubleTap) {
-            doubleTap = true;
-            doubleTapTime = Time.time;
+        if (Input.GetKeyUp("l") && !_doubleTap) {
+            _doubleTap = true;
+            _doubleTapTime = Time.time;
         }
 
-        if (playerLamp.enabled && !gameManager.gameIsPaused) {
+        if (_playerLamp.enabled && !gameManager.gameIsPaused) {
             fuelCount -= gameManager.playerData.lightConsumption / 10 * (Time.deltaTime + 1);
         }
 
@@ -63,7 +62,7 @@ public class Player : MonoBehaviour {
         Vector3 forwardMovement = playerTransform.forward * verticalInput;
         Vector3 rightMovement = playerTransform.right * horizontalInput;
         Vector3 totalMovement = forwardMovement + rightMovement;
-        fuelCount -= gameManager.playerData.fuelComsumption * totalMovement.magnitude * (Time.deltaTime + 1);
-        charController.SimpleMove(totalMovement);
+        fuelCount -= gameManager.playerData.fuelConsumption * totalMovement.magnitude * (Time.deltaTime + 1);
+        _charController.SimpleMove(totalMovement);
     }
 }

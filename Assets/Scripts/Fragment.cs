@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
-using Random = System.Random;
 
-[System.Serializable]
+[Serializable]
 public class Fragment {
     public List<string> tiles;
     public string spawnTile;

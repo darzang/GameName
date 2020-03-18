@@ -4,12 +4,12 @@ using UnityEngine;
 public class FlickeringLight : MonoBehaviour {
     public Material lampOn;
     public Material lampOff;
-    private new Light light;
-    private new MeshRenderer renderer;
+    private Light _light;
+    private MeshRenderer _renderer;
 
     private void Start() {
-        light = transform.Find("Light").GetComponent<Light>();
-        renderer = transform.Find("Lamp").GetComponent<MeshRenderer>();
+        _light = transform.Find("Light").GetComponent<Light>();
+        _renderer = transform.Find("Lamp").GetComponent<MeshRenderer>();
         StartCoroutine(nameof(LightFlicker));
     }
 
@@ -19,11 +19,11 @@ public class FlickeringLight : MonoBehaviour {
         while (true) {
             float trigger = Random.Range(0, 5);
             if (trigger >= 3) {
-                light.enabled = false;
-                renderer.material = lampOff;
+                _light.enabled = false;
+                _renderer.material = lampOff;
             } else {
-                light.enabled = true;
-                renderer.material = lampOn;
+                _light.enabled = true;
+                _renderer.material = lampOn;
             }
             yield return new WaitForSeconds(flickeringSpeed);
         }

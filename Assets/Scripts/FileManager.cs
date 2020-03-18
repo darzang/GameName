@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 
@@ -7,7 +6,6 @@ public class FileManager : MonoBehaviour {
 //  Application.persistentDataPath points to %userprofile%\AppData\Local\Packages\<productname>\LocalState.
     public static void SaveLevelDataFile(LevelData levelData, string fileName) {
         string path = $"{Application.persistentDataPath}/{fileName}.dat";
-        Debug.Log($"Saving levelData file at: {path}");
         FileStream file = File.Exists(path) ? File.OpenWrite(path) : File.Create(path);
         BinaryFormatter bf = new BinaryFormatter();
         bf.Serialize(file, levelData);
@@ -16,7 +14,6 @@ public class FileManager : MonoBehaviour {
 
     public static void SavePlayerDataFile(PlayerData playerData) {
         string path = $"{Application.persistentDataPath}/PlayerData.dat";
-        Debug.Log($"Saving playerData file at: {path}");
         FileStream file = File.Exists(path) ? File.OpenWrite(path) : File.Create(path);
         BinaryFormatter bf = new BinaryFormatter();
         bf.Serialize(file, playerData);
@@ -49,7 +46,7 @@ public class FileManager : MonoBehaviour {
             file = File.OpenRead(path);
         }
         else {
-            Debug.LogWarning($"File PlayerData.dat not found");
+            Debug.LogWarning("File PlayerData.dat not found");
             return null;
         }
 
@@ -61,9 +58,8 @@ public class FileManager : MonoBehaviour {
 
     public static void DeleteFile(string fileName) {
         string path = $"{Application.persistentDataPath}/{fileName}.dat";
-        if (File.Exists(path)) {
-            Debug.Log($"Deleting file {fileName}.dat");
-            File.Delete(path);
-        }
+        if (!File.Exists(path)) return;
+        Debug.Log($"Deleting file {fileName}.dat");
+        File.Delete(path);
     }
 }

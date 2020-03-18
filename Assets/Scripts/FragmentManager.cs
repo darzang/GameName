@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Experimental.GlobalIllumination;
-using LightType = UnityEngine.LightType;
 using Random = UnityEngine.Random;
 
 public class FragmentManager : MonoBehaviour {
@@ -13,9 +10,9 @@ public class FragmentManager : MonoBehaviour {
     public Transform floorPrefab;
     public Transform exitPrefab;
     public Material exitMaterial;
-    public Material WallMaterial;
-    public Material FloorMaterial;
-    public Material ObstacleMaterial;
+    public Material wallMaterial;
+    public Material floorMaterial;
+    public Material obstacleMaterial;
     public Transform fragmentPrefab;
 
     // Start is called before the first frame update
@@ -81,10 +78,9 @@ public class FragmentManager : MonoBehaviour {
                             neighborTile.transform.position);
                     }
 
-                    if (currentDistance < distanceMax) {
-                        distanceMax = currentDistance;
-                        closestTile = neighborTile;
-                    }
+                    if (!(currentDistance < distanceMax)) continue;
+                    distanceMax = currentDistance;
+                    closestTile = neighborTile;
                 }
 
                 tilesInFragments.Add(closestTile);
@@ -120,7 +116,7 @@ public class FragmentManager : MonoBehaviour {
         return fragments;
     }
 
-    public Fragment GetFragmentForTile(List<Fragment> fragments, GameObject tile) {
+    private Fragment GetFragmentForTile(List<Fragment> fragments, GameObject tile) {
         // Get distance of each available neighborTiles
         float distanceMax = 100f;
         Fragment closestFragment = null;
@@ -131,10 +127,9 @@ public class FragmentManager : MonoBehaviour {
                 currentDistance += Vector3.Distance(fragmentTile.transform.position, tile.transform.position);
             }
 
-            if (currentDistance < distanceMax) {
-                distanceMax = currentDistance;
-                closestFragment = fragment;
-            }
+            if (!(currentDistance < distanceMax)) continue;
+            distanceMax = currentDistance;
+            closestFragment = fragment;
         }
 
         return closestFragment;
@@ -161,11 +156,11 @@ public class FragmentManager : MonoBehaviour {
             switch (realTile.tag) {
                 case "Wall":
                     tilePrefab = wallPrefab;
-                    tileMaterial = WallMaterial;
+                    tileMaterial = wallMaterial;
                     break;
                 case "Obstacle":
                     tilePrefab = obstaclePrefab;
-                    tileMaterial = ObstacleMaterial;
+                    tileMaterial = obstacleMaterial;
                     break;
                 case "Exit":
                     tilePrefab = exitPrefab;
@@ -174,7 +169,7 @@ public class FragmentManager : MonoBehaviour {
                     break;
                 case "Floor":
                     tilePrefab = floorPrefab;
-                    tileMaterial = FloorMaterial;
+                    tileMaterial = floorMaterial;
                     floorOffset = 0.2f;
                     break;
                 default:
@@ -185,18 +180,20 @@ public class FragmentManager : MonoBehaviour {
             }
 
 
+            Vector3 position1 = realTile.transform.position;
             Transform fragmentTile = Instantiate(tilePrefab, new Vector3(
-                realTile.transform.position.x / 2,
-                realTile.transform.position.y + floorOffset,
-                realTile.transform.position.z / 2
+                position1.x / 2,
+                position1.y + floorOffset,
+                position1.z / 2
             ), Quaternion.identity);
             tilesPositions.Add(fragmentTile.transform.position);
             fragmentTiles.Add(fragmentTile);
             fragmentTile.SetParent(fragment);
-            fragmentTile.gameObject.name = $"FragmentTile_{realTile.name}";
-            fragmentTile.gameObject.isStatic = false;
+            GameObject tileObject = fragmentTile.gameObject;
+            tileObject.name = $"FragmentTile_{realTile.name}";
+            tileObject.isStatic = false;
 
-            fragmentTile.gameObject.tag = "Untagged";
+            tileObject.tag = "Untagged";
             if (tilePrefab == exitPrefab) {
                 fragmentTile.gameObject.GetComponentInChildren<Light>().enabled = false;
             }
@@ -205,11 +202,10 @@ public class FragmentManager : MonoBehaviour {
             fragmentTile.gameObject.GetComponent<BoxCollider>().enabled = false;
             fragment.gameObject.isStatic = false;
             fragmentTile.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-            if (tilePrefab == floorPrefab || tilePrefab == exitPrefab) {
-                Vector3 localScale = fragmentTile.transform.localScale;
-                localScale.y = 0.02f;
-                fragmentTile.transform.localScale = localScale;
-            }
+            if (tilePrefab != floorPrefab && tilePrefab != exitPrefab) continue;
+            Vector3 localScale = fragmentTile.transform.localScale;
+            localScale.y = 0.02f;
+            fragmentTile.transform.localScale = localScale;
 
         }
         // Shift the tiles to be in center of parent gameObject
@@ -218,8 +214,9 @@ public class FragmentManager : MonoBehaviour {
                 tile.transform.position += offset;
         }
         fragment.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-    }     
-    Vector3 GetCenterPointBetween(List<Vector3> positions){
+    }
+
+    private Vector3 GetCenterPointBetween(List<Vector3> positions){
         Vector3 center = new Vector3(0,0,0);
         foreach (Vector3 position in positions) {
             center += position;

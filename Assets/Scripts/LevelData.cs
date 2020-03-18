@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
-[System.Serializable]
+﻿using System;
+using System.Collections.Generic;
+
+[Serializable]
 public class LevelData: object {
     public int tryCount;
     public List<Fragment> mapFragments;

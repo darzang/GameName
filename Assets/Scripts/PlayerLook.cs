@@ -6,12 +6,12 @@ public class PlayerLook : MonoBehaviour {
     [SerializeField] private float mouseSensitivity;
     [SerializeField] private Transform playerBody;
 
-    private float xAxisClamp;
+    private float _xAxisClamp;
     public GameManager gameManager;
 
     private void Awake () {
         LockCursor ();
-        xAxisClamp = 0.0f;
+        _xAxisClamp = 0.0f;
         if (SceneManager.GetActiveScene().name != "MenuScene") {
             gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         }
@@ -34,14 +34,14 @@ public class PlayerLook : MonoBehaviour {
         float mouseX = Input.GetAxis (mouseXInputName) * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis (mouseYInputName) * mouseSensitivity * Time.deltaTime;
 
-        xAxisClamp += mouseY;
+        _xAxisClamp += mouseY;
 
-        if (xAxisClamp > 90.0f) {
-            xAxisClamp = 90.0f;
+        if (_xAxisClamp > 90.0f) {
+            _xAxisClamp = 90.0f;
             mouseY = 0.0f;
             ClampXAxisRotationToValue (270.0f);
-        } else if (xAxisClamp < -90.0f) {
-            xAxisClamp = -90.0f;
+        } else if (_xAxisClamp < -90.0f) {
+            _xAxisClamp = -90.0f;
             mouseY = 0.0f;
             ClampXAxisRotationToValue (90.0f);
         }
@@ -51,8 +51,9 @@ public class PlayerLook : MonoBehaviour {
     }
 
     private void ClampXAxisRotationToValue (float value) {
-        Vector3 eulerRotation = transform.eulerAngles;
+        Transform transform1 = transform;
+        Vector3 eulerRotation = transform1.eulerAngles;
         eulerRotation.x = value;
-        transform.eulerAngles = eulerRotation;
+        transform1.eulerAngles = eulerRotation;
     }
 }

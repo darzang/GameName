@@ -1,23 +1,22 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+
 public class TileManager : MonoBehaviour {
-    private GameObject environment;
-    private GameManager gameManager;
+    private GameObject _environment;
+    private GameManager _gameManager;
     public List<GameObject> floorTiles;
 
     private void Start() {
-        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     public int GetMapSize() {
-        GameObject[] WallTiles = GameObject.FindGameObjectsWithTag ("Wall");
-        GameObject[] ObstacleTiles = GameObject.FindGameObjectsWithTag ("Obstacle");
-        GameObject[] FloorTiles = GameObject.FindGameObjectsWithTag ("Floor");
-        GameObject[] ExitTile = GameObject.FindGameObjectsWithTag ("Exit");
-        GameObject[] mapElements = WallTiles.Concat (ObstacleTiles).Concat (FloorTiles).Concat (ExitTile).ToArray ();
+        GameObject[] wallTiles = GameObject.FindGameObjectsWithTag ("Wall");
+        GameObject[] obstacleTiles = GameObject.FindGameObjectsWithTag ("Obstacle");
+        GameObject[] floorTiles = GameObject.FindGameObjectsWithTag ("Floor");
+        GameObject[] exitTile = GameObject.FindGameObjectsWithTag ("Exit");
+        GameObject[] mapElements = wallTiles.Concat (obstacleTiles).Concat (floorTiles).Concat (exitTile).ToArray ();
         return mapElements.Length;
     }
     
@@ -31,27 +30,23 @@ public class TileManager : MonoBehaviour {
 
     private List<GameObject> GetNeighborWalkableTiles(GameObject tile) {
         List<GameObject> neighborTiles = new List<GameObject>();
-        RaycastHit hit;
         List<Vector3> directions = new List<Vector3> { Vector3.back, Vector3.forward, Vector3.left, Vector3.right };
         foreach (Vector3 direction in directions) {
-            if (Physics.Raycast(tile.transform.position, direction,out hit, 1)) {
-                if(hit.collider.gameObject.CompareTag("Floor") || hit.collider.gameObject.CompareTag("Exit"))
-                    neighborTiles.Add(hit.collider.gameObject);
-            }
+            if (!Physics.Raycast(tile.transform.position, direction, out RaycastHit hit, 1)) continue;
+            if (hit.collider.gameObject.CompareTag("Floor") || hit.collider.gameObject.CompareTag("Exit"))
+                neighborTiles.Add(hit.collider.gameObject);
         }
         return neighborTiles;
     }
     
     public List<GameObject> GetNeighborTiles(GameObject tile) {
         List<GameObject> neighborTiles = new List<GameObject>();
-        RaycastHit hit;
         List<Vector3> directions = new List<Vector3> { Vector3.back, Vector3.forward, Vector3.left, Vector3.right };
         foreach (Vector3 direction in directions) {
-            if (Physics.Raycast(tile.transform.position, direction,out hit, 1)) {
-                GameObject neighor = hit.collider.gameObject;
-                if(neighor.CompareTag("Floor") || neighor.CompareTag("Exit") || neighor.CompareTag("Obstacle") ||  neighor.CompareTag("Wall"))
-                    neighborTiles.Add(hit.collider.gameObject);
-            }
+            if (!Physics.Raycast(tile.transform.position, direction, out RaycastHit hit, 1)) continue;
+            GameObject neighbour = hit.collider.gameObject;
+            if(neighbour.CompareTag("Floor") || neighbour.CompareTag("Exit") || neighbour.CompareTag("Obstacle") ||  neighbour.CompareTag("Wall"))
+                neighborTiles.Add(hit.collider.gameObject);
         }
         return neighborTiles;
     }
@@ -107,13 +102,13 @@ public class TileManager : MonoBehaviour {
     }
 
     public GameObject GetTileUnderPlayer () {
-        Ray ray = new Ray (gameManager.player.transform.position, Vector3.down);
+        Ray ray = new Ray (_gameManager.player.transform.position, Vector3.down);
         return Physics.Raycast (ray, out RaycastHit hit, 10) ? hit.collider.gameObject : null;
     }
 
     public void AddToRevealedTiles (GameObject tile, List<GameObject> revealedTiles) {
         if (!HasBeenRevealed(tile, revealedTiles)) {
-            gameManager.revealedTilesInRun.Add(tile);
+            _gameManager.revealedTilesInRun.Add(tile);
         }
     }
     public bool HasBeenRevealed (GameObject tile, List<GameObject> revealedTiles) {
@@ -129,15 +124,5 @@ public class TileManager : MonoBehaviour {
         float x = playerPosition.x - tilePosition.x;
         float z = playerPosition.z - tilePosition.z;
         return new [] { x, z };
-    }
-    
-    
-
-    public List<string> GetTilesNames(List<GameObject> tileList) {
-        List<string> tilesNames = new List<string>();
-        foreach (GameObject tile in tileList) {
-            tilesNames.Add(tile.name);
-        }
-        return tilesNames;
     }
 }
