@@ -50,25 +50,21 @@ public class MazeCellManager : MonoBehaviour {
 
         MazeCell northCell = GetCellIfExists(x - 1, z);
         if (northCell && !northCell.southWall && !mazeCell.northWall) {
-            Debug.Log($"NorthCell is available for {mazeCell}");
             neighborTiles.Add(northCell);
         }
 
         MazeCell southCell = GetCellIfExists(x + 1, z);
         if (southCell && !southCell.northWall && !mazeCell.southWall) {
-            Debug.Log($"southCell is available for {mazeCell}");
             neighborTiles.Add(southCell);
         }
 
         MazeCell eastCell = GetCellIfExists(x, z + 1);
         if (eastCell && !eastCell.westWall && !mazeCell.eastWall) {
-            Debug.Log($"eastCell is available for {mazeCell}");
             neighborTiles.Add(eastCell);
         }
 
         MazeCell westCell = GetCellIfExists(x, z - 1);
         if (westCell && !westCell.eastWall && !mazeCell.westWall) {
-            Debug.Log($"westCell is available for {mazeCell}");
             neighborTiles.Add(westCell);
         }
 
@@ -105,17 +101,14 @@ public class MazeCellManager : MonoBehaviour {
     public void DoPathPlanning() {
         Debug.Log("Doing path planning");
         bool updated;
-        int index = 1;
         do {
             updated = false;
-            Debug.Log($"Run {index}");
             foreach (MazeCell mazeCell in mazeCells) {
                 // Check Neighbor tiles
                 List<MazeCell> neighborTiles = GetNeighborWalkableTiles(mazeCell);
                 foreach (MazeCell neighborCell in neighborTiles) {
                     if (neighborCell.isExit) {
                         neighborCell.score = 0;
-                        Debug.Log($"Current Cell: {mazeCell} with score: {mazeCell.score} \n Neigbhor cell is exit \n ------------------ \n");
                         if (mazeCell.score == 1) continue;
                         updated = true;
                         mazeCell.score = 1;
@@ -126,7 +119,6 @@ public class MazeCellManager : MonoBehaviour {
                         neighborCell.score < mazeCell.score
                         && mazeCell.score != neighborCell.score + 1
                     ) {
-                        Debug.Log($"Current Cell: {mazeCell} with score: {mazeCell.score} \n Neigbhor cell: {neighborCell} score: {neighborCell.score} \n ------------------ \n");
                         mazeCell.score = neighborCell.score + 1;
                         SetAction(mazeCell, neighborCell);
                         updated = true;
@@ -134,13 +126,8 @@ public class MazeCellManager : MonoBehaviour {
                     }
                 }
             }
-            Debug.Log($"Run {index}, updated: {updated}");
-            index++;
         } while (updated);
         
-        // foreach (MazeCell mazeCell in mazeCells) {
-        //     InstantiateArrow(mazeCell);
-        // }
     }
 
     private void SetAction(MazeCell cell, MazeCell neighborCell) {
@@ -159,7 +146,6 @@ public class MazeCellManager : MonoBehaviour {
         else {
             Debug.Log("Action not found");
         }
-        Debug.Log($"Action for {cell} is {cell.action}");
     }
 
     public List<GameObject> GetAllTiles() {
@@ -198,7 +184,6 @@ public class MazeCellManager : MonoBehaviour {
     }
     
     public void InstantiateArrow(MazeCell mazeCell) {
-        Debug.Log("Instantiating arrow");
         if (GameObject.Find($"Arrow_{mazeCell.gameObject.name}")) {
             Destroy(GameObject.Find($"Arrow_{mazeCell.gameObject.name}"));
         }
