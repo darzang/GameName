@@ -4,14 +4,12 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Wall
-  - Floor
-  - Obstacle
   - Ceiling
   - MenuButton
-  - Exit
   - FlickeringLight
   - Fragment
+  - MazeCell
+  - FragmentTile
   layers:
   - Default
   - TransparentFX

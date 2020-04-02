@@ -5,23 +5,18 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class FragmentManager : MonoBehaviour {
-    public Transform wallPrefab;
-    public Transform obstaclePrefab;
-    public Transform floorPrefab;
-    public Transform exitPrefab;
+    public Transform mazeCellPrefab;
     public Material exitMaterial;
     public Material wallMaterial;
     public Material floorMaterial;
     public Material obstacleMaterial;
     public Transform fragmentPrefab;
 
-    // Start is called before the first frame update
-    public List<Fragment> GenerateRandomFragments(List<GameObject> tiles, List<GameObject> floorTiles,
-        TileManager tileManager) {
+    public List<Fragment> GenerateRandomFragments(List<GameObject> tiles, TileManager tileManager) {
         int nbFragments = (int) Math.Round(tiles.Count / 15.0);
         int minFragmentSize = (int) Math.Round((double) (tiles.Count / nbFragments));
         List<Fragment> fragments = new List<Fragment>();
-        List<GameObject> availableFloorTiles = floorTiles;
+        List<GameObject> availableFloorTiles = tiles;
         List<GameObject> availableTiles = tiles;
         List<GameObject> tilesLeadingToIncompleteFragment = new List<GameObject>();
 
@@ -61,7 +56,7 @@ public class FragmentManager : MonoBehaviour {
                 if (availableNeighborTiles.Count == 0) {
                     foreach (GameObject tile in tilesInFragments) {
                         availableTiles.Add(tile);
-                        if (tile.CompareTag("Floor")) availableFloorTiles.Add(tile);
+                        availableFloorTiles.Add(tile);
                     }
 
                     tilesLeadingToIncompleteFragment.Add(firstTile);
@@ -86,7 +81,7 @@ public class FragmentManager : MonoBehaviour {
                 tilesInFragments.Add(closestTile);
                 tilesNameInFragments.Add(closestTile.name);
                 availableTiles.Remove(closestTile);
-                if (closestTile.CompareTag("Floor")) availableFloorTiles.Remove(closestTile);
+                availableFloorTiles.Remove(closestTile);
             }
 
             if (tilesInFragments.Count >= minFragmentSize) {
@@ -149,41 +144,11 @@ public class FragmentManager : MonoBehaviour {
         List<Vector3> tilesPositions = new List<Vector3>();
         List<Transform> fragmentTiles = new List<Transform>();
         foreach (string tileName in fragmentIn.tiles) {
-            float floorOffset = 0;
             GameObject realTile = GameObject.Find(tileName);
-            Transform tilePrefab;
-            Material tileMaterial;
-            switch (realTile.tag) {
-                case "Wall":
-                    tilePrefab = wallPrefab;
-                    tileMaterial = wallMaterial;
-                    break;
-                case "Obstacle":
-                    tilePrefab = obstaclePrefab;
-                    tileMaterial = obstacleMaterial;
-                    break;
-                case "Exit":
-                    tilePrefab = exitPrefab;
-                    tileMaterial = exitMaterial;
-                    floorOffset = 0.2f;
-                    break;
-                case "Floor":
-                    tilePrefab = floorPrefab;
-                    tileMaterial = floorMaterial;
-                    floorOffset = 0.2f;
-                    break;
-                default:
-                    Debug.LogError($"Tag not found for tile {tileName} with tag {realTile.tag}");
-                    tileMaterial = exitMaterial;
-                    tilePrefab = exitPrefab;
-                    break;
-            }
-
-
             Vector3 position1 = realTile.transform.position;
-            Transform fragmentTile = Instantiate(tilePrefab, new Vector3(
+            Transform fragmentTile = Instantiate(mazeCellPrefab, new Vector3(
                 position1.x / 2,
-                position1.y + floorOffset,
+                position1.y,
                 position1.z / 2
             ), Quaternion.identity);
             tilesPositions.Add(fragmentTile.transform.position);
@@ -192,21 +157,10 @@ public class FragmentManager : MonoBehaviour {
             GameObject tileObject = fragmentTile.gameObject;
             tileObject.name = $"FragmentTile_{realTile.name}";
             tileObject.isStatic = false;
-
-            tileObject.tag = "Untagged";
-            if (tilePrefab == exitPrefab) {
-                fragmentTile.gameObject.GetComponentInChildren<Light>().enabled = false;
-            }
-
-            fragmentTile.gameObject.GetComponent<Renderer>().material = tileMaterial;
-            fragmentTile.gameObject.GetComponent<BoxCollider>().enabled = false;
+            tileObject.tag = "FragmentTile";
+            tileObject.GetComponent<MazeCell>().SetCollidersTrigger(true);
             fragment.gameObject.isStatic = false;
             fragmentTile.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-            if (tilePrefab != floorPrefab && tilePrefab != exitPrefab) continue;
-            Vector3 localScale = fragmentTile.transform.localScale;
-            localScale.y = 0.02f;
-            fragmentTile.transform.localScale = localScale;
-
         }
         // Shift the tiles to be in center of parent gameObject
         Vector3 offset = GetCenterPointBetween(tilesPositions);

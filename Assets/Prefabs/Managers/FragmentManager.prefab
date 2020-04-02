@@ -43,12 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bffa65c5c768764ab94530149d60347, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wallPrefab: {fileID: 4345155007248232, guid: 3f42b47c5f893bb468d058ac8e5059c0, type: 3}
-  obstaclePrefab: {fileID: 4372593797964682, guid: 14be0063672697c468fd25e4670f3ab5,
-    type: 3}
-  floorPrefab: {fileID: 4460191914706220, guid: de45bfeb962f55545b93a84e0d8f138a,
-    type: 3}
-  exitPrefab: {fileID: 3830427674932654569, guid: 19c916e848d22034bb8008127516b320,
+  mazeCellPrefab: {fileID: 6791483153816139213, guid: 776c7c9c393b3964caf245bf29cffbac,
     type: 3}
   exitMaterial: {fileID: 2100000, guid: 4847d4c98cf65ca48b00f7e2ba3bc651, type: 2}
   wallMaterial: {fileID: 2100000, guid: 88fdc8854646c1d4d8a0bc276d466fec, type: 2}

@@ -35,8 +35,8 @@ public class GameManager : MonoBehaviour {
     private AudioSource _playerSoundsAudioSource;
 
     // Tiles
-    public GameObject previousTile;
-    public GameObject currentTile;
+    public MazeCell previousCell;
+    public MazeCell currentCell;
     public int tryCount;
     public int tryMax;
     public List<Fragment> mapFragments = new List<Fragment>();
@@ -66,14 +66,12 @@ public class GameManager : MonoBehaviour {
         levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
         if (levelData == null) {
             Debug.Log("No Data to load");
-            mapFragments = _fragmentManager.GenerateRandomFragments(_tileManager.GetAllTiles(),
-                _tileManager.GetTilesByType("Floor"), _tileManager);
+            mapFragments = _fragmentManager.GenerateRandomFragments(_tileManager.GetAllTiles(), _tileManager);
         }
         else {
             Debug.Log("Data to load");
             if (levelData.mapFragments == null) {
-                mapFragments = _fragmentManager.GenerateRandomFragments(_tileManager.GetAllTiles(),
-                    _tileManager.GetTilesByType("Floor"), _tileManager);
+                mapFragments = _fragmentManager.GenerateRandomFragments(_tileManager.GetAllTiles(), _tileManager);
             }
             else {
                 mapFragments = levelData.mapFragments;
@@ -96,7 +94,7 @@ public class GameManager : MonoBehaviour {
             if (!fragment.discovered) _fragmentManager.InstantiateFragment(fragment);
             if (!fragment.arrowRevealed) continue;
             GameObject tile = GameObject.Find(fragment.spawnTile);
-            InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);
+            InstantiateArrow(tile.transform, tile.GetComponent<MazeCell>().action);
         }
 
         playerData = FileManager.LoadPlayerDataFile();
@@ -131,24 +129,29 @@ public class GameManager : MonoBehaviour {
         }
 
         // Is the player on a new tile ?
-        if (_tileManager.GetTileUnderPlayer() != currentTile || CheckForTileDiscovery()) {
-            previousTile = currentTile;
-            currentTile = _tileManager.GetTileUnderPlayer();
+        if (_tileManager.GetTileUnderPlayer() != currentCell || CheckForTileDiscovery()) {
+            previousCell = currentCell;
+            currentCell = _tileManager.GetTileUnderPlayer();
             _uiManager.UpdateMiniMap();
             _uiManager.DrawMap(totalDiscoveredTiles);
-            if (currentTile.CompareTag("Exit")) {
-                if (playerData.levelCompleted < levelNumber) {
-                    playerData.levelCompleted += 1;
-                    playerData.cash += 1;
-                    _uiManager.AddInfoMessage($"Obtained 1 coin, total : {playerData.cash}");
-                }
+            if (currentCell) {
+                if (currentCell.isExit) {
+                    if (playerData.levelCompleted < levelNumber) {
+                        playerData.levelCompleted += 1;
+                        playerData.cash += 1;
+                        _uiManager.AddInfoMessage($"Obtained 1 coin, total : {playerData.cash}");
+                    }
 
-                FileManager.SavePlayerDataFile(playerData);
-                FileManager.SaveLevelDataFile(
-                    new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp),
-                    SceneManager.GetActiveScene().name);
-                _uiManager.ShowExitUi();
-                _playerSoundsAudioSource.PlayOneShot(congratulationsAudio);
+                    FileManager.SavePlayerDataFile(playerData);
+                    FileManager.SaveLevelDataFile(
+                        new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp),
+                        SceneManager.GetActiveScene().name);
+                    _uiManager.ShowExitUi();
+                    _playerSoundsAudioSource.PlayOneShot(congratulationsAudio);
+                }
+            }
+            else {
+                Debug.LogError("No current cell !");
             }
         }
 
@@ -200,6 +203,7 @@ public class GameManager : MonoBehaviour {
         else {
             yield return new WaitForSeconds(seconds);
         }
+
         _incrementOnboardingIsRunning = false;
         onboardingStage++;
     }
@@ -212,11 +216,14 @@ public class GameManager : MonoBehaviour {
                 if (!_incrementOnboardingIsRunning) {
                     StartCoroutine(IncrementOnboardingAfter(2f));
                 }
+
                 break;
             case 1:
                 if (!_incrementOnboardingIsRunning) {
-                    StartCoroutine(IncrementOnboardingAfter(timeBetweenStages, "Move with WASD keys. Look around with the mouse"));
+                    StartCoroutine(IncrementOnboardingAfter(timeBetweenStages,
+                        "Move with WASD keys. Look around with the mouse"));
                 }
+
                 break;
             case 2:
                 if (!_incrementOnboardingIsRunning) {
@@ -224,27 +231,34 @@ public class GameManager : MonoBehaviour {
                         "Toggle your lamp with left mouse button. Be careful, it consumes your battery"));
                     StartCoroutine(_uiManager.OnboardingBlinkBattery());
                 }
+
                 break;
             case 3:
                 if (!_incrementOnboardingIsRunning) {
-                    StartCoroutine(IncrementOnboardingAfter(timeBetweenStages, "Find the exit before your battery runs out. Collect batteries to recharge on the go"));
-                } 
+                    StartCoroutine(IncrementOnboardingAfter(timeBetweenStages,
+                        "Find the exit before your battery runs out. Collect batteries to recharge on the go"));
+                }
+
                 break;
             case 4:
                 if (!_incrementOnboardingIsRunning) {
                     StartCoroutine(IncrementOnboardingAfter(timeBetweenStages,
                         "Collect fragments of the map to discover it permanently."));
                 }
+
                 break;
             case 5:
                 if (!_incrementOnboardingIsRunning) {
-                    StartCoroutine(IncrementOnboardingAfter(timeBetweenStages, "You get a coin for discovering the whole map and reaching the exit. Use these coins to upgrade your skills in the menu"));
+                    StartCoroutine(IncrementOnboardingAfter(timeBetweenStages,
+                        "You get a coin for discovering the whole map and reaching the exit. Use these coins to upgrade your skills in the menu"));
                 }
+
                 break;
             case 6:
                 if (!_incrementOnboardingIsRunning) {
                     StartCoroutine(IncrementOnboardingAfter(timeBetweenStages, "Good luck.\n Don't die too much :)"));
                 }
+
                 break;
             case 7:
                 _uiManager.onboardingText.gameObject.SetActive(false);
@@ -276,10 +290,7 @@ public class GameManager : MonoBehaviour {
         Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, playerData.discoveryRange);
         foreach (Collider tile in hitColliders) {
             if (!_tileManager.HasBeenRevealed(tile.gameObject, revealedTilesInRun)
-                && (tile.gameObject.CompareTag("Floor")
-                    || tile.gameObject.CompareTag("Obstacle")
-                    || tile.gameObject.CompareTag("Exit")
-                    || tile.gameObject.CompareTag("Wall"))) {
+                && tile.gameObject.CompareTag("MazeCell")) {
                 needMapUpdate = true;
                 _tileManager.AddToRevealedTiles(tile.gameObject, revealedTilesInRun);
             }
@@ -328,19 +339,23 @@ public class GameManager : MonoBehaviour {
 
     private void InstantiatePlayer() {
         // Get floor tiles
-        List<GameObject> floorTiles = _tileManager.GetTilesByType("Floor");
-        floorTiles = floorTiles.OrderBy(t => t.GetComponent<Tile>().score).ToList();
+        List<GameObject> floorTiles = new List<GameObject>();
+        foreach (MazeCell mazeCell in _tileManager.mazeCells) {
+            floorTiles.Add(mazeCell.gameObject);
+        }
+
+        floorTiles = floorTiles.OrderBy(t => t.GetComponent<MazeCell>().score).ToList();
         // Get 10 % furthest tiles
         int index = floorTiles.Count - Random.Range(1, (int) Math.Round(floorTiles.Count / 10f));
         GameObject tile = floorTiles[index];
         Vector3 position = tile.transform.position;
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(
             position.x,
-            0,
+            0.5f,
             position.z
         ), Quaternion.identity);
         player = playerTransform.gameObject;
-        currentTile = tile;
+        currentCell = tile.GetComponent<MazeCell>();
         _playerLamp = player.GetComponentInChildren<Light>();
         _playerLamp.enabled = false;
         _playerLamp.range *= playerData.lightMultiplier;
@@ -353,7 +368,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private void InstantiateBatteries() {
-        List<GameObject> availableFloorTiles = _tileManager.GetTilesByType("Floor");
+        List<GameObject> availableFloorTiles = _tileManager.GetAllTiles();
         foreach (Fragment fragment in mapFragments) {
             availableFloorTiles.Remove(GameObject.Find(fragment.spawnTile));
         }
@@ -392,7 +407,7 @@ public class GameManager : MonoBehaviour {
         }
 
         if (fragment.arrowRevealed) {
-            InstantiateArrow(currentTile.transform, currentTile.GetComponent<Tile>().action);
+            InstantiateArrow(currentCell.transform, currentCell.GetComponent<MazeCell>().action);
         }
 
         if (mapFragments.Where(fr => fr.discovered).ToList().Count == mapFragments.Count) {
@@ -403,6 +418,7 @@ public class GameManager : MonoBehaviour {
             allFragmentsPickedUp = true;
         }
 
+        Debug.Log($"Picking up fragment: {fragmentIn}");
         Destroy(fragmentIn);
     }
 

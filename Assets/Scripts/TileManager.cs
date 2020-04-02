@@ -5,72 +5,91 @@ using UnityEngine;
 public class TileManager : MonoBehaviour {
     private GameObject _environment;
     private GameManager _gameManager;
-    public List<GameObject> floorTiles;
-
+    public MazeCell[,] mazeCells;
+    private int _mazeRow;
+    private int _mazeColumn;
     private void Start() {
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
+    public void SetMazeCells(MazeCell[,] mazeCells, int mazeRow, int mazeColumn) {
+        this.mazeCells = mazeCells;
+        _mazeColumn = mazeColumn;
+        _mazeRow = mazeRow;
+    }
+
     public int GetMapSize() {
-        GameObject[] wallTiles = GameObject.FindGameObjectsWithTag ("Wall");
-        GameObject[] obstacleTiles = GameObject.FindGameObjectsWithTag ("Obstacle");
-        GameObject[] floorTiles = GameObject.FindGameObjectsWithTag ("Floor");
-        GameObject[] exitTile = GameObject.FindGameObjectsWithTag ("Exit");
-        GameObject[] mapElements = wallTiles.Concat (obstacleTiles).Concat (floorTiles).Concat (exitTile).ToArray ();
-        return mapElements.Length;
+        return mazeCells.Length;
     }
     
-    private void InstantiateFloorTiles() {
-        floorTiles = GameObject.FindGameObjectsWithTag("Floor").ToList();
-        foreach (GameObject tile in floorTiles) {
-            tile.GetComponent<Tile>().score = floorTiles.Count;
-            tile.GetComponent<Tile>().action = null;
+    private void InstantiateTilesScores() {
+        foreach (MazeCell cell in mazeCells) {
+            cell.score = 0;
+            cell.action = null;
         }
     }
 
-    private List<GameObject> GetNeighborWalkableTiles(GameObject tile) {
-        List<GameObject> neighborTiles = new List<GameObject>();
-        List<Vector3> directions = new List<Vector3> { Vector3.back, Vector3.forward, Vector3.left, Vector3.right };
-        foreach (Vector3 direction in directions) {
-            if (!Physics.Raycast(tile.transform.position, direction, out RaycastHit hit, 1)) continue;
-            if (hit.collider.gameObject.CompareTag("Floor") || hit.collider.gameObject.CompareTag("Exit"))
-                neighborTiles.Add(hit.collider.gameObject);
+    private List<MazeCell> GetNeighborWalkableTiles(MazeCell mazecell) {
+        // Returns the neighbor tiles that the player can directly reach
+        List<MazeCell> neighborTiles = new List<MazeCell>();
+
+        if (!mazecell.northWall && !mazeCells[(int)mazecell.transform.position.x-1, (int) mazecell.transform.position.z].southWall) {
+            neighborTiles.Add(mazeCells[(int)mazecell.transform.position.x-1, (int) mazecell.transform.position.z]);
         }
+        if (!mazecell.southWall && !mazeCells[(int)mazecell.transform.position.x+1, (int) mazecell.transform.position.z].northWall) {
+            neighborTiles.Add(mazeCells[(int)mazecell.transform.position.x+1, (int) mazecell.transform.position.z]);
+        }
+        if (!mazecell.westWall && !mazeCells[(int)mazecell.transform.position.x, (int) mazecell.transform.position.z-1].eastWall) {
+            neighborTiles.Add(mazeCells[(int)mazecell.transform.position.x, (int) mazecell.transform.position.z-1]);
+        }
+        if (!mazecell.eastWall && !mazeCells[(int)mazecell.transform.position.x, (int) mazecell.transform.position.z+1].westWall) {
+            neighborTiles.Add(mazeCells[(int)mazecell.transform.position.x, (int) mazecell.transform.position.z+1]);
+        }
+        
         return neighborTiles;
     }
     
-    public List<GameObject> GetNeighborTiles(GameObject tile) {
+    public List<GameObject> GetNeighborTiles(GameObject mazeCell) {
         List<GameObject> neighborTiles = new List<GameObject>();
-        List<Vector3> directions = new List<Vector3> { Vector3.back, Vector3.forward, Vector3.left, Vector3.right };
-        foreach (Vector3 direction in directions) {
-            if (!Physics.Raycast(tile.transform.position, direction, out RaycastHit hit, 1)) continue;
-            GameObject neighbour = hit.collider.gameObject;
-            if(neighbour.CompareTag("Floor") || neighbour.CompareTag("Exit") || neighbour.CompareTag("Obstacle") ||  neighbour.CompareTag("Wall"))
-                neighborTiles.Add(hit.collider.gameObject);
+        if (mazeCell.transform.position.x - 1 > 0) {
+            MazeCell northCell = mazeCells[(int) mazeCell.transform.position.x - 1, (int) mazeCell.transform.position.z];
+            if (northCell) neighborTiles.Add(northCell.gameObject);        
+        }
+        if (mazeCell.transform.position.x + 1 < _mazeRow) {
+            MazeCell southCell = mazeCells[(int) mazeCell.transform.position.x + 1, (int) mazeCell.transform.position.z];
+            if (southCell) neighborTiles.Add(southCell.gameObject);
+        }
+        if (mazeCell.transform.position.z - 1 > 0) {
+            MazeCell westCell = mazeCells[(int) mazeCell.transform.position.x, (int) mazeCell.transform.position.z - 1];
+            if (westCell) neighborTiles.Add(westCell.gameObject);        
+        }
+        if (mazeCell.transform.position.z + 1 < _mazeColumn) {
+            MazeCell eastCell = mazeCells[(int) mazeCell.transform.position.x, (int) mazeCell.transform.position.z + 1];
+            if (eastCell) neighborTiles.Add(eastCell.gameObject);
         }
         return neighborTiles;
     }
     public void DoPathPlanning() {
-        InstantiateFloorTiles();
+        InstantiateTilesScores();
         bool updated;
         do {
             updated = false;
-            foreach (GameObject tile in floorTiles) {
+            foreach (MazeCell mazeCell in  mazeCells) {
                 // Check Neighbor tiles
-                List<GameObject> neighborTiles = GetNeighborWalkableTiles(tile);
-                foreach (GameObject neighborTile in neighborTiles) {
-                    if (neighborTile.CompareTag("Exit")) {
-                        if (tile.GetComponent<Tile>().score == 1) continue;
-                        tile.GetComponent<Tile>().score = 1;
-                        SetAction(tile, neighborTile);
+                List<MazeCell> neighborTiles = GetNeighborWalkableTiles(mazeCell);
+                foreach (MazeCell neighborCell in neighborTiles) {
+                    if (neighborCell.isExit) {
+                        if (mazeCell.score == 1) continue;
+                        mazeCell.score = 1;
+                        SetAction(mazeCell, neighborCell);
                         // gameManager.InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);
                         updated = true;
                     } else if (
-                        neighborTile.GetComponent<Tile>().score < tile.GetComponent<Tile>().score
-                        && tile.GetComponent<Tile>().score != neighborTile.GetComponent<Tile>().score + 1
+                        neighborCell.score < mazeCell.score
+                        && mazeCell.score != neighborCell.score + 1
                         ) {
-                        tile.GetComponent<Tile>().score = neighborTile.GetComponent<Tile>().score + 1;
-                        SetAction(tile, neighborTile);
+                        mazeCell.score = neighborCell.score + 1;
+                        SetAction(mazeCell, neighborCell);
                         // gameManager.InstantiateArrow(tile.transform, tile.GetComponent<Tile>().action);
                         updated = true;
                     }
@@ -78,32 +97,29 @@ public class TileManager : MonoBehaviour {
             }
         } while (updated) ;
     }
-    private void SetAction(GameObject tile, GameObject neighborTile) {
-        if (neighborTile.transform.position.z > tile.transform.position.z) {
-            tile.GetComponent<Tile>().action = "FORWARD";
-        } else if (neighborTile.transform.position.z < tile.transform.position.z) {
-            tile.GetComponent<Tile>().action = "BACKWARD";
-        } else if (neighborTile.transform.position.x > tile.transform.position.x) {
-            tile.GetComponent<Tile>().action = "RIGHT";
-        } else if (neighborTile.transform.position.x < tile.transform.position.x) {
-            tile.GetComponent<Tile>().action = "LEFT";
+    private void SetAction(MazeCell cell, MazeCell neighborCell) {
+        if (neighborCell.transform.position.z > cell.transform.position.z) {
+            cell.action = "FORWARD";
+        } else if (neighborCell.transform.position.z < cell.transform.position.z) {
+            cell.action = "BACKWARD";
+        } else if (neighborCell.transform.position.x > cell.transform.position.x) {
+            cell.action = "RIGHT";
+        } else if (neighborCell.transform.position.x < cell.transform.position.x) {
+            cell.action = "LEFT";
         }
-    }
-    public List<GameObject> GetTilesByType(string type) {
-        return new List<GameObject>(GameObject.FindGameObjectsWithTag (type));
     }
 
     public List<GameObject> GetAllTiles() {
-        List<GameObject> walls = GameObject.FindGameObjectsWithTag("Wall").ToList();
-        List<GameObject> obstacles = GameObject.FindGameObjectsWithTag("Obstacle").ToList();
-        List<GameObject> floors = GameObject.FindGameObjectsWithTag("Floor").ToList();
-        List<GameObject> exit = GameObject.FindGameObjectsWithTag("Exit").ToList();
-        return walls.Concat(obstacles.Concat(floors.Concat(exit))).ToList();
+        return GameObject.FindGameObjectsWithTag("MazeCell").ToList();
     }
 
-    public GameObject GetTileUnderPlayer () {
+    public MazeCell GetTileUnderPlayer () {
         Ray ray = new Ray (_gameManager.player.transform.position, Vector3.down);
-        return Physics.Raycast (ray, out RaycastHit hit, 10) ? hit.collider.gameObject : null;
+        Physics.Raycast(ray, out RaycastHit hit, 10);
+        if (hit.collider) {
+            return hit.collider.transform.parent.GetComponent<MazeCell>();
+        }
+        return null;
     }
 
     public void AddToRevealedTiles (GameObject tile, List<GameObject> revealedTiles) {

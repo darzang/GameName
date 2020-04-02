@@ -8,7 +8,6 @@ public class MenuManager : MonoBehaviour {
     private TextMeshPro _text;
     public GameObject player;
     private Animation _anim;
-    public GameObject ceiling;
     public PlayerData playerData;
     public GameObject batteryMaxText;
     public GameObject batteryUseText;
@@ -24,7 +23,9 @@ public class MenuManager : MonoBehaviour {
         StartCoroutine(nameof(OpenEyes));
         InstantiatePlayerPrefs();
 
-        ceiling.SetActive(true);
+        foreach (GameObject mazeCell in GameObject.FindGameObjectsWithTag("MazeCell")) {
+            mazeCell.transform.Find("Ceiling").gameObject.SetActive(true);
+        }
         _playerLamp = player.GetComponentInChildren<Light>();
         _playerSoundsAudioSource = player.transform.Find("SoundsAudioSource").GetComponent<AudioSource>();
         playerData = FileManager.LoadPlayerDataFile();

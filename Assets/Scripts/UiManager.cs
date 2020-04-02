@@ -214,13 +214,13 @@ public class UiManager : MonoBehaviour {
                     existingMiniMapTile.GetComponent<Image>().sprite = playerSprite;
                 }
                 else {
-                    if (tileObject == _gameManager.previousTile) {
+                    if (tileObject == _gameManager.previousCell) {
                         existingMiniMapTile.GetComponent<Image>().sprite = floorSprite;
                     }
 
                     existingMiniMapTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
-                        _tileManager.GetRelativePosition(_tileManager.GetTileUnderPlayer(), tile)[0] * 10,
-                        _tileManager.GetRelativePosition(_tileManager.GetTileUnderPlayer(), tile)[1] * 10,
+                        _tileManager.GetRelativePosition(_tileManager.GetTileUnderPlayer().gameObject, tile)[0] * 10,
+                        _tileManager.GetRelativePosition(_tileManager.GetTileUnderPlayer().gameObject, tile)[1] * 10,
                         0);
                 }
             }
@@ -241,8 +241,8 @@ public class UiManager : MonoBehaviour {
                 }
                 else {
                     newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
-                        _tileManager.GetRelativePosition(_tileManager.GetTileUnderPlayer(), tile)[0] * 10,
-                        _tileManager.GetRelativePosition(_tileManager.GetTileUnderPlayer(), tile)[1] * 10,
+                        _tileManager.GetRelativePosition(_tileManager.GetTileUnderPlayer().gameObject, tile)[0] * 10,
+                        _tileManager.GetRelativePosition(_tileManager.GetTileUnderPlayer().gameObject, tile)[1] * 10,
                         0);
                 }
 
@@ -264,7 +264,7 @@ public class UiManager : MonoBehaviour {
          */
         Sprite tileSprite = GetTileSprite(tile.tag);
         Vector3 position = tile.CompareTag("Player")
-            ? _gameManager.currentTile.transform.position
+            ? _gameManager.currentCell.transform.position
             : tile.transform.position;
         GameObject existingTile = GameObject.Find($"Map_{tile.gameObject.name}");
         if (existingTile) Destroy(existingTile);
@@ -290,7 +290,7 @@ public class UiManager : MonoBehaviour {
     public void DrawMap(List<string> tiles) {
         foreach (string tileName in tiles) {
             GameObject tile = GameObject.Find(tileName);
-            if (tile == _gameManager.currentTile) {
+            if (tile == _gameManager.currentCell) {
                 AddTileToMap(_gameManager.player);
                 continue;
             }
@@ -312,7 +312,7 @@ public class UiManager : MonoBehaviour {
             case "Exit":
                 return exitSprite;
             default:
-                Debug.LogError("TAG_NOT_FOUND_FOR_TILE: " + tileTag);
+                Debug.LogWarning("TAG_NOT_FOUND_FOR_TILE: " + tileTag);
                 return floorSprite;
         }
     }
