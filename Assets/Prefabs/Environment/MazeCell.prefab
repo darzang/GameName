@@ -335,6 +335,7 @@ MonoBehaviour:
   westWall: {fileID: 2747608356673376025}
   floor: {fileID: 3375223333666798250}
   ceiling: {fileID: 2626351558632526378}
+  arrow: {fileID: 0}
 --- !u!1 &6208088601433975260
 GameObject:
   m_ObjectHideFlags: 0

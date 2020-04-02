@@ -12,7 +12,7 @@ public class FragmentManager : MonoBehaviour {
     public Material obstacleMaterial;
     public Transform fragmentPrefab;
 
-    public List<Fragment> GenerateRandomFragments(List<GameObject> tiles, TileManager tileManager) {
+    public List<Fragment> GenerateRandomFragments(List<GameObject> tiles, MazeCellManager mazeCellManager) {
         int nbFragments = (int) Math.Round(tiles.Count / 15.0);
         int minFragmentSize = (int) Math.Round((double) (tiles.Count / nbFragments));
         List<Fragment> fragments = new List<Fragment>();
@@ -43,7 +43,7 @@ public class FragmentManager : MonoBehaviour {
                 // Get all neighbor tiles of current tiles in fragments
                 List<GameObject> availableNeighborTiles = new List<GameObject>();
                 foreach (GameObject tile in tilesInFragments) {
-                    List<GameObject> neighborTiles = tileManager.GetNeighborTiles(tile);
+                    List<GameObject> neighborTiles = mazeCellManager.GetNeighborTiles(tile);
                     foreach (GameObject neighborTile in neighborTiles) {
                         if (!tilesInFragments.Find(t => t == neighborTile)
                             && !availableNeighborTiles.Find(t => t == neighborTile)

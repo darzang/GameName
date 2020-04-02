@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -17,7 +18,7 @@ public class SceneGenerator : MonoBehaviour {
     private int _currentRow = 0;
     private int _currentColumn = 0;
     private bool _courseComplete = false;
-    private bool hideCeiling = false;
+    private bool hideCeiling = true;
 
     private void Start() {
         _maze = GameObject.Find("Maze");
@@ -34,7 +35,7 @@ public class SceneGenerator : MonoBehaviour {
         uiManagerObject.gameObject.name = "UIManager";
         Transform tileManagerObject = Instantiate(tileManagerPrefab, Vector3.zero, Quaternion.identity);
         tileManagerObject.gameObject.name = "TileManager";
-        tileManagerObject.GetComponent<TileManager>().SetMazeCells(_mazeCells, mazeRow, mazeColumn);
+        tileManagerObject.GetComponent<MazeCellManager>().SetMazeCells(_mazeCells, mazeRow, mazeColumn);
         Transform gameManagerObject = Instantiate(gameManagerPrefab, Vector3.zero, Quaternion.identity);
         gameManagerObject.gameObject.name = "GameManager";
     }
@@ -45,6 +46,7 @@ public class SceneGenerator : MonoBehaviour {
             _maze.transform);
         mazeCell.gameObject.name = $"MazeCell_{row}_{column}";
         mazeCell.GetComponent<MazeCell>().ceiling.SetActive(!hideCeiling);
+        mazeCell.GetComponent<MazeCell>().score = Int32.MaxValue;
         return mazeCell.gameObject;
     }
 

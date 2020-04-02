@@ -43,4 +43,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e96c64299a59884bad89f8487323fa4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  floorTiles: []
+  arrowPrefab: {fileID: 3571792468748946464, guid: 1b264faa0166ec340babe252fb9b46b7,
+    type: 3}

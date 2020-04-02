@@ -8,13 +8,12 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
 // Managers
-    private TileManager _tileManager;
+    private MazeCellManager _mazeCellManager;
     private FragmentManager _fragmentManager;
     private UiManager _uiManager;
 
     // Player components
     public Transform playerPrefab;
-    public Transform arrowPrefab;
     public Transform batteryPrefab;
     public GameObject player;
     private GameObject _eyeLids;
@@ -40,15 +39,14 @@ public class GameManager : MonoBehaviour {
     public int tryCount;
     public int tryMax;
     public List<Fragment> mapFragments = new List<Fragment>();
-    public List<GameObject> revealedTilesInRun = new List<GameObject>();
-    public List<string> totalDiscoveredTiles = new List<string>();
-
+    public List<MazeCell> revealedCellsInRun = new List<MazeCell>();
+    public List<string> totalDiscoveredCellsNames = new List<string>();
+    public List<MazeCell> totalDiscoveredCells = new List<MazeCell>();
     // Environment
     public PlayerData playerData;
     public LevelData levelData;
     public bool gameIsPaused;
     public bool allFragmentsPickedUp;
-    private GameObject _arrows;
     private GameObject _batteries;
     private bool _isDead;
     public int levelNumber;
@@ -57,31 +55,30 @@ public class GameManager : MonoBehaviour {
 
     private void Awake() {
         tryCount = 1;
-        _tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
+        _mazeCellManager = GameObject.Find("TileManager").GetComponent<MazeCellManager>();
         _uiManager = GameObject.Find("UIManager").GetComponent<UiManager>();
         _fragmentManager = GameObject.Find("FragmentManager").GetComponent<FragmentManager>();
-        _arrows = GameObject.Find("Arrows").gameObject;
         _batteries = GameObject.Find("Batteries").gameObject;
 
         levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
         if (levelData == null) {
             Debug.Log("No Data to load");
-            mapFragments = _fragmentManager.GenerateRandomFragments(_tileManager.GetAllTiles(), _tileManager);
+            mapFragments = _fragmentManager.GenerateRandomFragments(_mazeCellManager.GetAllTiles(), _mazeCellManager);
         }
         else {
             Debug.Log("Data to load");
             if (levelData.mapFragments == null) {
-                mapFragments = _fragmentManager.GenerateRandomFragments(_tileManager.GetAllTiles(), _tileManager);
+                mapFragments = _fragmentManager.GenerateRandomFragments(_mazeCellManager.GetAllTiles(), _mazeCellManager);
             }
             else {
                 mapFragments = levelData.mapFragments;
                 allFragmentsPickedUp = levelData.allFragmentsPickedUp;
-                totalDiscoveredTiles = levelData.totalDiscoveredTiles;
+                totalDiscoveredCellsNames = levelData.totalDiscoveredTiles;
             }
 
             tryCount = levelData.tryCount + 1;
             Debug.Log(
-                $"Data loaded: try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {totalDiscoveredTiles.Count}");
+                $"Data loaded: try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {totalDiscoveredCellsNames.Count}");
         }
 
         string sceneName = SceneManager.GetActiveScene().name;
@@ -94,7 +91,7 @@ public class GameManager : MonoBehaviour {
             if (!fragment.discovered) _fragmentManager.InstantiateFragment(fragment);
             if (!fragment.arrowRevealed) continue;
             GameObject tile = GameObject.Find(fragment.spawnTile);
-            InstantiateArrow(tile.transform, tile.GetComponent<MazeCell>().action);
+            _mazeCellManager.InstantiateArrow(tile.GetComponent<MazeCell>());
         }
 
         playerData = FileManager.LoadPlayerDataFile();
@@ -102,7 +99,7 @@ public class GameManager : MonoBehaviour {
 
 
     private void Start() {
-        _tileManager.DoPathPlanning();
+        _mazeCellManager.DoPathPlanning();
         InstantiatePlayer();
 
         if (PlayerPrefs.GetInt("EnableSounds") == 0) {
@@ -129,11 +126,11 @@ public class GameManager : MonoBehaviour {
         }
 
         // Is the player on a new tile ?
-        if (_tileManager.GetTileUnderPlayer() != currentCell || CheckForTileDiscovery()) {
+        if (_mazeCellManager.GetTileUnderPlayer() != currentCell || CheckForTileDiscovery()) {
             previousCell = currentCell;
-            currentCell = _tileManager.GetTileUnderPlayer();
+            currentCell = _mazeCellManager.GetTileUnderPlayer();
             _uiManager.UpdateMiniMap();
-            _uiManager.DrawMap(totalDiscoveredTiles);
+            _uiManager.DrawMap(totalDiscoveredCellsNames);
             if (currentCell) {
                 if (currentCell.isExit) {
                     if (playerData.levelCompleted < levelNumber) {
@@ -144,7 +141,7 @@ public class GameManager : MonoBehaviour {
 
                     FileManager.SavePlayerDataFile(playerData);
                     FileManager.SaveLevelDataFile(
-                        new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp),
+                        new LevelData(tryCount, mapFragments, totalDiscoveredCellsNames, allFragmentsPickedUp),
                         SceneManager.GetActiveScene().name);
                     _uiManager.ShowExitUi();
                     _playerSoundsAudioSource.PlayOneShot(congratulationsAudio);
@@ -171,10 +168,9 @@ public class GameManager : MonoBehaviour {
             _playerLamp.enabled = !_playerLamp.enabled;
         }
 
-        // if (Input.GetMouseButtonDown(1)) {
-        //     onboardingStage++;
-        //     Debug.Log(($"Onboarding stage: {onboardingStage}"));
-        // }
+        if (Input.GetMouseButtonDown(1)) {
+            _mazeCellManager.ShowCeiling(false);
+        }
 
         if (player.GetComponent<Player>().fuelCount <= 0 && !_isDead) {
             _isDead = true;
@@ -289,10 +285,10 @@ public class GameManager : MonoBehaviour {
         bool needMapUpdate = false;
         Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, playerData.discoveryRange);
         foreach (Collider tile in hitColliders) {
-            if (!_tileManager.HasBeenRevealed(tile.gameObject, revealedTilesInRun)
+            if (!_mazeCellManager.HasBeenRevealed(tile.GetComponent<MazeCell>(), revealedCellsInRun)
                 && tile.gameObject.CompareTag("MazeCell")) {
                 needMapUpdate = true;
-                _tileManager.AddToRevealedTiles(tile.gameObject, revealedTilesInRun);
+                _mazeCellManager.AddToRevealedTiles(tile.GetComponent<MazeCell>(), revealedCellsInRun);
             }
         }
 
@@ -302,7 +298,7 @@ public class GameManager : MonoBehaviour {
     public void Retry() {
         FileManager.SaveLevelDataFile(
             tryCount < tryMax
-                ? new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp)
+                ? new LevelData(tryCount, mapFragments, totalDiscoveredCellsNames, allFragmentsPickedUp)
                 : new LevelData(0, null, null, allFragmentsPickedUp),
             SceneManager.GetActiveScene().name
         );
@@ -317,7 +313,7 @@ public class GameManager : MonoBehaviour {
     public void GiveUp() {
         if (tryCount < tryMax) {
             FileManager.SaveLevelDataFile(
-                new LevelData(tryCount, mapFragments, totalDiscoveredTiles, allFragmentsPickedUp),
+                new LevelData(tryCount, mapFragments, totalDiscoveredCellsNames, allFragmentsPickedUp),
                 SceneManager.GetActiveScene().name);
         }
         else {
@@ -340,7 +336,7 @@ public class GameManager : MonoBehaviour {
     private void InstantiatePlayer() {
         // Get floor tiles
         List<GameObject> floorTiles = new List<GameObject>();
-        foreach (MazeCell mazeCell in _tileManager.mazeCells) {
+        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells) {
             floorTiles.Add(mazeCell.gameObject);
         }
 
@@ -368,7 +364,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private void InstantiateBatteries() {
-        List<GameObject> availableFloorTiles = _tileManager.GetAllTiles();
+        List<GameObject> availableFloorTiles = _mazeCellManager.GetAllTiles();
         foreach (Fragment fragment in mapFragments) {
             availableFloorTiles.Remove(GameObject.Find(fragment.spawnTile));
         }
@@ -392,12 +388,12 @@ public class GameManager : MonoBehaviour {
         fragment.discovered = true;
         _playerSoundsAudioSource.PlayOneShot(fragmentPickupAudio);
         fragment.tiles.ForEach(tile => {
-            if (totalDiscoveredTiles.Count == 0 || !totalDiscoveredTiles.Contains(tile)) {
-                totalDiscoveredTiles.Add(tile);
+            if (totalDiscoveredCellsNames.Count == 0 || !totalDiscoveredCellsNames.Contains(tile)) {
+                totalDiscoveredCellsNames.Add(tile);
             }
         });
-        _uiManager.DrawMap(totalDiscoveredTiles);
-        _uiManager.UpdateDiscoveryText(totalDiscoveredTiles.Count, _tileManager.GetMapSize());
+        _uiManager.DrawMap(totalDiscoveredCellsNames);
+        _uiManager.UpdateDiscoveryText(totalDiscoveredCellsNames.Count, _mazeCellManager.GetMapSize());
         _uiManager.AddInfoMessage("Fragment picked up");
         // Randomly spawn arrow
 
@@ -407,7 +403,7 @@ public class GameManager : MonoBehaviour {
         }
 
         if (fragment.arrowRevealed) {
-            InstantiateArrow(currentCell.transform, currentCell.GetComponent<MazeCell>().action);
+            _mazeCellManager.InstantiateArrow(currentCell);
         }
 
         if (mapFragments.Where(fr => fr.discovered).ToList().Count == mapFragments.Count) {
@@ -428,35 +424,5 @@ public class GameManager : MonoBehaviour {
         _playerSoundsAudioSource.PlayOneShot(batteryPickupAudio);
         Destroy(batteryIn);
     }
-
-    private void InstantiateArrow(Transform tileTransform, string direction) {
-        if (GameObject.Find($"Arrow_{tileTransform.gameObject.name}")) {
-            Destroy(GameObject.Find($"Arrow_{tileTransform.gameObject.name}"));
-        }
-
-        float angle = 0;
-        switch (direction) {
-            case "BACKWARD":
-                angle = 0;
-                break;
-            case "LEFT":
-                angle = 90;
-                break;
-            case "FORWARD":
-                angle = 180;
-                break;
-            case "RIGHT":
-                angle = 270;
-                break;
-        }
-
-        Transform arrow = Instantiate(arrowPrefab, new Vector3(
-            tileTransform.position.x,
-            tileTransform.position.y + 0.05f,
-            tileTransform.position.z
-        ), Quaternion.identity);
-        arrow.name = $"Arrow_{tileTransform.gameObject.name}";
-        arrow.transform.eulerAngles = new Vector3(0, angle, 0);
-        arrow.SetParent(_arrows.transform);
-    }
+    
 }

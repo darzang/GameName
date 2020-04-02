@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UiManager : MonoBehaviour {
-    private TileManager _tileManager;
+    private MazeCellManager _mazeCellManager;
     private GameManager _gameManager;
     [HideInInspector] public TextMeshProUGUI onboardingText;
     private GameObject _batteryLevelText;
@@ -94,7 +94,7 @@ public class UiManager : MonoBehaviour {
 
     public void Instantiation() {
         // Managers
-        _tileManager = GameObject.Find("TileManager").GetComponent<TileManager>();
+        _mazeCellManager = GameObject.Find("TileManager").GetComponent<MazeCellManager>();
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         // Button listeners
         _player = _gameManager.player.GetComponent<Player>();
@@ -103,10 +103,10 @@ public class UiManager : MonoBehaviour {
         _pauseResumeButton.onClick.AddListener(ResumeGame);
         _pauseRetryButton.onClick.AddListener(_gameManager.Retry);
         _pauseBackButton.onClick.AddListener(_gameManager.GiveUp);
-        if (_gameManager.totalDiscoveredTiles.Count > 0) DrawMap(_gameManager.totalDiscoveredTiles);
+        if (_gameManager.totalDiscoveredCellsNames.Count > 0) DrawMap(_gameManager.totalDiscoveredCellsNames);
         _tryCountText.text = $"Try number {_gameManager.tryCount} / {_gameManager.tryMax}";
-        UpdateDiscoveryText(_gameManager.totalDiscoveredTiles.Count, _tileManager.GetMapSize());
-        if (_gameManager.totalDiscoveredTiles.Count > 0) AddInfoMessage("Previous data loaded");
+        UpdateDiscoveryText(_gameManager.totalDiscoveredCellsNames.Count, _mazeCellManager.GetMapSize());
+        if (_gameManager.totalDiscoveredCellsNames.Count > 0) AddInfoMessage("Previous data loaded");
         _nextLevelButton.onClick.AddListener(_gameManager.NextLevel);
         _backToMenuButton.onClick.AddListener(_gameManager.BackToMenu);
     }
@@ -156,8 +156,8 @@ public class UiManager : MonoBehaviour {
     }
 
     public void UpdateMiniMap() {
-        foreach (GameObject tile in _gameManager.revealedTilesInRun) {
-            if (tile) AddTileToMiniMap(tile);
+        foreach (MazeCell cell in _gameManager.revealedCellsInRun) {
+            if (cell) AddTileToMiniMap(cell);
         }
     }
 
@@ -189,7 +189,7 @@ public class UiManager : MonoBehaviour {
         yield return null;
     }
 
-    private void AddTileToMiniMap(GameObject tile) {
+    private void AddTileToMiniMap(MazeCell tile) {
         GameObject existingMiniMapTile = GameObject.Find($"MiniMap_{tile.gameObject.name}");
 
         float distance = Vector3.Distance(tile.transform.position, _player.gameObject.transform.position);
@@ -200,8 +200,8 @@ public class UiManager : MonoBehaviour {
             }
         }
         else {
-            if (!_tileManager.HasBeenRevealed(tile, _gameManager.revealedTilesInRun)) {
-                _tileManager.AddToRevealedTiles(tile, _gameManager.revealedTilesInRun);
+            if (!_mazeCellManager.HasBeenRevealed(tile, _gameManager.revealedCellsInRun)) {
+                _mazeCellManager.AddToRevealedTiles(tile, _gameManager.revealedCellsInRun);
             }
 
             // Instantiate new tile and anchor it in the middle of the panel
@@ -209,7 +209,7 @@ public class UiManager : MonoBehaviour {
             if (existingMiniMapTile) {
                 GameObject tileObject = GameObject.Find(existingMiniMapTile.name.Substring(8));
                 existingMiniMapTile.GetComponent<Image>().enabled = true;
-                if (tileObject == _tileManager.GetTileUnderPlayer()) {
+                if (tileObject == _mazeCellManager.GetTileUnderPlayer()) {
                     existingMiniMapTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
                     existingMiniMapTile.GetComponent<Image>().sprite = playerSprite;
                 }
@@ -219,8 +219,8 @@ public class UiManager : MonoBehaviour {
                     }
 
                     existingMiniMapTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
-                        _tileManager.GetRelativePosition(_tileManager.GetTileUnderPlayer().gameObject, tile)[0] * 10,
-                        _tileManager.GetRelativePosition(_tileManager.GetTileUnderPlayer().gameObject, tile)[1] * 10,
+                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)[0] * 10,
+                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)[1] * 10,
                         0);
                 }
             }
@@ -235,14 +235,14 @@ public class UiManager : MonoBehaviour {
                 newTile.GetComponent<RectTransform>().rotation = Quaternion.Euler(0f, 0f, 0f);
 
                 // Set the position of the new tile
-                if (tile == _tileManager.GetTileUnderPlayer()) {
+                if (tile == _mazeCellManager.GetTileUnderPlayer().gameObject) {
                     newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
                     tileSprite = playerSprite;
                 }
                 else {
                     newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
-                        _tileManager.GetRelativePosition(_tileManager.GetTileUnderPlayer().gameObject, tile)[0] * 10,
-                        _tileManager.GetRelativePosition(_tileManager.GetTileUnderPlayer().gameObject, tile)[1] * 10,
+                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)[0] * 10,
+                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)[1] * 10,
                         0);
                 }
 
@@ -290,7 +290,7 @@ public class UiManager : MonoBehaviour {
     public void DrawMap(List<string> tiles) {
         foreach (string tileName in tiles) {
             GameObject tile = GameObject.Find(tileName);
-            if (tile == _gameManager.currentCell) {
+            if (tile.GetComponent<MazeCell>() == _gameManager.currentCell) {
                 AddTileToMap(_gameManager.player);
                 continue;
             }
