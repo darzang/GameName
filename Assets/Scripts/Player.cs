@@ -11,13 +11,13 @@ public class Player : MonoBehaviour {
     public GameManager gameManager;
     private bool _doubleTap;
     private float _doubleTapTime;
+
     private void Awake() {
         _playerLamp = GameObject.Find("PlayerLamp").GetComponent<Light>();
         if (SceneManager.GetActiveScene().name != "MenuScene") {
             gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
             fuelCount = gameManager.playerData.batteryMax;
-        }
-        else {
+        } else {
             _playerLamp.enabled = true;
         }
 
@@ -40,6 +40,7 @@ public class Player : MonoBehaviour {
                 fuelCount += 300;
                 if (fuelCount > gameManager.playerData.batteryMax) fuelCount = gameManager.playerData.batteryMax;
             }
+
             _doubleTap = false;
         }
 

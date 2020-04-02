@@ -8,13 +8,13 @@ public class MazeCell : MonoBehaviour {
     public GameObject northWall, southWall, eastWall, westWall, floor, ceiling, arrow;
 
     public void DestroyWallIfExists(GameObject wall) {
-        if (wall) {
-            if (northWall && wall == northWall) northWall = null;
-            if (southWall && wall == southWall) southWall = null;
-            if (eastWall && wall == eastWall) eastWall = null;
-            if (westWall && wall == westWall) westWall = null;
-            Destroy(wall);
-        }
+        if (!wall) return;
+        if (northWall && wall == northWall) northWall = null;
+        if (southWall && wall == southWall) southWall = null;
+        if (eastWall && wall == eastWall) eastWall = null;
+        if (westWall && wall == westWall) westWall = null;
+        if (ceiling && wall == ceiling) ceiling = null;
+        Destroy(wall);
     }
 
     public void SetFloorColor(Color color) {
