@@ -163,7 +163,6 @@ public class MenuManager : MonoBehaviour {
     }
 
     public void HandleClick(GameObject button) {
-        Debug.Log($"Clicked on {button.name}");
         switch (button.name) {
             case "OptionsButton":
                 _anim.Play("MainToOptions");

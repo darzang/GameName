@@ -130,7 +130,7 @@ public class GameManager : MonoBehaviour {
             previousCell = currentCell;
             currentCell = _mazeCellManager.GetTileUnderPlayer();
             _uiManager.UpdateMiniMap();
-            _uiManager.DrawMap(totalDiscoveredCellsNames);
+            _uiManager.DrawMap(totalDiscoveredCells);
             if (currentCell) {
                 if (currentCell.isExit) {
                     if (playerData.levelCompleted < levelNumber) {
@@ -390,9 +390,10 @@ public class GameManager : MonoBehaviour {
         fragment.tiles.ForEach(tile => {
             if (totalDiscoveredCellsNames.Count == 0 || !totalDiscoveredCellsNames.Contains(tile)) {
                 totalDiscoveredCellsNames.Add(tile);
+                totalDiscoveredCells.Add(GameObject.Find(tile).GetComponent<MazeCell>());
             }
         });
-        _uiManager.DrawMap(totalDiscoveredCellsNames);
+        _uiManager.DrawMap(totalDiscoveredCells);
         _uiManager.UpdateDiscoveryText(totalDiscoveredCellsNames.Count, _mazeCellManager.GetMapSize());
         _uiManager.AddInfoMessage("Fragment picked up");
         // Randomly spawn arrow

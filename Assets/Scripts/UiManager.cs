@@ -106,11 +106,10 @@ public class UiManager : MonoBehaviour {
         _pauseResumeButton.onClick.AddListener(ResumeGame);
         _pauseRetryButton.onClick.AddListener(_gameManager.Retry);
         _pauseBackButton.onClick.AddListener(_gameManager.GiveUp);
-        if (_gameManager.totalDiscoveredCellsNames.Count > 0) {
-            DrawMap(_gameManager.totalDiscoveredCellsNames);
-            GameObject existingTile = GameObject.Find($"Map_MazeCell_6_9");
-            Debug.Log("Hey");
+        if (_gameManager.totalDiscoveredCells.Count > 0) {
+            DrawMap(_gameManager.totalDiscoveredCells);
         }
+
         _tryCountText.text = $"Try number {_gameManager.tryCount} / {_gameManager.tryMax}";
         UpdateDiscoveryText(_gameManager.totalDiscoveredCellsNames.Count, _mazeCellManager.GetMapSize());
         if (_gameManager.totalDiscoveredCellsNames.Count > 0) AddInfoMessage("Previous data loaded");
@@ -226,8 +225,10 @@ public class UiManager : MonoBehaviour {
                     }
 
                     existingMiniMapTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
-                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)[0] * 10,
-                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)[1] * 10,
+                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
+                            [0] * 10,
+                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
+                            [1] * 10,
                         0);
                 }
             }
@@ -248,8 +249,10 @@ public class UiManager : MonoBehaviour {
                 }
                 else {
                     newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
-                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)[0] * 10,
-                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)[1] * 10,
+                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
+                            [0] * 10,
+                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
+                            [1] * 10,
                         0);
                 }
 
@@ -265,45 +268,128 @@ public class UiManager : MonoBehaviour {
     }
 
     private void AddTileToMap(GameObject tile) {
-        Vector3 position = tile.CompareTag("Player")
-            ? _gameManager.currentCell.transform.position
-            : tile.transform.position;
+        MazeCell realCell = tile.GetComponent<MazeCell>();
+        Vector3 position = tile.transform.position;
         GameObject existingTile = GameObject.Find($"Map_{tile.gameObject.name}");
-        if (existingTile) {
-            // TODO: Only destroy if necessary
-            return;
-            //TODO: Maybe put this back later
-            Destroy(existingTile);
-        }
-        GameObject newTile = new GameObject($"Map_{tile.gameObject.name}");
-        SpriteRenderer floorRenderer = newTile.AddComponent<SpriteRenderer>();
-        newTile.transform.SetParent(_mapCanvas.transform);
-        floorRenderer.sprite = floorSprite;
-        newTile.transform.localPosition = new Vector3(
-        position.x * 10 + 5,
-        - (position.z * 10 + 35),
-        0
-        );
-        newTile.transform.localRotation = Quaternion.identity;
-        newTile.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-        newTile.layer = 5;
+        if (!existingTile) {
+            GameObject newCellObject = new GameObject($"Map_{tile.gameObject.name}");
+            SpriteRenderer floorRenderer = newCellObject.AddComponent<SpriteRenderer>();
+            newCellObject.transform.SetParent(_mapCanvas.transform);
+            floorRenderer.sprite = floorSprite;
+            if (realCell && realCell.isExit) floorRenderer.sprite = exitSprite;
+            newCellObject.transform.localPosition = new Vector3(
+                position.z * 10 + 5,
+                -(position.x * 10 + 35),
+                0
+            );
+            newCellObject.transform.localRotation = Quaternion.identity;
+            newCellObject.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+            newCellObject.layer = 5;
+            newCellObject.SetActive(true);
 
-        Debug.Log($"Added new tile to map: {newTile.name} \n {newTile.transform.rotation}");
-        newTile.SetActive(true);
-    }
-
-    public void DrawMap(List<string> tiles) {
-        foreach (string tileName in tiles) {
-            GameObject tile = GameObject.Find(tileName);
-            if (tile.GetComponent<MazeCell>() == _gameManager.currentCell) {
-                AddTileToMap(_gameManager.player);
+            // Add walls sprites for each wall of the cell
+            if (realCell) {
+                AddWallSprite(realCell, newCellObject.transform);
             }
-            else {
-                AddTileToMap(tile);
+            if (realCell == _gameManager.currentCell) {
+                Debug.Log("Adding player Sprite");
+                AddPlayerSprite(newCellObject.transform);
             }
         }
+        else {
+            if (realCell == _gameManager.currentCell) {
+                Debug.Log("Adding player Sprite");
+                AddPlayerSprite(existingTile.transform);
+            }
+        }
+
+
+
     }
-    
+
+    private void AddPlayerSprite(Transform canvasCell) {
+        MazeCell previousCell = _gameManager.previousCell;
+        if (previousCell) {
+            GameObject previousCellMap = GameObject.Find($"Map_{previousCell.gameObject.name}");
+            if(previousCellMap) Destroy(previousCellMap.transform.Find("Map_Player").gameObject);
+        }
+
+        GameObject playerObject = new GameObject("Map_Player");
+        playerObject.transform.SetParent(canvasCell);
+        SpriteRenderer playerSpriteRenderer = playerObject.AddComponent<SpriteRenderer>();
+        playerSpriteRenderer.sprite = playerSprite;
+        playerObject.transform.localPosition = new Vector3(0f, 0f, 0f);
+        playerObject.transform.localScale = new Vector3(1f, 1f, 1f);
+        Vector3 rotation = new Vector3(0f, 0f, 0f);
+        Quaternion rotationQuaternion = Quaternion.Euler(rotation);
+        playerObject.transform.localRotation = rotationQuaternion;
+        playerSpriteRenderer.sortingOrder = 1;
+    }
+
+    private void AddWallSprite(MazeCell cell, Transform canvasCell) {
+        MazeCell northCell =
+            _mazeCellManager.GetCellIfExists((int) cell.transform.position.x - 1, (int) cell.transform.position.z);
+        MazeCell southCell =
+            _mazeCellManager.GetCellIfExists((int) cell.transform.position.x + 1, (int) cell.transform.position.z);
+        MazeCell eastCell =
+            _mazeCellManager.GetCellIfExists((int) cell.transform.position.x, (int) cell.transform.position.z + 1);
+        MazeCell westCell =
+            _mazeCellManager.GetCellIfExists((int) cell.transform.position.x, (int) cell.transform.position.z - 1);
+        if (cell.northWall || (northCell && northCell.southWall)) {
+            GameObject northWallObject = new GameObject($"Map_{cell.gameObject.name}_North_Wall");
+            northWallObject.transform.SetParent(canvasCell);
+            SpriteRenderer northWallSprite = northWallObject.AddComponent<SpriteRenderer>();
+            northWallSprite.sprite = wallSprite;
+            northWallObject.transform.localPosition = new Vector3(0f, 5f, 0f);
+            northWallObject.transform.localScale = new Vector3(1f, 1f, 1f);
+            Vector3 rotation = new Vector3(0f, 0f, 90f);
+            Quaternion rotationQuaternion = Quaternion.Euler(rotation);
+            northWallObject.transform.localRotation = rotationQuaternion;
+            northWallSprite.sortingOrder = 1;
+        }
+
+        if (cell.southWall || (southCell && southCell.northWall)) {
+            GameObject southWallObject = new GameObject($"Map_{cell.gameObject.name}_South_Wall");
+            southWallObject.transform.SetParent(canvasCell);
+            SpriteRenderer southWallSprite = southWallObject.AddComponent<SpriteRenderer>();
+            southWallSprite.sprite = wallSprite;
+            southWallSprite.sortingOrder = 1;
+            southWallObject.transform.localPosition = new Vector3(0f, -5f, 0f);
+            southWallObject.transform.localScale = new Vector3(1f, 1f, 1f);
+            Vector3 rotation = new Vector3(0f, 0f, 90f);
+            Quaternion rotationQuaternion = Quaternion.Euler(rotation);
+            southWallObject.transform.localRotation = rotationQuaternion;
+        }
+
+        if (cell.eastWall || (eastCell && eastCell.westWall)) {
+            GameObject eastWallObject = new GameObject($"Map_{cell.gameObject.name}_East_Wall");
+            eastWallObject.transform.SetParent(canvasCell);
+            SpriteRenderer eastWallSprite = eastWallObject.AddComponent<SpriteRenderer>();
+            eastWallSprite.sprite = wallSprite;
+            eastWallObject.transform.localPosition = new Vector3(5f, 0f, 0f);
+            eastWallObject.transform.localRotation = Quaternion.identity;
+            eastWallObject.transform.localScale = new Vector3(1f, 1f, 1f);
+            eastWallSprite.sortingOrder = 1;
+        }
+
+        if (cell.westWall || (westCell && westCell.eastWall)) {
+            GameObject westWallObject = new GameObject($"Map_{cell.gameObject.name}_West_Wall");
+            westWallObject.transform.SetParent(canvasCell);
+            SpriteRenderer westWallSprite = westWallObject.AddComponent<SpriteRenderer>();
+            westWallSprite.sprite = wallSprite;
+            westWallObject.transform.localPosition = new Vector3(-5f, 0f, 0f);
+            westWallObject.transform.localRotation = Quaternion.identity;
+            westWallObject.transform.localScale = new Vector3(1f, 1f, 1f);
+            westWallSprite.sortingOrder = 1;
+        }
+    }
+
+    public void DrawMap(List<MazeCell> mazeCells) {
+        foreach (MazeCell mazeCell in mazeCells) {
+            AddTileToMap(mazeCell.gameObject);
+        }
+    }
+
     public void DrawWholeMap() {
         foreach (MazeCell cell in _mazeCellManager.mazeCells) {
             AddTileToMap(cell.gameObject);
@@ -381,6 +467,7 @@ public class UiManager : MonoBehaviour {
                 if (rectTransform.anchoredPosition.y == 80) {
                     Destroy(previousText.gameObject);
                 }
+
                 rectTransform.anchoredPosition = new Vector3(0, rectTransform.anchoredPosition.y + 20, 0);
             }
         }

@@ -31,7 +31,7 @@ public class MazeCellManager : MonoBehaviour {
         return row >= 0 && row < _mazeRow && column >= 0 && column < _mazeColumn;
     }
 
-    private MazeCell GetCellIfExists(int row, int column) {
+    public MazeCell GetCellIfExists(int row, int column) {
         if (CellIsAvailable(row, column)) return mazeCells[row, column];
         return null;
     }
