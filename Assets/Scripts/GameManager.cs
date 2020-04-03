@@ -169,7 +169,7 @@ public class GameManager : MonoBehaviour {
         }
 
         if (Input.GetMouseButtonDown(1)) {
-            _mazeCellManager.ShowCeiling(false);
+            _uiManager.DrawWholeMap();
         }
 
         if (player.GetComponent<Player>().fuelCount <= 0 && !_isDead) {

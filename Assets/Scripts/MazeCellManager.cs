@@ -158,6 +158,7 @@ public class MazeCellManager : MonoBehaviour {
         if (hit.collider) {
             return hit.collider.transform.parent.GetComponent<MazeCell>();
         }
+        Debug.LogWarning("No tile under player");
 
         return null;
     }

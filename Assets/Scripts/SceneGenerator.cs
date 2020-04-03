@@ -18,7 +18,7 @@ public class SceneGenerator : MonoBehaviour {
     private int _currentRow = 0;
     private int _currentColumn = 0;
     private bool _courseComplete = false;
-    private bool hideCeiling = true;
+    private bool hideCeiling = false;
 
     private void Start() {
         _maze = GameObject.Find("Maze");

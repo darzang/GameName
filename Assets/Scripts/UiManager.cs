@@ -93,17 +93,24 @@ public class UiManager : MonoBehaviour {
     }
 
     public void Instantiation() {
+        Debug.Log("UI Instantiation");
         // Managers
         _mazeCellManager = GameObject.Find("TileManager").GetComponent<MazeCellManager>();
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         // Button listeners
         _player = _gameManager.player.GetComponent<Player>();
+        _mainCanvas.GetComponent<Canvas>().worldCamera = _player.transform.Find("PlayerCamera").GetComponent<Camera>();
+        _mainCanvas.GetComponent<Canvas>().planeDistance = 0.1f;
         _retryButton.onClick.AddListener(_gameManager.Retry);
         _giveUpButton.onClick.AddListener(_gameManager.GiveUp);
         _pauseResumeButton.onClick.AddListener(ResumeGame);
         _pauseRetryButton.onClick.AddListener(_gameManager.Retry);
         _pauseBackButton.onClick.AddListener(_gameManager.GiveUp);
-        if (_gameManager.totalDiscoveredCellsNames.Count > 0) DrawMap(_gameManager.totalDiscoveredCellsNames);
+        if (_gameManager.totalDiscoveredCellsNames.Count > 0) {
+            DrawMap(_gameManager.totalDiscoveredCellsNames);
+            GameObject existingTile = GameObject.Find($"Map_MazeCell_6_9");
+            Debug.Log("Hey");
+        }
         _tryCountText.text = $"Try number {_gameManager.tryCount} / {_gameManager.tryMax}";
         UpdateDiscoveryText(_gameManager.totalDiscoveredCellsNames.Count, _mazeCellManager.GetMapSize());
         if (_gameManager.totalDiscoveredCellsNames.Count > 0) AddInfoMessage("Previous data loaded");
@@ -258,32 +265,30 @@ public class UiManager : MonoBehaviour {
     }
 
     private void AddTileToMap(GameObject tile) {
-        /*
-        Was used when drawing the whole map at once,
-        Basically only the anchor is different
-         */
-        Sprite tileSprite = GetTileSprite(tile.tag);
         Vector3 position = tile.CompareTag("Player")
             ? _gameManager.currentCell.transform.position
             : tile.transform.position;
         GameObject existingTile = GameObject.Find($"Map_{tile.gameObject.name}");
-        if (existingTile) Destroy(existingTile);
-        GameObject newTile =
-            new GameObject($"Map_{tile.gameObject.name}");
-        Image newImage = newTile.AddComponent<Image>();
-        newTile.GetComponent<RectTransform>().SetParent(_mapCanvas.transform);
-
-        newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0, 0);
-        newTile.GetComponent<RectTransform>().anchorMax = new Vector2(0, 0);
-        newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
-            position.x * 10 + 5,
-            position.z * 10 + 5,
-            0
+        if (existingTile) {
+            // TODO: Only destroy if necessary
+            return;
+            //TODO: Maybe put this back later
+            Destroy(existingTile);
+        }
+        GameObject newTile = new GameObject($"Map_{tile.gameObject.name}");
+        SpriteRenderer floorRenderer = newTile.AddComponent<SpriteRenderer>();
+        newTile.transform.SetParent(_mapCanvas.transform);
+        floorRenderer.sprite = floorSprite;
+        newTile.transform.localPosition = new Vector3(
+        position.x * 10 + 5,
+        - (position.z * 10 + 35),
+        0
         );
-        newTile.GetComponent<RectTransform>().sizeDelta = new Vector2(10, 10);
-        newTile.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
-        // newImage.color = tileColor;
-        newImage.sprite = tileSprite;
+        newTile.transform.localRotation = Quaternion.identity;
+        newTile.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+        newTile.layer = 5;
+
+        Debug.Log($"Added new tile to map: {newTile.name} \n {newTile.transform.rotation}");
         newTile.SetActive(true);
     }
 
@@ -292,10 +297,16 @@ public class UiManager : MonoBehaviour {
             GameObject tile = GameObject.Find(tileName);
             if (tile.GetComponent<MazeCell>() == _gameManager.currentCell) {
                 AddTileToMap(_gameManager.player);
-                continue;
             }
-
-            AddTileToMap(tile);
+            else {
+                AddTileToMap(tile);
+            }
+        }
+    }
+    
+    public void DrawWholeMap() {
+        foreach (MazeCell cell in _mazeCellManager.mazeCells) {
+            AddTileToMap(cell.gameObject);
         }
     }
 
