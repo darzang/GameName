@@ -159,20 +159,8 @@ public class MazeCellManager : MonoBehaviour {
             return hit.collider.transform.parent.GetComponent<MazeCell>();
         }
         Debug.LogWarning("No tile under player");
-
         return null;
     }
-
-    public void AddToRevealedTiles(MazeCell cell, List<MazeCell> revealedCells) {
-        if (!HasBeenRevealed(cell, revealedCells)) {
-            _gameManager.revealedCellsInRun.Add(cell);
-        }
-    }
-
-    public bool HasBeenRevealed(MazeCell tile, List<MazeCell> revealedTiles) {
-        return revealedTiles.Any(revealedTile => revealedTile == tile);
-    }
-
     /*
      * Returns the position between the tile and the player (Unity distance)
      */

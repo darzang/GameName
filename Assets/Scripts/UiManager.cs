@@ -111,8 +111,8 @@ public class UiManager : MonoBehaviour {
         }
 
         _tryCountText.text = $"Try number {_gameManager.tryCount} / {_gameManager.tryMax}";
-        UpdateDiscoveryText(_gameManager.totalDiscoveredCellsNames.Count, _mazeCellManager.GetMapSize());
-        if (_gameManager.totalDiscoveredCellsNames.Count > 0) AddInfoMessage("Previous data loaded");
+        UpdateDiscoveryText(_gameManager.totalDiscoveredCells.Count, _mazeCellManager.GetMapSize());
+        if (_gameManager.totalDiscoveredCells.Count > 0) AddInfoMessage("Previous data loaded");
         _nextLevelButton.onClick.AddListener(_gameManager.NextLevel);
         _backToMenuButton.onClick.AddListener(_gameManager.BackToMenu);
     }
@@ -156,14 +156,18 @@ public class UiManager : MonoBehaviour {
 
     private void RotateMiniMap() {
         float angle = _player.transform.eulerAngles.y + 180;
-        Image[] tiles = _miniMapPanel.GetComponentsInChildren<Image>();
-        foreach (Image tile in tiles) tile.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-        _miniMapPanel.transform.rotation = Quaternion.Euler(0, 0, angle);
+        while (angle > 360) {
+            angle -= 360;
+        }
+        while (angle < 0) {
+            angle += 360;
+        }
+        _miniMapPanel.GetComponent<RectTransform>().localRotation = Quaternion.Euler(0, 0, angle);
     }
 
     public void UpdateMiniMap() {
-        foreach (MazeCell cell in _gameManager.revealedCellsInRun) {
-            if (cell) AddTileToMiniMap(cell);
+        foreach (MazeCell cell in _mazeCellManager.mazeCells) {
+            if (cell && cell.hasBeenRevealed) AddTileToMiniMap(cell);
         }
     }
 
@@ -196,73 +200,63 @@ public class UiManager : MonoBehaviour {
     }
 
     private void AddTileToMiniMap(MazeCell tile) {
-        GameObject existingMiniMapTile = GameObject.Find($"MiniMap_{tile.gameObject.name}");
+        MazeCell realCell = tile.GetComponent<MazeCell>();
+        if (realCell && !realCell.hasBeenRevealed) {
+            realCell.hasBeenRevealed = true;
+        }
+        GameObject existingMiniMapCell = GameObject.Find($"MiniMap_{tile.gameObject.name}");
 
         float distance = Vector3.Distance(tile.transform.position, _player.gameObject.transform.position);
         if (distance > minDistanceMiniMap) {
             // TODO: Maybe just disabled then later replace + reenable ?
-            if (existingMiniMapTile) {
-                existingMiniMapTile.GetComponent<Image>().enabled = false;
+            if (existingMiniMapCell) {
+                existingMiniMapCell.GetComponent<SpriteRenderer>().enabled = false;
+                // TODO: disable wall sprites
             }
         }
         else {
-            if (!_mazeCellManager.HasBeenRevealed(tile, _gameManager.revealedCellsInRun)) {
-                _mazeCellManager.AddToRevealedTiles(tile, _gameManager.revealedCellsInRun);
-            }
-
-            // Instantiate new tile and anchor it in the middle of the panel
-
-            if (existingMiniMapTile) {
-                GameObject tileObject = GameObject.Find(existingMiniMapTile.name.Substring(8));
-                existingMiniMapTile.GetComponent<Image>().enabled = true;
-                if (tileObject == _mazeCellManager.GetTileUnderPlayer()) {
-                    existingMiniMapTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
-                    existingMiniMapTile.GetComponent<Image>().sprite = playerSprite;
-                }
-                else {
-                    if (tileObject == _gameManager.previousCell) {
-                        existingMiniMapTile.GetComponent<Image>().sprite = floorSprite;
-                    }
-
-                    existingMiniMapTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
-                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
-                            [0] * 10,
-                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
-                            [1] * 10,
-                        0);
+            // Instantiate new cell
+            if (existingMiniMapCell) {
+                existingMiniMapCell.GetComponent<SpriteRenderer>().enabled = true;
+                existingMiniMapCell.transform.localPosition = new Vector3(
+                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
+                        [0] * 10,
+                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
+                        [1] * 10,
+                    0);
+                if (realCell == _gameManager.currentCell) {
+                    AddPlayerSprite(existingMiniMapCell.transform, "MiniMap");
                 }
             }
             else {
-                Sprite tileSprite = GetTileSprite(tile.tag);
-                GameObject newTile = new GameObject($"MiniMap_{tile.gameObject.name}");
-                Image newImage = newTile.AddComponent<Image>();
-                newTile.GetComponent<RectTransform>().SetParent(_miniMapPanel.transform);
-                newTile.GetComponent<RectTransform>().SetAsFirstSibling();
-                newTile.GetComponent<RectTransform>().anchorMin = new Vector2(0.5f, 0.5f);
-                newTile.GetComponent<RectTransform>().anchorMax = new Vector2(0.5f, 0.5f);
-                newTile.GetComponent<RectTransform>().rotation = Quaternion.Euler(0f, 0f, 0f);
+                GameObject newMiniMapCell = new GameObject($"MiniMap_{tile.gameObject.name}");
+                SpriteRenderer floorRenderer = newMiniMapCell.AddComponent<SpriteRenderer>();
+                floorRenderer.sprite = floorSprite;
+                if (realCell && realCell.isExit) floorRenderer.sprite = exitSprite;
 
+                newMiniMapCell.transform.SetParent(_miniMapPanel.transform);
+                newMiniMapCell.transform.SetAsFirstSibling();
+                newMiniMapCell.transform.localRotation = Quaternion.identity;
+                newMiniMapCell.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                newMiniMapCell.layer = 5;
+
+                
                 // Set the position of the new tile
-                if (tile == _mazeCellManager.GetTileUnderPlayer().gameObject) {
-                    newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(0, 0, 0);
-                    tileSprite = playerSprite;
-                }
-                else {
-                    newTile.GetComponent<RectTransform>().anchoredPosition = new Vector3(
-                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
-                            [0] * 10,
-                        _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
-                            [1] * 10,
-                        0);
+                newMiniMapCell.transform.localPosition = new Vector3(
+                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
+                        [0] * 10,
+                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
+                        [1] * 10,
+                    0);
+
+                newMiniMapCell.SetActive(true);
+                if (realCell) {
+                    AddWallSprite(realCell, newMiniMapCell.transform, "MiniMap");
                 }
 
-                // Set the size and scale of the tile
-                newTile.GetComponent<RectTransform>().sizeDelta = new Vector2(10, 10);
-                newTile.GetComponent<RectTransform>().localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                newImage.sprite = tileSprite;
-
-                // if (tile == gameManager.startingTile) DrawSpawnTileInFragment(newTile);
-                newTile.SetActive(true);
+                if (realCell == _gameManager.currentCell) {
+                    AddPlayerSprite(newMiniMapCell.transform, "MiniMap");
+                }
             }
         }
     }
@@ -289,32 +283,32 @@ public class UiManager : MonoBehaviour {
 
             // Add walls sprites for each wall of the cell
             if (realCell) {
-                AddWallSprite(realCell, newCellObject.transform);
+                AddWallSprite(realCell, newCellObject.transform, "Map");
             }
+
             if (realCell == _gameManager.currentCell) {
                 Debug.Log("Adding player Sprite");
-                AddPlayerSprite(newCellObject.transform);
+                AddPlayerSprite(newCellObject.transform, "Map");
             }
         }
         else {
             if (realCell == _gameManager.currentCell) {
                 Debug.Log("Adding player Sprite");
-                AddPlayerSprite(existingTile.transform);
+                AddPlayerSprite(existingTile.transform, "Map");
+            }
+        }
+    }
+
+    private void AddPlayerSprite(Transform canvasCell, String prefix) {
+        MazeCell previousCell = _gameManager.previousCell;
+        if (previousCell) {
+            GameObject previousCellMap = GameObject.Find($"{prefix}_Player");
+            if (previousCellMap) {
+                Destroy(previousCellMap);
             }
         }
 
-
-
-    }
-
-    private void AddPlayerSprite(Transform canvasCell) {
-        MazeCell previousCell = _gameManager.previousCell;
-        if (previousCell) {
-            GameObject previousCellMap = GameObject.Find($"Map_{previousCell.gameObject.name}");
-            if(previousCellMap) Destroy(previousCellMap.transform.Find("Map_Player").gameObject);
-        }
-
-        GameObject playerObject = new GameObject("Map_Player");
+        GameObject playerObject = new GameObject($"{prefix}_Player");
         playerObject.transform.SetParent(canvasCell);
         SpriteRenderer playerSpriteRenderer = playerObject.AddComponent<SpriteRenderer>();
         playerSpriteRenderer.sprite = playerSprite;
@@ -326,7 +320,7 @@ public class UiManager : MonoBehaviour {
         playerSpriteRenderer.sortingOrder = 1;
     }
 
-    private void AddWallSprite(MazeCell cell, Transform canvasCell) {
+    private void AddWallSprite(MazeCell cell, Transform canvasCell, String prefix) {
         MazeCell northCell =
             _mazeCellManager.GetCellIfExists((int) cell.transform.position.x - 1, (int) cell.transform.position.z);
         MazeCell southCell =
@@ -336,7 +330,7 @@ public class UiManager : MonoBehaviour {
         MazeCell westCell =
             _mazeCellManager.GetCellIfExists((int) cell.transform.position.x, (int) cell.transform.position.z - 1);
         if (cell.northWall || (northCell && northCell.southWall)) {
-            GameObject northWallObject = new GameObject($"Map_{cell.gameObject.name}_North_Wall");
+            GameObject northWallObject = new GameObject($"{prefix}_{cell.gameObject.name}_North_Wall");
             northWallObject.transform.SetParent(canvasCell);
             SpriteRenderer northWallSprite = northWallObject.AddComponent<SpriteRenderer>();
             northWallSprite.sprite = wallSprite;
@@ -349,7 +343,7 @@ public class UiManager : MonoBehaviour {
         }
 
         if (cell.southWall || (southCell && southCell.northWall)) {
-            GameObject southWallObject = new GameObject($"Map_{cell.gameObject.name}_South_Wall");
+            GameObject southWallObject = new GameObject($"{prefix}_{cell.gameObject.name}_South_Wall");
             southWallObject.transform.SetParent(canvasCell);
             SpriteRenderer southWallSprite = southWallObject.AddComponent<SpriteRenderer>();
             southWallSprite.sprite = wallSprite;
@@ -362,7 +356,7 @@ public class UiManager : MonoBehaviour {
         }
 
         if (cell.eastWall || (eastCell && eastCell.westWall)) {
-            GameObject eastWallObject = new GameObject($"Map_{cell.gameObject.name}_East_Wall");
+            GameObject eastWallObject = new GameObject($"{prefix}_{cell.gameObject.name}_East_Wall");
             eastWallObject.transform.SetParent(canvasCell);
             SpriteRenderer eastWallSprite = eastWallObject.AddComponent<SpriteRenderer>();
             eastWallSprite.sprite = wallSprite;
@@ -373,7 +367,7 @@ public class UiManager : MonoBehaviour {
         }
 
         if (cell.westWall || (westCell && westCell.eastWall)) {
-            GameObject westWallObject = new GameObject($"Map_{cell.gameObject.name}_West_Wall");
+            GameObject westWallObject = new GameObject($"{prefix}_{cell.gameObject.name}_West_Wall");
             westWallObject.transform.SetParent(canvasCell);
             SpriteRenderer westWallSprite = westWallObject.AddComponent<SpriteRenderer>();
             westWallSprite.sprite = wallSprite;

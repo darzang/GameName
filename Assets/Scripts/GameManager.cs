@@ -40,8 +40,9 @@ public class GameManager : MonoBehaviour {
     public int tryMax;
     public List<Fragment> mapFragments = new List<Fragment>();
     public List<MazeCell> revealedCellsInRun = new List<MazeCell>();
-    public List<string> totalDiscoveredCellsNames = new List<string>();
+
     public List<MazeCell> totalDiscoveredCells = new List<MazeCell>();
+
     // Environment
     public PlayerData playerData;
     public LevelData levelData;
@@ -68,17 +69,18 @@ public class GameManager : MonoBehaviour {
         else {
             Debug.Log("Data to load");
             if (levelData.mapFragments == null) {
-                mapFragments = _fragmentManager.GenerateRandomFragments(_mazeCellManager.GetAllTiles(), _mazeCellManager);
+                mapFragments =
+                    _fragmentManager.GenerateRandomFragments(_mazeCellManager.GetAllTiles(), _mazeCellManager);
             }
             else {
                 mapFragments = levelData.mapFragments;
                 allFragmentsPickedUp = levelData.allFragmentsPickedUp;
-                totalDiscoveredCellsNames = levelData.totalDiscoveredTiles;
+                totalDiscoveredCells = levelData.totalDiscoveredCells;
             }
 
             tryCount = levelData.tryCount + 1;
             Debug.Log(
-                $"Data loaded: try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {totalDiscoveredCellsNames.Count}");
+                $"Data loaded: try {tryCount} \n mapFragments {mapFragments.Count} \n discoveredTiles: {totalDiscoveredCells.Count}");
         }
 
         string sceneName = SceneManager.GetActiveScene().name;
@@ -141,7 +143,7 @@ public class GameManager : MonoBehaviour {
 
                     FileManager.SavePlayerDataFile(playerData);
                     FileManager.SaveLevelDataFile(
-                        new LevelData(tryCount, mapFragments, totalDiscoveredCellsNames, allFragmentsPickedUp),
+                        new LevelData(tryCount, mapFragments, totalDiscoveredCells, allFragmentsPickedUp),
                         SceneManager.GetActiveScene().name);
                     _uiManager.ShowExitUi();
                     _playerSoundsAudioSource.PlayOneShot(congratulationsAudio);
@@ -285,10 +287,17 @@ public class GameManager : MonoBehaviour {
         bool needMapUpdate = false;
         Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, playerData.discoveryRange);
         foreach (Collider tile in hitColliders) {
-            if (!_mazeCellManager.HasBeenRevealed(tile.GetComponent<MazeCell>(), revealedCellsInRun)
-                && tile.gameObject.CompareTag("MazeCell")) {
-                needMapUpdate = true;
-                _mazeCellManager.AddToRevealedTiles(tile.GetComponent<MazeCell>(), revealedCellsInRun);
+            if (tile.name == "Floor") {
+                // Colliders detected will be floor and walls so we need to get the parent
+                Transform transform = tile.transform;
+                Transform parent = transform.parent;
+                if (parent.CompareTag("MazeCell")) {
+                    MazeCell mazeCell = parent.GetComponent<MazeCell>();
+                    if (!mazeCell.hasBeenRevealed) {
+                        needMapUpdate = true;
+                        mazeCell.hasBeenRevealed = true;
+                    }
+                }
             }
         }
 
@@ -298,7 +307,7 @@ public class GameManager : MonoBehaviour {
     public void Retry() {
         FileManager.SaveLevelDataFile(
             tryCount < tryMax
-                ? new LevelData(tryCount, mapFragments, totalDiscoveredCellsNames, allFragmentsPickedUp)
+                ? new LevelData(tryCount, mapFragments, totalDiscoveredCells, allFragmentsPickedUp)
                 : new LevelData(0, null, null, allFragmentsPickedUp),
             SceneManager.GetActiveScene().name
         );
@@ -313,7 +322,7 @@ public class GameManager : MonoBehaviour {
     public void GiveUp() {
         if (tryCount < tryMax) {
             FileManager.SaveLevelDataFile(
-                new LevelData(tryCount, mapFragments, totalDiscoveredCellsNames, allFragmentsPickedUp),
+                new LevelData(tryCount, mapFragments, totalDiscoveredCells, allFragmentsPickedUp),
                 SceneManager.GetActiveScene().name);
         }
         else {
@@ -352,6 +361,7 @@ public class GameManager : MonoBehaviour {
         ), Quaternion.identity);
         player = playerTransform.gameObject;
         currentCell = tile.GetComponent<MazeCell>();
+        previousCell = currentCell;
         _playerLamp = player.GetComponentInChildren<Light>();
         _playerLamp.enabled = false;
         _playerLamp.range *= playerData.lightMultiplier;
@@ -388,13 +398,14 @@ public class GameManager : MonoBehaviour {
         fragment.discovered = true;
         _playerSoundsAudioSource.PlayOneShot(fragmentPickupAudio);
         fragment.tiles.ForEach(tile => {
-            if (totalDiscoveredCellsNames.Count == 0 || !totalDiscoveredCellsNames.Contains(tile)) {
-                totalDiscoveredCellsNames.Add(tile);
+            GameObject cellObject = GameObject.Find(tile);
+            if (totalDiscoveredCells.Count == 0 ||
+                !totalDiscoveredCells.Contains(cellObject.GetComponent<MazeCell>())) {
                 totalDiscoveredCells.Add(GameObject.Find(tile).GetComponent<MazeCell>());
             }
         });
         _uiManager.DrawMap(totalDiscoveredCells);
-        _uiManager.UpdateDiscoveryText(totalDiscoveredCellsNames.Count, _mazeCellManager.GetMapSize());
+        _uiManager.UpdateDiscoveryText(totalDiscoveredCells.Count, _mazeCellManager.GetMapSize());
         _uiManager.AddInfoMessage("Fragment picked up");
         // Randomly spawn arrow
 
@@ -425,5 +436,4 @@ public class GameManager : MonoBehaviour {
         _playerSoundsAudioSource.PlayOneShot(batteryPickupAudio);
         Destroy(batteryIn);
     }
-    
 }
