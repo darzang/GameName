@@ -1,6 +1,7 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 public class SceneGenerator : MonoBehaviour {
@@ -18,13 +19,18 @@ public class SceneGenerator : MonoBehaviour {
     private int _currentRow = 0;
     private int _currentColumn = 0;
     private bool _courseComplete = false;
-    private bool hideCeiling = false;
+    private bool hideCeiling = true;
 
     private void Start() {
         _maze = GameObject.Find("Maze");
-        _mazeCells = new MazeCell[mazeRow, mazeColumn];
-        InstantiateMaze();
-        HuntAndKill();
+        _mazeCells = GenerateMazeIfExists();
+        if (_mazeCells == null) {
+            _mazeCells = new MazeCell[mazeRow,mazeColumn];
+            Debug.Log($"Generating new maze for {SceneManager.GetActiveScene().name}");
+            InstantiateMaze();
+            HuntAndKill();
+            CreateLevelData();
+        }
         InstantiateManagers();
     }
 
@@ -39,14 +45,13 @@ public class SceneGenerator : MonoBehaviour {
         Transform gameManagerObject = Instantiate(gameManagerPrefab, Vector3.zero, Quaternion.identity);
         gameManagerObject.gameObject.name = "GameManager";
     }
-    
+
     // Maze Generation related
     private GameObject InstantiateMazeCell(int row, int column) {
         Transform mazeCell = Instantiate(mazeCellPrefab, new Vector3(row, 0, column), Quaternion.identity,
             _maze.transform);
         mazeCell.gameObject.name = $"MazeCell_{row}_{column}";
         mazeCell.GetComponent<MazeCell>().ceiling.SetActive(!hideCeiling);
-        mazeCell.GetComponent<MazeCell>().score = Int32.MaxValue;
         return mazeCell.gameObject;
     }
 
@@ -56,9 +61,10 @@ public class SceneGenerator : MonoBehaviour {
             for (int c = 0; c < mazeColumn; c++) {
                 _mazeCells[r, c] = InstantiateMazeCell(r, c).gameObject.GetComponent<MazeCell>();
                 if (index % 3 == 0) {
-                    Transform light = Instantiate(lightPrefab, _mazeCells[r, c].transform);
-                    light.localPosition = new Vector3(0,0.9f,0);
+                    InstantiateLight(_mazeCells[r, c]);
+                    _mazeCells[r, c].hasLight = true;
                 }
+
                 index++;
             }
         }
@@ -157,7 +163,6 @@ public class SceneGenerator : MonoBehaviour {
     }
 
 
-
     private bool RouteStillAvailable(int row, int column) {
         return (row > 0 && !_mazeCells[row - 1, column].visited)
                || (row < mazeRow - 1 && !_mazeCells[row + 1, column].visited)
@@ -200,7 +205,7 @@ public class SceneGenerator : MonoBehaviour {
             }
         }
     }
-    
+
     private bool CellExists(float row, float column) {
         return row >= 0 && row < mazeRow && column >= 0 && column < mazeColumn;
     }
@@ -214,12 +219,13 @@ public class SceneGenerator : MonoBehaviour {
             if (CellExists(_currentRow - 1, _currentColumn)
                 && _mazeCells[_currentRow - 1, _currentColumn].southWall
                 && mazeCell.northWall
-                ) {
+            ) {
                 mazeCell.DestroyWallIfExists(mazeCell.northWall);
             }
+
             // Check tile west
-            if (CellExists(_currentRow, _currentColumn-1)
-                && _mazeCells[_currentRow, _currentColumn-1].eastWall
+            if (CellExists(_currentRow, _currentColumn - 1)
+                && _mazeCells[_currentRow, _currentColumn - 1].eastWall
                 && mazeCell.westWall
             ) {
                 mazeCell.DestroyWallIfExists(mazeCell.westWall);
@@ -227,4 +233,61 @@ public class SceneGenerator : MonoBehaviour {
         }
     }
 
+    private void InstantiateLight(MazeCell mazeCell) {
+        Transform light = Instantiate(lightPrefab, mazeCell.transform);
+        light.localPosition = new Vector3(0, 0.9f, 0);
+    }
+
+
+    private List<MazeCellForFile> FormatMazeCells(MazeCell[,] mazeCells) {
+        List<MazeCellForFile> mazeCellsFormatted = new List<MazeCellForFile>();
+        foreach (MazeCell mazeCell in mazeCells) {
+            MazeCellForFile mazeCellFormatted = new MazeCellForFile {
+                isExit = mazeCell.isExit,
+                hasLight = mazeCell.hasLight,
+                hasEastWall = mazeCell.eastWall,
+                hasWestWall = mazeCell.westWall,
+                hasNorthWall = mazeCell.northWall,
+                hasSouthWall = mazeCell.southWall,
+                x = (int) mazeCell.transform.position.x,
+                z = (int) mazeCell.transform.position.z
+            };
+            mazeCellsFormatted.Add(mazeCellFormatted);
+        }
+
+        return mazeCellsFormatted;
+    }
+    private void CreateLevelData() {
+        FileManager.SaveLevelDataFile(
+            new LevelData(
+                0, 
+                false, 
+                FormatMazeCells(_mazeCells), 
+                _mazeCells.GetLength(0), 
+                _mazeCells.GetLength(1)
+                ),
+            SceneManager.GetActiveScene().name);
+    }
+
+    private MazeCell[,] GenerateMazeIfExists() {
+        LevelData levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
+
+        if (levelData == null) return null;
+        Debug.Log($"Generating existing maze for {SceneManager.GetActiveScene().name}");
+        MazeCell[,] mazeCells = new MazeCell[levelData.mazeRow, levelData.mazeColumns];
+        foreach (MazeCellForFile mazeCellForFile in levelData.mazeCellsForFile) {
+            GameObject cellObject = InstantiateMazeCell((int) mazeCellForFile.x, (int) mazeCellForFile.z);
+            MazeCell mazeCell = cellObject.GetComponent<MazeCell>();
+            if (!mazeCellForFile.hasEastWall) mazeCell.DestroyWallIfExists(cellObject.transform.Find("EastWall").gameObject);
+            if (!mazeCellForFile.hasWestWall) mazeCell.DestroyWallIfExists(cellObject.transform.Find("WestWall").gameObject);
+            if (!mazeCellForFile.hasNorthWall) mazeCell.DestroyWallIfExists(cellObject.transform.Find("NorthWall").gameObject);
+            if (!mazeCellForFile.hasSouthWall) mazeCell.DestroyWallIfExists(cellObject.transform.Find("SouthWall").gameObject);
+            if(mazeCellForFile.hasLight) InstantiateLight(mazeCell);
+            if (mazeCellForFile.isExit)
+                cellObject.transform.Find("Floor").GetComponent<Renderer>().material = exitMaterial;
+            mazeCells[mazeCellForFile.x, mazeCellForFile.z] = mazeCell;
+        }
+
+        return mazeCells;
+    }
 }

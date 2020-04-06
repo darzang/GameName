@@ -5,6 +5,9 @@ using UnityEngine;
 public class FileManager : MonoBehaviour {
 //  Application.persistentDataPath points to %userprofile%\AppData\Local\Packages\<productname>\LocalState.
     public static void SaveLevelDataFile(LevelData levelData, string fileName) {
+        if (levelData == null) {
+            DeleteFile(fileName);
+        }
         string path = $"{Application.persistentDataPath}/{fileName}.dat";
         FileStream file = File.Exists(path) ? File.OpenWrite(path) : File.Create(path);
         BinaryFormatter bf = new BinaryFormatter();

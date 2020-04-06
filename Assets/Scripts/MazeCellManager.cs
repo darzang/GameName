@@ -3,8 +3,6 @@ using System.Linq;
 using UnityEngine;
 
 public class MazeCellManager : MonoBehaviour {
-    private GameObject _environment;
-    private GameManager _gameManager;
     public MazeCell[,] mazeCells;
     private int _mazeRow;
     private int _mazeColumn;
@@ -12,10 +10,6 @@ public class MazeCellManager : MonoBehaviour {
     private GameObject _arrows;
 
     // Origin is top left corner corner, Z++ = east, X++ = South
-    private void Start() {
-        _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
-        _arrows = GameObject.Find("Arrows").gameObject;
-    }
 
     public void SetMazeCells(MazeCell[,] mazeCells, int mazeRow, int mazeColumn) {
         this.mazeCells = mazeCells;
@@ -105,6 +99,7 @@ public class MazeCellManager : MonoBehaviour {
             updated = false;
             foreach (MazeCell mazeCell in mazeCells) {
                 // Check Neighbor tiles
+                //TODO: Check if score doesn't exist, mean higher
                 List<MazeCell> neighborTiles = GetNeighborWalkableTiles(mazeCell);
                 foreach (MazeCell neighborCell in neighborTiles) {
                     if (neighborCell.isExit) {
@@ -152,8 +147,8 @@ public class MazeCellManager : MonoBehaviour {
         return GameObject.FindGameObjectsWithTag("MazeCell").ToList();
     }
 
-    public MazeCell GetTileUnderPlayer() {
-        Ray ray = new Ray(_gameManager.player.transform.position, Vector3.down);
+    public MazeCell GetTileUnder(GameObject player) {
+        Ray ray = new Ray(player.transform.position, Vector3.down);
         Physics.Raycast(ray, out RaycastHit hit, 10);
         if (hit.collider) {
             return hit.collider.transform.parent.GetComponent<MazeCell>();
@@ -173,7 +168,11 @@ public class MazeCellManager : MonoBehaviour {
     }
     
     public void InstantiateArrow(MazeCell mazeCell) {
+        if (!_arrows) {
+            _arrows = GameObject.Find("Arrows").gameObject;
+        }
         if (GameObject.Find($"Arrow_{mazeCell.gameObject.name}")) {
+            //TODO: Just flip it
             Destroy(GameObject.Find($"Arrow_{mazeCell.gameObject.name}"));
         }
 
@@ -202,5 +201,37 @@ public class MazeCellManager : MonoBehaviour {
         arrow.transform.eulerAngles = new Vector3(0, angle, 0);
         arrow.SetParent(_arrows.transform);
         mazeCell.arrow = arrow.gameObject;
+    }
+    
+    public List<MazeCellForFile> FormatMazeCells(MazeCell[,] mazeCells) {
+        List<MazeCellForFile> mazeCellsFormatted = new List<MazeCellForFile>();
+        foreach (MazeCell mazeCell in mazeCells) {
+            MazeCellForFile mazeCellFormatted = new MazeCellForFile {
+                isExit = mazeCell.isExit,
+                hasLight = mazeCell.hasLight,
+                permanentlyRevealed = false,
+                hasEastWall = mazeCell.eastWall,
+                hasWestWall = mazeCell.westWall,
+                hasNorthWall = mazeCell.northWall,
+                hasSouthWall = mazeCell.southWall,
+                x = (int) mazeCell.transform.position.x,
+                z = (int) mazeCell.transform.position.z
+            };
+            mazeCellsFormatted.Add(mazeCellFormatted);
+        }
+
+        return mazeCellsFormatted;
+    }
+
+    public List<MazeCell> GetMazeAsList() {
+        List<MazeCell> mazeCellsList = new List<MazeCell>();
+        foreach (MazeCell mazeCell in mazeCells) {
+            mazeCellsList.Add(mazeCell);
+        }
+        return mazeCellsList;
+    }
+
+    public int GetDiscoveredCellsCount() {
+        return GetMazeAsList().Count(mazeCell => mazeCell.permanentlyRevealed);
     }
 }

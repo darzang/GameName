@@ -6,7 +6,9 @@ public class MazeCell : MonoBehaviour {
     public bool visited = false;
     public bool isExit = false;
     public GameObject northWall, southWall, eastWall, westWall, floor, ceiling, arrow;
-    public bool hasBeenRevealed = false;
+    public bool permanentlyRevealed = false;
+    public bool revealedForCurrentRun = false;
+    public bool hasLight = false;
 
 
     public void DestroyWallIfExists(GameObject wall) {

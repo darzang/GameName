@@ -97,13 +97,13 @@ public class FragmentManager : MonoBehaviour {
             Fragment closestFragment = GetFragmentForTile(fragments, tileLeft);
             Fragment updatedFragment = fragments.Find(frg => frg == closestFragment);
             if (updatedFragment != null) {
-                updatedFragment.tiles.Add(tileLeft.name);
+                updatedFragment.cellsNamesInFragment.Add(tileLeft.name);
             }
         }
 
         int totalTilesInFragments = 0;
         foreach (Fragment fragment in fragments) {
-            totalTilesInFragments += fragment.tiles.Count;
+            totalTilesInFragments += fragment.cellsNamesInFragment.Count;
         }
 
         Debug.Log(
@@ -117,7 +117,7 @@ public class FragmentManager : MonoBehaviour {
         Fragment closestFragment = null;
         foreach (Fragment fragment in fragments) {
             float currentDistance = 0;
-            foreach (string tileName in fragment.tiles) {
+            foreach (string tileName in fragment.cellsNamesInFragment) {
                 GameObject fragmentTile = GameObject.Find(tileName);
                 currentDistance += Vector3.Distance(fragmentTile.transform.position, tile.transform.position);
             }
@@ -131,7 +131,7 @@ public class FragmentManager : MonoBehaviour {
     }
 
     public void InstantiateFragment(Fragment fragmentIn) {
-        GameObject spawnTile = GameObject.Find(fragmentIn.spawnTile);
+        GameObject spawnTile = GameObject.Find(fragmentIn.spawnCell);
         Vector3 position = spawnTile.transform.position;
         Transform fragment = Instantiate(fragmentPrefab, new Vector3(
             position.x,
@@ -143,7 +143,7 @@ public class FragmentManager : MonoBehaviour {
 
         List<Vector3> tilesPositions = new List<Vector3>();
         List<Transform> fragmentTiles = new List<Transform>();
-        foreach (string tileName in fragmentIn.tiles) {
+        foreach (string tileName in fragmentIn.cellsNamesInFragment) {
             GameObject realTile = GameObject.Find(tileName);
             Vector3 position1 = realTile.transform.position;
             Transform fragmentTile = Instantiate(mazeCellPrefab, new Vector3(

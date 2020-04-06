@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -106,13 +105,14 @@ public class UiManager : MonoBehaviour {
         _pauseResumeButton.onClick.AddListener(ResumeGame);
         _pauseRetryButton.onClick.AddListener(_gameManager.Retry);
         _pauseBackButton.onClick.AddListener(_gameManager.GiveUp);
-        if (_gameManager.totalDiscoveredCells.Count > 0) {
-            DrawMap(_gameManager.totalDiscoveredCells);
+        
+        if (_mazeCellManager.GetMazeAsList().Find(cell => cell.permanentlyRevealed)) {
+            DrawMap();
         }
 
         _tryCountText.text = $"Try number {_gameManager.tryCount} / {_gameManager.tryMax}";
-        UpdateDiscoveryText(_gameManager.totalDiscoveredCells.Count, _mazeCellManager.GetMapSize());
-        if (_gameManager.totalDiscoveredCells.Count > 0) AddInfoMessage("Previous data loaded");
+        UpdateDiscoveryText(_mazeCellManager.GetDiscoveredCellsCount(), _mazeCellManager.GetMapSize());
+        if (_mazeCellManager.GetDiscoveredCellsCount() > 0) AddInfoMessage("Previous data loaded");
         _nextLevelButton.onClick.AddListener(_gameManager.NextLevel);
         _backToMenuButton.onClick.AddListener(_gameManager.BackToMenu);
     }
@@ -167,7 +167,7 @@ public class UiManager : MonoBehaviour {
 
     public void UpdateMiniMap() {
         foreach (MazeCell cell in _mazeCellManager.mazeCells) {
-            if (cell && cell.hasBeenRevealed) AddTileToMiniMap(cell);
+            if (cell.revealedForCurrentRun) AddTileToMiniMap(cell);
         }
     }
 
@@ -201,9 +201,6 @@ public class UiManager : MonoBehaviour {
 
     private void AddTileToMiniMap(MazeCell tile) {
         MazeCell realCell = tile.GetComponent<MazeCell>();
-        if (realCell && !realCell.hasBeenRevealed) {
-            realCell.hasBeenRevealed = true;
-        }
         GameObject existingMiniMapCell = GameObject.Find($"MiniMap_{tile.gameObject.name}");
 
         float distance = Vector3.Distance(tile.transform.position, _player.gameObject.transform.position);
@@ -219,9 +216,9 @@ public class UiManager : MonoBehaviour {
             if (existingMiniMapCell) {
                 existingMiniMapCell.GetComponent<SpriteRenderer>().enabled = true;
                 existingMiniMapCell.transform.localPosition = new Vector3(
-                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
+                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnder(_gameManager.player).gameObject, tile)
                         [0] * 10,
-                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
+                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnder(_gameManager.player).gameObject, tile)
                         [1] * 10,
                     0);
                 if (realCell == _gameManager.currentCell) {
@@ -243,19 +240,18 @@ public class UiManager : MonoBehaviour {
                 
                 // Set the position of the new tile
                 newMiniMapCell.transform.localPosition = new Vector3(
-                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
+                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnder(_gameManager.player).gameObject, tile)
                         [0] * 10,
-                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnderPlayer().gameObject, tile)
+                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnder(_gameManager.player).gameObject, tile)
                         [1] * 10,
                     0);
 
                 newMiniMapCell.SetActive(true);
                 if (realCell) {
                     AddWallSprite(realCell, newMiniMapCell.transform, "MiniMap");
-                }
-
-                if (realCell == _gameManager.currentCell) {
-                    AddPlayerSprite(newMiniMapCell.transform, "MiniMap");
+                    if (realCell == _gameManager.currentCell) {
+                        AddPlayerSprite(newMiniMapCell.transform, "MiniMap");
+                    }
                 }
             }
         }
@@ -282,21 +278,18 @@ public class UiManager : MonoBehaviour {
             newCellObject.SetActive(true);
 
             // Add walls sprites for each wall of the cell
-            if (realCell) {
-                AddWallSprite(realCell, newCellObject.transform, "Map");
-            }
-
+            AddWallSprite(realCell, newCellObject.transform, "Map");
             if (realCell == _gameManager.currentCell) {
-                Debug.Log("Adding player Sprite");
                 AddPlayerSprite(newCellObject.transform, "Map");
             }
+
         }
         else {
             if (realCell == _gameManager.currentCell) {
-                Debug.Log("Adding player Sprite");
                 AddPlayerSprite(existingTile.transform, "Map");
             }
         }
+
     }
 
     private void AddPlayerSprite(Transform canvasCell, String prefix) {
@@ -378,9 +371,11 @@ public class UiManager : MonoBehaviour {
         }
     }
 
-    public void DrawMap(List<MazeCell> mazeCells) {
-        foreach (MazeCell mazeCell in mazeCells) {
-            AddTileToMap(mazeCell.gameObject);
+    public void DrawMap() {
+        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells) {
+            if (mazeCell.permanentlyRevealed) {
+                AddTileToMap(mazeCell.gameObject);
+            }
         }
     }
 
@@ -454,6 +449,7 @@ public class UiManager : MonoBehaviour {
     }
 
     public void AddInfoMessage(string message) {
+        //TODO: Just handle 5 text max, don't destroy but animate/hide them instead
         // Handle position of previous texts if any 
         if (_infoPanel.transform.childCount > 0) {
             foreach (Transform previousText in _infoPanel.transform) {
