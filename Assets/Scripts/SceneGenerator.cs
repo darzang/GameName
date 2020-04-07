@@ -51,6 +51,7 @@ public class SceneGenerator : MonoBehaviour {
         Transform mazeCell = Instantiate(mazeCellPrefab, new Vector3(row, 0, column), Quaternion.identity,
             _maze.transform);
         mazeCell.gameObject.name = $"MazeCell_{row}_{column}";
+        mazeCell.GetComponent<MazeCell>().score = mazeRow * mazeColumn;
         mazeCell.GetComponent<MazeCell>().ceiling.SetActive(!hideCeiling);
         return mazeCell.gameObject;
     }
@@ -64,7 +65,6 @@ public class SceneGenerator : MonoBehaviour {
                     InstantiateLight(_mazeCells[r, c]);
                     _mazeCells[r, c].hasLight = true;
                 }
-
                 index++;
             }
         }
@@ -283,8 +283,10 @@ public class SceneGenerator : MonoBehaviour {
             if (!mazeCellForFile.hasNorthWall) mazeCell.DestroyWallIfExists(cellObject.transform.Find("NorthWall").gameObject);
             if (!mazeCellForFile.hasSouthWall) mazeCell.DestroyWallIfExists(cellObject.transform.Find("SouthWall").gameObject);
             if(mazeCellForFile.hasLight) InstantiateLight(mazeCell);
-            if (mazeCellForFile.isExit)
+            if (mazeCellForFile.isExit) {
                 cellObject.transform.Find("Floor").GetComponent<Renderer>().material = exitMaterial;
+                mazeCell.isExit = true;
+            }
             mazeCells[mazeCellForFile.x, mazeCellForFile.z] = mazeCell;
         }
 

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 public class MazeCell : MonoBehaviour {
-    public int score = int.MaxValue;
+    public int score;
     public string action = "NULL";
     public bool visited = false;
     public bool isExit = false;

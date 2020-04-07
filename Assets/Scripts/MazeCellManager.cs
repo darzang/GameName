@@ -12,6 +12,7 @@ public class MazeCellManager : MonoBehaviour {
     // Origin is top left corner corner, Z++ = east, X++ = South
 
     public void SetMazeCells(MazeCell[,] mazeCells, int mazeRow, int mazeColumn) {
+        Debug.Log("Setting MazeCells of tileManager");
         this.mazeCells = mazeCells;
         _mazeRow = mazeRow;
         _mazeColumn = mazeColumn;
@@ -98,13 +99,14 @@ public class MazeCellManager : MonoBehaviour {
         do {
             updated = false;
             foreach (MazeCell mazeCell in mazeCells) {
+                if (mazeCell.isExit) continue;
                 // Check Neighbor tiles
                 //TODO: Check if score doesn't exist, mean higher
                 List<MazeCell> neighborTiles = GetNeighborWalkableTiles(mazeCell);
                 foreach (MazeCell neighborCell in neighborTiles) {
                     if (neighborCell.isExit) {
-                        neighborCell.score = 0;
                         if (mazeCell.score == 1) continue;
+                        Debug.Log("Path planning, neighbor is exit");
                         updated = true;
                         mazeCell.score = 1;
                         SetAction(mazeCell, neighborCell);
