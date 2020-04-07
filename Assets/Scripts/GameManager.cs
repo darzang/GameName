@@ -19,9 +19,9 @@ public class GameManager : MonoBehaviour {
     private GameObject _eyeLids;
     private Animation _anim;
     private Light _playerLamp;
-
-
+    
     private AudioSource _lightAudio;
+    private AudioSource _playerSoundsAudioSource;
     public AudioClip[] lightSounds;
     public AudioClip batteryDeadAudio;
     public AudioClip fragmentPickupAudio;
@@ -31,22 +31,15 @@ public class GameManager : MonoBehaviour {
     public AudioClip[] welcomeToLevelAudio;
     public AudioClip congratulationsAudio;
 
-    private AudioSource _playerSoundsAudioSource;
-
     // Tiles
     public MazeCell previousCell;
     public MazeCell currentCell;
-    public int tryCount;
     public int tryMax;
-    public List<Fragment> mapFragments = new List<Fragment>();
     
-    // For main map
-
     // Environment
     public PlayerData playerData;
     public LevelData levelData;
     public bool gameIsPaused;
-    public bool allFragmentsPickedUp;
     private GameObject _batteries;
     private bool _isDead;
     public int levelNumber;
@@ -54,7 +47,6 @@ public class GameManager : MonoBehaviour {
     private bool _incrementOnboardingIsRunning;
 
     private void Awake() {
-        tryCount = 1;
         _mazeCellManager = GameObject.Find("TileManager").GetComponent<MazeCellManager>();
         _uiManager = GameObject.Find("UIManager").GetComponent<UiManager>();
         _fragmentManager = GameObject.Find("FragmentManager").GetComponent<FragmentManager>();
@@ -62,22 +54,20 @@ public class GameManager : MonoBehaviour {
 
         levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
         if (levelData == null) {
-            Debug.Log("No Data to load");
-            mapFragments = _fragmentManager.GenerateRandomFragments(_mazeCellManager.GetAllTiles(), _mazeCellManager);
+            Debug.LogError("No Data to load, scene hasn't been generated properly");
+            levelData.mapFragments = _fragmentManager.GenerateRandomFragments(_mazeCellManager.GetMazeAsList(), _mazeCellManager);
         }
         else {
-            Debug.Log("Data to load");
             if (levelData.mapFragments == null) {
-                mapFragments =
-                    _fragmentManager.GenerateRandomFragments(_mazeCellManager.GetAllTiles(), _mazeCellManager);
+                levelData.mapFragments =
+                    _fragmentManager.GenerateRandomFragments(_mazeCellManager.GetMazeAsList(), _mazeCellManager);
             }
             else {
-                mapFragments = levelData.mapFragments;
-                allFragmentsPickedUp = levelData.allFragmentsPickedUp;
+                levelData.mapFragments = levelData.mapFragments;
             }
 
-            tryCount = levelData.tryCount + 1;
-            Debug.Log($"Data loaded: try {tryCount}");
+            levelData.tryCount = levelData.tryCount + 1;
+            Debug.Log($"Data loaded: try {levelData.tryCount}");
         }
 
         string sceneName = SceneManager.GetActiveScene().name;
@@ -86,11 +76,8 @@ public class GameManager : MonoBehaviour {
         tryMax = 4;
         InstantiateBatteries();
 
-        foreach (Fragment fragment in mapFragments) {
+        foreach (Fragment fragment in levelData.mapFragments) {
             if (!fragment.discovered) _fragmentManager.InstantiateFragment(fragment);
-            if (!fragment.arrowRevealed) continue;
-            GameObject tile = GameObject.Find(fragment.spawnCell);
-            _mazeCellManager.InstantiateArrow(tile.GetComponent<MazeCell>());
         }
 
         playerData = FileManager.LoadPlayerDataFile();
@@ -139,15 +126,7 @@ public class GameManager : MonoBehaviour {
                     }
 
                     FileManager.SavePlayerDataFile(playerData);
-                    FileManager.SaveLevelDataFile(
-                        new LevelData(
-                            tryCount,
-                            levelData.allFragmentsPickedUp,
-                            _mazeCellManager.FormatMazeCells(_mazeCellManager.mazeCells),
-                            _mazeCellManager.mazeCells.GetLength(0),
-                            _mazeCellManager.mazeCells.GetLength(1)
-                        ),
-                        SceneManager.GetActiveScene().name);
+                    FileManager.SaveLevelDataFile(levelData, SceneManager.GetActiveScene().name);
                     _uiManager.ShowExitUi();
                     _playerSoundsAudioSource.PlayOneShot(congratulationsAudio);
                 }
@@ -180,7 +159,7 @@ public class GameManager : MonoBehaviour {
         if (player.GetComponent<Player>().fuelCount <= 0 && !_isDead) {
             _isDead = true;
             _playerSoundsAudioSource.PlayOneShot(batteryDeadAudio);
-            if (tryCount >= tryMax) _playerSoundsAudioSource.PlayOneShot(youLostAudio);
+            if (levelData.tryCount >= tryMax) _playerSoundsAudioSource.PlayOneShot(youLostAudio);
         }
 
         // Useful for now, to remove later
@@ -308,14 +287,7 @@ public class GameManager : MonoBehaviour {
     public void Retry() {
         string currentLevel = SceneManager.GetActiveScene().name;
         FileManager.SaveLevelDataFile(
-            tryCount < tryMax
-                ? new LevelData(tryCount,
-                    levelData.allFragmentsPickedUp,
-                    _mazeCellManager.FormatMazeCells(_mazeCellManager.mazeCells),
-                    _mazeCellManager.mazeCells.GetLength(0),
-                    _mazeCellManager.mazeCells.GetLength(1)
-                )
-                : null,
+            levelData.tryCount < tryMax ? levelData : null,
             currentLevel
         );
         //TODO: this will break with more than 10 levels
@@ -327,14 +299,7 @@ public class GameManager : MonoBehaviour {
 
     public void GiveUp() {
         FileManager.SaveLevelDataFile(
-            tryCount < tryMax
-                ? new LevelData(tryCount,
-                    levelData.allFragmentsPickedUp,
-                    _mazeCellManager.FormatMazeCells(_mazeCellManager.mazeCells),
-                    _mazeCellManager.mazeCells.GetLength(0),
-                    _mazeCellManager.mazeCells.GetLength(1)
-                )
-                : null,
+            levelData.tryCount < tryMax ? levelData : null,
             SceneManager.GetActiveScene().name
         );
         BackToMenu();
@@ -382,13 +347,13 @@ public class GameManager : MonoBehaviour {
     }
 
     private void InstantiateBatteries() {
-        List<GameObject> availableFloorTiles = _mazeCellManager.GetAllTiles();
-        foreach (Fragment fragment in mapFragments) {
-            availableFloorTiles.Remove(GameObject.Find(fragment.spawnCell));
+        List<MazeCell> availableFloorTiles = _mazeCellManager.GetMazeAsList();
+        foreach (Fragment fragment in levelData.mapFragments) {
+            availableFloorTiles.Remove(_mazeCellManager.GetCellFromFragmentNumber(fragment.number));
         }
 
         for (int i = 0; i < tryMax; i++) {
-            GameObject spawnTile = availableFloorTiles[Random.Range(0, availableFloorTiles.Count - 1)];
+            MazeCell spawnTile = availableFloorTiles[Random.Range(0, availableFloorTiles.Count - 1)];
             Vector3 position = spawnTile.transform.position;
             Transform battery = Instantiate(batteryPrefab, new Vector3(
                 position.x,
@@ -401,12 +366,15 @@ public class GameManager : MonoBehaviour {
     }
 
     public void PickupFragment(GameObject fragmentIn) {
-        int fragmentNumber = int.Parse(fragmentIn.name.Split('_')[1]);
-        Fragment fragment = mapFragments.Find(frag => frag.number == fragmentNumber);
+        // Fragment fragment = _fragmentManager.GetFragmentForTile(levelData.mapFragments)
+        int row = (int) fragmentIn.transform.position.x;
+        int column = (int) fragmentIn.transform.position.z;
+        MazeCell mazeCell = _mazeCellManager.GetCellFromName($"MazeCell_{row}_{column}");
+        Fragment fragment = _fragmentManager.GetFragmentForTile(levelData.mapFragments, mazeCell);
         fragment.discovered = true;
         _playerSoundsAudioSource.PlayOneShot(fragmentPickupAudio);
         fragment.cellsNamesInFragment.ForEach(cellName => {
-            MazeCell cell = GameObject.Find(cellName).GetComponent<MazeCell>();
+            MazeCell cell = _mazeCellManager.GetCellFromName(cellName);
             cell.permanentlyRevealed = true;
         });
         _uiManager.DrawMap();
@@ -416,23 +384,24 @@ public class GameManager : MonoBehaviour {
 
         if (Random.Range(1, 100) <= playerData.spawnArrowChance) {
             _uiManager.AddInfoMessage("Helping arrow spawned");
-            fragment.arrowRevealed = true;
-        }
-
-        if (fragment.arrowRevealed) {
+            mazeCell.hasArrow = true;
             _mazeCellManager.InstantiateArrow(currentCell);
         }
+        
 
-        if (mapFragments.Where(fr => fr.discovered).ToList().Count == mapFragments.Count) {
+        if (levelData.mapFragments.Where(fr => fr.discovered).ToList().Count == levelData.mapFragments.Count) {
             // All fragments have been found
             playerData.cash += 1;
             _uiManager.AddInfoMessage("Map fully discovered");
             _uiManager.AddInfoMessage($"Obtained 1 coin, total : {playerData.cash}");
-            allFragmentsPickedUp = true;
+            levelData.allFragmentsPickedUp = true;
         }
 
         Debug.Log($"Picking up fragment: {fragmentIn}");
         Destroy(fragmentIn);
+        levelData.mazeCellsForFile = _mazeCellManager.FormatMazeCells(_mazeCellManager.mazeCells);
+        FileManager.SaveLevelDataFile(levelData, SceneManager.GetActiveScene().name);
+        FileManager.SavePlayerDataFile(playerData);
     }
 
     public void PickupBattery(GameObject batteryIn) {

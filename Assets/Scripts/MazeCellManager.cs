@@ -12,7 +12,6 @@ public class MazeCellManager : MonoBehaviour {
     // Origin is top left corner corner, Z++ = east, X++ = South
 
     public void SetMazeCells(MazeCell[,] mazeCells, int mazeRow, int mazeColumn) {
-        Debug.Log("Setting MazeCells of tileManager");
         this.mazeCells = mazeCells;
         _mazeRow = mazeRow;
         _mazeColumn = mazeColumn;
@@ -66,28 +65,28 @@ public class MazeCellManager : MonoBehaviour {
         return neighborTiles;
     }
 
-    public List<GameObject> GetNeighborTiles(GameObject mazeCell) {
-        List<GameObject> neighborTiles = new List<GameObject>();
+    public List<MazeCell> GetNeighborTiles(MazeCell mazeCell) {
+        List<MazeCell> neighborTiles = new List<MazeCell>();
         if (mazeCell.transform.position.x - 1 > 0) {
             MazeCell northCell =
                 mazeCells[(int) mazeCell.transform.position.x - 1, (int) mazeCell.transform.position.z];
-            if (northCell) neighborTiles.Add(northCell.gameObject);
+            if (northCell) neighborTiles.Add(northCell);
         }
 
         if (mazeCell.transform.position.x + 1 < _mazeRow) {
             MazeCell southCell =
                 mazeCells[(int) mazeCell.transform.position.x + 1, (int) mazeCell.transform.position.z];
-            if (southCell) neighborTiles.Add(southCell.gameObject);
+            if (southCell) neighborTiles.Add(southCell);
         }
 
         if (mazeCell.transform.position.z - 1 > 0) {
             MazeCell westCell = mazeCells[(int) mazeCell.transform.position.x, (int) mazeCell.transform.position.z - 1];
-            if (westCell) neighborTiles.Add(westCell.gameObject);
+            if (westCell) neighborTiles.Add(westCell);
         }
 
         if (mazeCell.transform.position.z + 1 < _mazeColumn) {
             MazeCell eastCell = mazeCells[(int) mazeCell.transform.position.x, (int) mazeCell.transform.position.z + 1];
-            if (eastCell) neighborTiles.Add(eastCell.gameObject);
+            if (eastCell) neighborTiles.Add(eastCell);
         }
 
         return neighborTiles;
@@ -106,7 +105,6 @@ public class MazeCellManager : MonoBehaviour {
                 foreach (MazeCell neighborCell in neighborTiles) {
                     if (neighborCell.isExit) {
                         if (mazeCell.score == 1) continue;
-                        Debug.Log("Path planning, neighbor is exit");
                         updated = true;
                         mazeCell.score = 1;
                         SetAction(mazeCell, neighborCell);
@@ -143,10 +141,6 @@ public class MazeCellManager : MonoBehaviour {
         else {
             Debug.Log("Action not found");
         }
-    }
-
-    public List<GameObject> GetAllTiles() {
-        return GameObject.FindGameObjectsWithTag("MazeCell").ToList();
     }
 
     public MazeCell GetTileUnder(GameObject player) {
@@ -235,5 +229,19 @@ public class MazeCellManager : MonoBehaviour {
 
     public int GetDiscoveredCellsCount() {
         return GetMazeAsList().Count(mazeCell => mazeCell.permanentlyRevealed);
+    }
+
+    public MazeCell GetCellFromFragmentNumber(int fragmentNumber) {
+        foreach (MazeCell mazeCell in GetMazeAsList()) {
+            if (mazeCell.fragmentNumber == fragmentNumber) return mazeCell;
+        }
+        return null;
+    }
+
+    public MazeCell GetCellFromName(string name) {
+        foreach (MazeCell mazeCell in GetMazeAsList()) {
+            if (mazeCell.gameObject.name == name) return mazeCell;
+        }
+        return null;
     }
 }

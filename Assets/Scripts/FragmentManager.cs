@@ -12,63 +12,71 @@ public class FragmentManager : MonoBehaviour {
     public Material obstacleMaterial;
     public Transform fragmentPrefab;
 
-    public List<Fragment> GenerateRandomFragments(List<GameObject> tiles, MazeCellManager mazeCellManager) {
-        int nbFragments = (int) Math.Round(tiles.Count / 15.0);
-        int minFragmentSize = (int) Math.Round((double) (tiles.Count / nbFragments));
+    public List<Fragment> GenerateRandomFragments(List<MazeCell> mazeCells, MazeCellManager mazeCellManager) {
+        
+        // How many fragments do we want ?
+        //TODO: Bigger fragments in the beginning, than more so harder to find all of them ?
+        int nbFragments = (int) Math.Round(mazeCells.Count / 15.0);
+        
+        // How many cells per fragment minimum ? 
+        int minFragmentSize = (int) Math.Round((double) (mazeCells.Count / nbFragments));
+        
         List<Fragment> fragments = new List<Fragment>();
-        List<GameObject> availableFloorTiles = tiles;
-        List<GameObject> availableTiles = tiles;
-        List<GameObject> tilesLeadingToIncompleteFragment = new List<GameObject>();
+        List<MazeCell> availableCells = mazeCells.Where(cell => !cell.isExit).ToList();
+        
+        // Keep track of cells that lead to a dead end (will be dispatched at the end)
+        List<MazeCell> cellsLeadingToIncompleteFragment = new List<MazeCell>();
 
         // Create each fragment
         for (int i = 0; i < nbFragments; i++) {
-            List<string> tilesNameInFragments = new List<string>();
-            List<GameObject> tilesInFragments = new List<GameObject>();
+            List<string> cellsNamesInFragment = new List<string>();
+            List<MazeCell> cellsInFragment = new List<MazeCell>();
+            
+            // Get cells that doesn't lead to a dead end
+            List<MazeCell> currentCellsLeft = availableCells
+                .Where(floorTile => !cellsLeadingToIncompleteFragment
+                    .Find(tile => tile == floorTile)).ToList();
 
-            // First Tile needs to be floorTile to get a spawnTile
-            List<GameObject> floorTilesLeft = availableFloorTiles
-                .Where(floorTile => !tilesLeadingToIncompleteFragment.Find(tile => tile == floorTile)).ToList();
-            if (floorTilesLeft.Count == 0) {
+            if (currentCellsLeft.Count == 0) {
+                // If there is no cells left we quit the loop and will dispatch the rest
                 break;
             }
 
-            GameObject firstTile = floorTilesLeft[Random.Range(0, floorTilesLeft.Count - 1)];
-            availableTiles.Remove(firstTile);
-            availableFloorTiles.Remove(firstTile);
-            string spawnTile = firstTile.name;
-            tilesNameInFragments.Add(firstTile.name);
-            tilesInFragments.Add(firstTile);
+            // Select the first tile randomly among all tiles left
+            MazeCell firstTile = currentCellsLeft[Random.Range(0, currentCellsLeft.Count - 1)];
+            availableCells.Remove(firstTile);
+            cellsNamesInFragment.Add(firstTile.name);
+            cellsInFragment.Add(firstTile);
 
             for (int j = 1; j < minFragmentSize; j++) {
                 // Get all neighbor tiles of current tiles in fragments
-                List<GameObject> availableNeighborTiles = new List<GameObject>();
-                foreach (GameObject tile in tilesInFragments) {
-                    List<GameObject> neighborTiles = mazeCellManager.GetNeighborTiles(tile);
-                    foreach (GameObject neighborTile in neighborTiles) {
-                        if (!tilesInFragments.Find(t => t == neighborTile)
+                List<MazeCell> availableNeighborTiles = new List<MazeCell>();
+                foreach (MazeCell tile in cellsInFragment) {
+                    List<MazeCell> neighborTiles = mazeCellManager.GetNeighborTiles(tile);
+                    foreach (MazeCell neighborTile in neighborTiles) {
+                        if (!cellsInFragment.Find(t => t == neighborTile)
                             && !availableNeighborTiles.Find(t => t == neighborTile)
-                            && availableTiles.Find(t => t == neighborTile)) {
+                            && availableCells.Find(t => t == neighborTile)) {
                             availableNeighborTiles.Add(neighborTile);
                         }
                     }
                 }
 
                 if (availableNeighborTiles.Count == 0) {
-                    foreach (GameObject tile in tilesInFragments) {
-                        availableTiles.Add(tile);
-                        availableFloorTiles.Add(tile);
+                    foreach (MazeCell tile in cellsInFragment) {
+                        availableCells.Add(tile);
                     }
 
-                    tilesLeadingToIncompleteFragment.Add(firstTile);
+                    cellsLeadingToIncompleteFragment.Add(firstTile);
                     break;
                 }
 
                 // Get distance of each available neighborTiles
                 float distanceMax = 100f;
-                GameObject closestTile = null;
-                foreach (GameObject neighborTile in availableNeighborTiles) {
+                MazeCell closestTile = null;
+                foreach (MazeCell neighborTile in availableNeighborTiles) {
                     float currentDistance = 0;
-                    foreach (GameObject fragmentTile in tilesInFragments) {
+                    foreach (MazeCell fragmentTile in cellsInFragment) {
                         currentDistance += Vector3.Distance(fragmentTile.transform.position,
                             neighborTile.transform.position);
                     }
@@ -78,14 +86,13 @@ public class FragmentManager : MonoBehaviour {
                     closestTile = neighborTile;
                 }
 
-                tilesInFragments.Add(closestTile);
-                tilesNameInFragments.Add(closestTile.name);
-                availableTiles.Remove(closestTile);
-                availableFloorTiles.Remove(closestTile);
+                cellsInFragment.Add(closestTile);
+                cellsNamesInFragment.Add(closestTile.name);
+                availableCells.Remove(closestTile);
             }
 
-            if (tilesInFragments.Count >= minFragmentSize) {
-                fragments.Add(new Fragment(tilesNameInFragments, spawnTile, i + 1));
+            if (cellsInFragment.Count >= minFragmentSize) {
+                fragments.Add(new Fragment(cellsNamesInFragment, i + 1));
             }
             else {
                 i -= 1; // Retry to do another fragment starting from another tile
@@ -93,7 +100,7 @@ public class FragmentManager : MonoBehaviour {
         }
 
         // Add the lonely tiles
-        foreach (GameObject tileLeft in availableTiles) {
+        foreach (MazeCell tileLeft in availableCells) {
             Fragment closestFragment = GetFragmentForTile(fragments, tileLeft);
             Fragment updatedFragment = fragments.Find(frg => frg == closestFragment);
             if (updatedFragment != null) {
@@ -111,27 +118,30 @@ public class FragmentManager : MonoBehaviour {
         return fragments;
     }
 
-    private Fragment GetFragmentForTile(List<Fragment> fragments, GameObject tile) {
-        // Get distance of each available neighborTiles
-        float distanceMax = 100f;
-        Fragment closestFragment = null;
-        foreach (Fragment fragment in fragments) {
-            float currentDistance = 0;
-            foreach (string tileName in fragment.cellsNamesInFragment) {
-                GameObject fragmentTile = GameObject.Find(tileName);
-                currentDistance += Vector3.Distance(fragmentTile.transform.position, tile.transform.position);
-            }
+    public Fragment GetFragmentForTile(List<Fragment> fragments, MazeCell cell) {
+        // // Get distance of each available neighborTiles
+        // float distanceMax = 100f;
+        // Fragment closestFragment = null;
+        // foreach (Fragment fragment in fragments) {
+        //     float currentDistance = 0;
+        //     foreach (string tileName in fragment.cellsNamesInFragment) {
+        //         GameObject fragmentTile = GameObject.Find(tileName);
+        //         currentDistance += Vector3.Distance(fragmentTile.transform.position, tile.transform.position);
+        //     }
+        //
+        //     if (!(currentDistance < distanceMax)) continue;
+        //     distanceMax = currentDistance;
+        //     closestFragment = fragment;
+        // }
 
-            if (!(currentDistance < distanceMax)) continue;
-            distanceMax = currentDistance;
-            closestFragment = fragment;
-        }
+        return fragments.Find(fragment => fragment.number == cell.fragmentNumber);
 
-        return closestFragment;
     }
 
     public void InstantiateFragment(Fragment fragmentIn) {
-        GameObject spawnTile = GameObject.Find(fragmentIn.spawnCell);
+        // Get a random spawn tile from the cells contained in the fragment
+        GameObject spawnTile = GameObject.Find(fragmentIn.cellsNamesInFragment[Random.Range(0,fragmentIn.cellsNamesInFragment.Count - 1)]);
+        spawnTile.GetComponent<MazeCell>().fragmentNumber = fragmentIn.number;
         Vector3 position = spawnTile.transform.position;
         Transform fragment = Instantiate(fragmentPrefab, new Vector3(
             position.x,
@@ -186,6 +196,6 @@ public class FragmentManager : MonoBehaviour {
         foreach (Vector3 position in positions) {
             center += position;
         }
-        return center /= positions.Count;
+        return center /= positions.Count; //TODO: Why /= and not just / ?
     }
 }

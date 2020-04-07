@@ -9,6 +9,8 @@ public class MazeCell : MonoBehaviour {
     public bool permanentlyRevealed = false;
     public bool revealedForCurrentRun = false;
     public bool hasLight = false;
+    public bool hasArrow = false;
+    public int fragmentNumber = 0;
 
 
     public void DestroyWallIfExists(GameObject wall) {

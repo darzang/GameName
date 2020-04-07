@@ -6,6 +6,7 @@ public class FileManager : MonoBehaviour {
 //  Application.persistentDataPath points to %userprofile%\AppData\Local\Packages\<productname>\LocalState.
     public static void SaveLevelDataFile(LevelData levelData, string fileName) {
         if (levelData == null) {
+            // Yep, that's harsh
             DeleteFile(fileName);
         }
         string path = $"{Application.persistentDataPath}/{fileName}.dat";

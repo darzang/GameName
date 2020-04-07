@@ -92,7 +92,6 @@ public class UiManager : MonoBehaviour {
     }
 
     public void Instantiation() {
-        Debug.Log("UI Instantiation");
         // Managers
         _mazeCellManager = GameObject.Find("TileManager").GetComponent<MazeCellManager>();
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -110,7 +109,7 @@ public class UiManager : MonoBehaviour {
             DrawMap();
         }
 
-        _tryCountText.text = $"Try number {_gameManager.tryCount} / {_gameManager.tryMax}";
+        _tryCountText.text = $"Try number {_gameManager.levelData.tryCount} / {_gameManager.tryMax}";
         UpdateDiscoveryText(_mazeCellManager.GetDiscoveredCellsCount(), _mazeCellManager.GetMapSize());
         if (_mazeCellManager.GetDiscoveredCellsCount() > 0) AddInfoMessage("Previous data loaded");
         _nextLevelButton.onClick.AddListener(_gameManager.NextLevel);
@@ -139,7 +138,7 @@ public class UiManager : MonoBehaviour {
             _batteryLevelText.SetActive(false);
             StopCoroutine(nameof(BlinkBatteryLevel));
             _batteryDeadCanvas.SetActive(true);
-            if (_gameManager.tryCount >= _gameManager.tryMax) {
+            if (_gameManager.levelData.tryCount >= _gameManager.tryMax) {
                 _batteryDeadText.fontSize = 18;
                 _batteryDeadText.text =
                     "Well, I told you, don't die too much...\n And one more map exploration lost forever...";

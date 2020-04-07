@@ -20,6 +20,7 @@ public class SceneGenerator : MonoBehaviour {
     private int _currentColumn = 0;
     private bool _courseComplete = false;
     private bool hideCeiling = true;
+    private GameObject _arrows;
 
     private void Start() {
         _maze = GameObject.Find("Maze");
@@ -287,9 +288,52 @@ public class SceneGenerator : MonoBehaviour {
                 cellObject.transform.Find("Floor").GetComponent<Renderer>().material = exitMaterial;
                 mazeCell.isExit = true;
             }
+
+            if (mazeCellForFile.hasArrow) {
+                mazeCell.hasArrow = true;
+                GameManager.Instantiate
+            }
+
+            mazeCell.action = mazeCellForFile.action;
             mazeCells[mazeCellForFile.x, mazeCellForFile.z] = mazeCell;
         }
 
         return mazeCells;
+    }
+    
+    public void InstantiateArrow(MazeCell mazeCell) {
+        if (!_arrows) {
+            _arrows = GameObject.Find("Arrows").gameObject;
+        }
+        if (GameObject.Find($"Arrow_{mazeCell.gameObject.name}")) {
+            //TODO: Just flip it
+            Destroy(GameObject.Find($"Arrow_{mazeCell.gameObject.name}"));
+        }
+
+        float angle = 0;
+        switch (mazeCell.action) {
+            case "SOUTH":
+                angle = 270;
+                break;            
+            case "EAST":
+                angle = 180;
+                break;
+            case "NORTH":
+                angle = 90;
+                break;
+            case "WEST":
+                angle = 0;
+                break;
+        }
+
+        Transform arrow = Instantiate(arrowPrefab, new Vector3(
+            mazeCell.transform.position.x,
+            mazeCell.transform.position.y + 0.05f,
+            mazeCell.transform.position.z
+        ), Quaternion.identity);
+        arrow.name = $"Arrow_{mazeCell.gameObject.name}";
+        arrow.transform.eulerAngles = new Vector3(0, angle, 0);
+        arrow.SetParent(_arrows.transform);
+        mazeCell.arrow = arrow.gameObject;
     }
 }
