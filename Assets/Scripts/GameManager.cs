@@ -163,6 +163,7 @@ public class GameManager : MonoBehaviour {
         }
 
         // Useful for now, to remove later
+        if (Input.GetKeyUp("r")) _mazeCellManager.PrintMazeCells();
         // if (Input.GetKeyUp("r")) FileManager.DeleteFile(SceneManager.GetActiveScene().name);
         // if (Input.GetKeyUp("n")) NextLevel();
         // if (Input.GetKeyUp("k")) FileManager.DeleteFile("playerData");
@@ -366,7 +367,7 @@ public class GameManager : MonoBehaviour {
     }
 
     public void PickupFragment(GameObject fragmentIn) {
-        // Fragment fragment = _fragmentManager.GetFragmentForTile(levelData.mapFragments)
+        Debug.Log($"Picking up fragment: {fragmentIn}");
         int row = (int) fragmentIn.transform.position.x;
         int column = (int) fragmentIn.transform.position.z;
         MazeCell mazeCell = _mazeCellManager.GetCellFromName($"MazeCell_{row}_{column}");
@@ -374,8 +375,9 @@ public class GameManager : MonoBehaviour {
         fragment.discovered = true;
         _playerSoundsAudioSource.PlayOneShot(fragmentPickupAudio);
         fragment.cellsNamesInFragment.ForEach(cellName => {
-            MazeCell cell = _mazeCellManager.GetCellFromName(cellName);
-            cell.permanentlyRevealed = true;
+            Debug.Log($"Fragment contains {cellName}");
+            _mazeCellManager.SetCellAsDiscovered(cellName);
+            
         });
         _uiManager.DrawMap();
         _uiManager.UpdateDiscoveryText(_mazeCellManager.GetDiscoveredCellsCount(), _mazeCellManager.GetMapSize());
@@ -385,11 +387,11 @@ public class GameManager : MonoBehaviour {
         if (Random.Range(1, 100) <= playerData.spawnArrowChance) {
             _uiManager.AddInfoMessage("Helping arrow spawned");
             mazeCell.hasArrow = true;
-            _mazeCellManager.InstantiateArrow(currentCell);
+            _mazeCellManager.SetCellHasArrow(currentCell);
         }
         
 
-        if (levelData.mapFragments.Where(fr => fr.discovered).ToList().Count == levelData.mapFragments.Count) {
+        if (_mazeCellManager.AllCellsDiscovered()) {
             // All fragments have been found
             playerData.cash += 1;
             _uiManager.AddInfoMessage("Map fully discovered");
@@ -397,11 +399,11 @@ public class GameManager : MonoBehaviour {
             levelData.allFragmentsPickedUp = true;
         }
 
-        Debug.Log($"Picking up fragment: {fragmentIn}");
         Destroy(fragmentIn);
         levelData.mazeCellsForFile = _mazeCellManager.FormatMazeCells(_mazeCellManager.mazeCells);
         FileManager.SaveLevelDataFile(levelData, SceneManager.GetActiveScene().name);
         FileManager.SavePlayerDataFile(playerData);
+        _uiManager.DrawMap();
     }
 
     public void PickupBattery(GameObject batteryIn) {

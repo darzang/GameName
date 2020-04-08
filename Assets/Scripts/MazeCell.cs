@@ -39,6 +39,7 @@ public class MazeCell : MonoBehaviour {
     }
 
     public void SetCollidersTrigger(bool trigger) {
+        // This is used for cells in fragments so they can be pickedup
         northWall.GetComponent<BoxCollider>().isTrigger = trigger;
         southWall.GetComponent<BoxCollider>().isTrigger = trigger;
         eastWall.GetComponent<BoxCollider>().isTrigger = trigger;

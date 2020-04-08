@@ -205,7 +205,7 @@ public class MazeCellManager : MonoBehaviour {
             MazeCellForFile mazeCellFormatted = new MazeCellForFile {
                 isExit = mazeCell.isExit,
                 hasLight = mazeCell.hasLight,
-                permanentlyRevealed = false,
+                permanentlyRevealed = mazeCell.permanentlyRevealed,
                 hasEastWall = mazeCell.eastWall,
                 hasWestWall = mazeCell.westWall,
                 hasNorthWall = mazeCell.northWall,
@@ -218,7 +218,6 @@ public class MazeCellManager : MonoBehaviour {
 
         return mazeCellsFormatted;
     }
-
     public List<MazeCell> GetMazeAsList() {
         List<MazeCell> mazeCellsList = new List<MazeCell>();
         foreach (MazeCell mazeCell in mazeCells) {
@@ -243,5 +242,32 @@ public class MazeCellManager : MonoBehaviour {
             if (mazeCell.gameObject.name == name) return mazeCell;
         }
         return null;
+    }
+
+    public void SetCellAsDiscovered(string cellName) {
+        foreach (MazeCell cell in GetMazeAsList()) {
+            if (cell.gameObject.name == cellName) {
+                mazeCells[(int)cell.transform.position.x, (int)cell.transform.position.z].permanentlyRevealed = true;
+            }
+        }
+    }
+    
+    public void SetCellHasArrow(MazeCell mazeCell) {
+        foreach (MazeCell cell in GetMazeAsList()) {
+            if (cell == mazeCell) {
+                mazeCells[(int)cell.transform.position.x, (int)cell.transform.position.z].hasArrow = true;
+            }
+        }
+    }
+
+    public bool AllCellsDiscovered() {
+        if (GetMazeAsList().Find(cell => !cell.permanentlyRevealed)) return false;
+        return true;
+    }
+
+    public void PrintMazeCells() {
+        foreach (MazeCell mazeCell in GetMazeAsList()) {
+            Debug.Log($"Cell {mazeCell.transform.position.x} {mazeCell.transform.position.z} permanently revealed ? : {mazeCell.permanentlyRevealed}");
+        }
     }
 }

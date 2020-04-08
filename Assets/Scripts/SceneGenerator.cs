@@ -21,6 +21,7 @@ public class SceneGenerator : MonoBehaviour {
     private bool _courseComplete = false;
     private bool hideCeiling = true;
     private GameObject _arrows;
+    public Transform arrowPrefab;
 
     private void Start() {
         _maze = GameObject.Find("Maze");
@@ -288,20 +289,21 @@ public class SceneGenerator : MonoBehaviour {
                 cellObject.transform.Find("Floor").GetComponent<Renderer>().material = exitMaterial;
                 mazeCell.isExit = true;
             }
-
+            mazeCell.action = mazeCellForFile.action;
             if (mazeCellForFile.hasArrow) {
                 mazeCell.hasArrow = true;
-                GameManager.Instantiate
+                InstantiateArrow(mazeCell);
             }
 
-            mazeCell.action = mazeCellForFile.action;
+            mazeCell.permanentlyRevealed = mazeCellForFile.permanentlyRevealed;
+
             mazeCells[mazeCellForFile.x, mazeCellForFile.z] = mazeCell;
         }
 
         return mazeCells;
     }
     
-    public void InstantiateArrow(MazeCell mazeCell) {
+    private void InstantiateArrow(MazeCell mazeCell) {
         if (!_arrows) {
             _arrows = GameObject.Find("Arrows").gameObject;
         }

@@ -104,11 +104,8 @@ public class UiManager : MonoBehaviour {
         _pauseResumeButton.onClick.AddListener(ResumeGame);
         _pauseRetryButton.onClick.AddListener(_gameManager.Retry);
         _pauseBackButton.onClick.AddListener(_gameManager.GiveUp);
-        
-        if (_mazeCellManager.GetMazeAsList().Find(cell => cell.permanentlyRevealed)) {
-            DrawMap();
-        }
 
+        DrawMap();
         _tryCountText.text = $"Try number {_gameManager.levelData.tryCount} / {_gameManager.tryMax}";
         UpdateDiscoveryText(_mazeCellManager.GetDiscoveredCellsCount(), _mazeCellManager.GetMapSize());
         if (_mazeCellManager.GetDiscoveredCellsCount() > 0) AddInfoMessage("Previous data loaded");
@@ -158,9 +155,11 @@ public class UiManager : MonoBehaviour {
         while (angle > 360) {
             angle -= 360;
         }
+
         while (angle < 0) {
             angle += 360;
         }
+
         _miniMapPanel.GetComponent<RectTransform>().localRotation = Quaternion.Euler(0, 0, angle);
     }
 
@@ -215,9 +214,11 @@ public class UiManager : MonoBehaviour {
             if (existingMiniMapCell) {
                 existingMiniMapCell.GetComponent<SpriteRenderer>().enabled = true;
                 existingMiniMapCell.transform.localPosition = new Vector3(
-                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnder(_gameManager.player).gameObject, tile)
+                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnder(_gameManager.player).gameObject,
+                            tile)
                         [0] * 10,
-                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnder(_gameManager.player).gameObject, tile)
+                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnder(_gameManager.player).gameObject,
+                            tile)
                         [1] * 10,
                     0);
                 if (realCell == _gameManager.currentCell) {
@@ -236,12 +237,14 @@ public class UiManager : MonoBehaviour {
                 newMiniMapCell.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
                 newMiniMapCell.layer = 5;
 
-                
+
                 // Set the position of the new tile
                 newMiniMapCell.transform.localPosition = new Vector3(
-                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnder(_gameManager.player).gameObject, tile)
+                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnder(_gameManager.player).gameObject,
+                            tile)
                         [0] * 10,
-                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnder(_gameManager.player).gameObject, tile)
+                    _mazeCellManager.GetRelativePosition(_mazeCellManager.GetTileUnder(_gameManager.player).gameObject,
+                            tile)
                         [1] * 10,
                     0);
 
@@ -281,14 +284,12 @@ public class UiManager : MonoBehaviour {
             if (realCell == _gameManager.currentCell) {
                 AddPlayerSprite(newCellObject.transform, "Map");
             }
-
         }
         else {
             if (realCell == _gameManager.currentCell) {
                 AddPlayerSprite(existingTile.transform, "Map");
             }
         }
-
     }
 
     private void AddPlayerSprite(Transform canvasCell, String prefix) {

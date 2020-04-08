@@ -5,6 +5,7 @@ using UnityEngine;
 public class FileManager : MonoBehaviour {
 //  Application.persistentDataPath points to %userprofile%\AppData\Local\Packages\<productname>\LocalState.
     public static void SaveLevelDataFile(LevelData levelData, string fileName) {
+        Debug.Log($"Saving levelData file: \n {JsonUtility.ToJson(levelData, true)}");
         if (levelData == null) {
             // Yep, that's harsh
             DeleteFile(fileName);
@@ -17,6 +18,8 @@ public class FileManager : MonoBehaviour {
     }
 
     public static void SavePlayerDataFile(PlayerData playerData) {
+        Debug.Log($"Saving playerData file: \n {JsonUtility.ToJson(playerData, true)}");
+
         string path = $"{Application.persistentDataPath}/PlayerData.dat";
         FileStream file = File.Exists(path) ? File.OpenWrite(path) : File.Create(path);
         BinaryFormatter bf = new BinaryFormatter();
@@ -39,6 +42,10 @@ public class FileManager : MonoBehaviour {
         BinaryFormatter bf = new BinaryFormatter();
         LevelData data = (LevelData) bf.Deserialize(file);
         file.Close();
+        // Debug.Log($"levelData loaded: \n {JsonUtility.ToJson(data, true)}");
+        if (data.mazeCellsForFile.Find(cell => cell.permanentlyRevealed) != null) {
+            Debug.Log("levelData has permanently discovered cells");
+        }
         return data;
     }
     
@@ -57,6 +64,7 @@ public class FileManager : MonoBehaviour {
         BinaryFormatter bf = new BinaryFormatter();
         PlayerData data = (PlayerData) bf.Deserialize(file);
         file.Close();
+        Debug.Log($"PlayerData loaded: \n {JsonUtility.ToJson(data, true)}");
         return data;
     }
 
