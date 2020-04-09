@@ -177,11 +177,11 @@ public class FragmentManager : MonoBehaviour {
             MazeCell fragmentCell = fragmentTile.GetComponent<MazeCell>();
             
             // TODO: This should Check neighbor cells as well to don't destry the wall if the neighbor has a wall
-            if(!realCell.southWall) fragmentCell.DestroyWallIfExists(fragmentCell.southWall);
-            if(!realCell.eastWall) fragmentCell.DestroyWallIfExists(fragmentCell.eastWall);
-            if(!realCell.westWall) fragmentCell.DestroyWallIfExists(fragmentCell.westWall);
-            if(!realCell.northWall) fragmentCell.DestroyWallIfExists(fragmentCell.northWall);
-            fragmentCell.DestroyWallIfExists(fragmentCell.ceiling);
+            if(!realCell.hasSouthWall) fragmentCell.DestroyWallIfExists(MazeCell.Walls.South);
+            if(!realCell.hasEastWall) fragmentCell.DestroyWallIfExists(MazeCell.Walls.East);
+            if(!realCell.hasWestWall) fragmentCell.DestroyWallIfExists(MazeCell.Walls.West);
+            if(!realCell.hasNorthWall) fragmentCell.DestroyWallIfExists(MazeCell.Walls.North);
+            fragmentCell.DestroyWallIfExists(MazeCell.Walls.Ceiling);
         }
         // Shift the tiles to be in center of parent gameObject
         Vector3 offset = GetCenterPointBetween(tilesPositions);

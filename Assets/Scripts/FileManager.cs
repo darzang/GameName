@@ -9,6 +9,7 @@ public class FileManager : MonoBehaviour {
         if (levelData == null) {
             // Yep, that's harsh
             DeleteFile(fileName);
+            return;
         }
         string path = $"{Application.persistentDataPath}/{fileName}.dat";
         FileStream file = File.Exists(path) ? File.OpenWrite(path) : File.Create(path);

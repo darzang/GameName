@@ -322,7 +322,7 @@ public class UiManager : MonoBehaviour {
             _mazeCellManager.GetCellIfExists((int) cell.transform.position.x, (int) cell.transform.position.z + 1);
         MazeCell westCell =
             _mazeCellManager.GetCellIfExists((int) cell.transform.position.x, (int) cell.transform.position.z - 1);
-        if (cell.northWall || (northCell && northCell.southWall)) {
+        if (cell.hasNorthWall || (northCell && northCell.hasSouthWall)) {
             GameObject northWallObject = new GameObject($"{prefix}_{cell.gameObject.name}_North_Wall");
             northWallObject.transform.SetParent(canvasCell);
             SpriteRenderer northWallSprite = northWallObject.AddComponent<SpriteRenderer>();
@@ -335,7 +335,7 @@ public class UiManager : MonoBehaviour {
             northWallSprite.sortingOrder = 1;
         }
 
-        if (cell.southWall || (southCell && southCell.northWall)) {
+        if (cell.hasSouthWall || (southCell && southCell.hasNorthWall)) {
             GameObject southWallObject = new GameObject($"{prefix}_{cell.gameObject.name}_South_Wall");
             southWallObject.transform.SetParent(canvasCell);
             SpriteRenderer southWallSprite = southWallObject.AddComponent<SpriteRenderer>();
@@ -348,7 +348,7 @@ public class UiManager : MonoBehaviour {
             southWallObject.transform.localRotation = rotationQuaternion;
         }
 
-        if (cell.eastWall || (eastCell && eastCell.westWall)) {
+        if (cell.hasEastWall || (eastCell && eastCell.hasWestWall)) {
             GameObject eastWallObject = new GameObject($"{prefix}_{cell.gameObject.name}_East_Wall");
             eastWallObject.transform.SetParent(canvasCell);
             SpriteRenderer eastWallSprite = eastWallObject.AddComponent<SpriteRenderer>();
@@ -359,7 +359,7 @@ public class UiManager : MonoBehaviour {
             eastWallSprite.sortingOrder = 1;
         }
 
-        if (cell.westWall || (westCell && westCell.eastWall)) {
+        if (cell.hasWestWall || (westCell && westCell.hasEastWall)) {
             GameObject westWallObject = new GameObject($"{prefix}_{cell.gameObject.name}_West_Wall");
             westWallObject.transform.SetParent(canvasCell);
             SpriteRenderer westWallSprite = westWallObject.AddComponent<SpriteRenderer>();

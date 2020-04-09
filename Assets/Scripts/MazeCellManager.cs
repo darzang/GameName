@@ -32,7 +32,7 @@ public class MazeCellManager : MonoBehaviour {
 
     public void ShowCeiling(bool show) {
         foreach (MazeCell mazeCell in mazeCells) {
-            mazeCell.ceiling.SetActive(show);
+            mazeCell.GetWall(MazeCell.Walls.Ceiling).SetActive(show);
         }
     }
 
@@ -43,22 +43,22 @@ public class MazeCellManager : MonoBehaviour {
         int z = (int) mazeCell.transform.position.z;
 
         MazeCell northCell = GetCellIfExists(x - 1, z);
-        if (northCell && !northCell.southWall && !mazeCell.northWall) {
+        if (northCell && !northCell.hasSouthWall && !mazeCell.hasNorthWall) {
             neighborTiles.Add(northCell);
         }
 
         MazeCell southCell = GetCellIfExists(x + 1, z);
-        if (southCell && !southCell.northWall && !mazeCell.southWall) {
+        if (southCell && !southCell.hasNorthWall && !mazeCell.hasSouthWall) {
             neighborTiles.Add(southCell);
         }
 
         MazeCell eastCell = GetCellIfExists(x, z + 1);
-        if (eastCell && !eastCell.westWall && !mazeCell.eastWall) {
+        if (eastCell && !eastCell.hasWestWall && !mazeCell.hasEastWall) {
             neighborTiles.Add(eastCell);
         }
 
         MazeCell westCell = GetCellIfExists(x, z - 1);
-        if (westCell && !westCell.eastWall && !mazeCell.westWall) {
+        if (westCell && !westCell.hasEastWall && !mazeCell.hasWestWall) {
             neighborTiles.Add(westCell);
         }
 
@@ -196,7 +196,7 @@ public class MazeCellManager : MonoBehaviour {
         arrow.name = $"Arrow_{mazeCell.gameObject.name}";
         arrow.transform.eulerAngles = new Vector3(0, angle, 0);
         arrow.SetParent(_arrows.transform);
-        mazeCell.arrow = arrow.gameObject;
+        mazeCell.hasArrow = true;
     }
     
     public List<MazeCellForFile> FormatMazeCells(MazeCell[,] mazeCells) {
@@ -206,10 +206,10 @@ public class MazeCellManager : MonoBehaviour {
                 isExit = mazeCell.isExit,
                 hasLight = mazeCell.hasLight,
                 permanentlyRevealed = mazeCell.permanentlyRevealed,
-                hasEastWall = mazeCell.eastWall,
-                hasWestWall = mazeCell.westWall,
-                hasNorthWall = mazeCell.northWall,
-                hasSouthWall = mazeCell.southWall,
+                hasEastWall = mazeCell.hasEastWall,
+                hasWestWall = mazeCell.hasWestWall,
+                hasNorthWall = mazeCell.hasNorthWall,
+                hasSouthWall = mazeCell.hasSouthWall,
                 x = (int) mazeCell.transform.position.x,
                 z = (int) mazeCell.transform.position.z
             };
@@ -243,23 +243,7 @@ public class MazeCellManager : MonoBehaviour {
         }
         return null;
     }
-
-    public void SetCellAsDiscovered(string cellName) {
-        foreach (MazeCell cell in GetMazeAsList()) {
-            if (cell.gameObject.name == cellName) {
-                mazeCells[(int)cell.transform.position.x, (int)cell.transform.position.z].permanentlyRevealed = true;
-            }
-        }
-    }
     
-    public void SetCellHasArrow(MazeCell mazeCell) {
-        foreach (MazeCell cell in GetMazeAsList()) {
-            if (cell == mazeCell) {
-                mazeCells[(int)cell.transform.position.x, (int)cell.transform.position.z].hasArrow = true;
-            }
-        }
-    }
-
     public bool AllCellsDiscovered() {
         if (GetMazeAsList().Find(cell => !cell.permanentlyRevealed)) return false;
         return true;

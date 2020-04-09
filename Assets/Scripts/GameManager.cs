@@ -376,8 +376,8 @@ public class GameManager : MonoBehaviour {
         _playerSoundsAudioSource.PlayOneShot(fragmentPickupAudio);
         fragment.cellsNamesInFragment.ForEach(cellName => {
             Debug.Log($"Fragment contains {cellName}");
-            _mazeCellManager.SetCellAsDiscovered(cellName);
-            
+            MazeCell cellInFragment = _mazeCellManager.GetCellFromName(cellName);
+            cellInFragment.permanentlyRevealed = true;
         });
         _uiManager.DrawMap();
         _uiManager.UpdateDiscoveryText(_mazeCellManager.GetDiscoveredCellsCount(), _mazeCellManager.GetMapSize());
@@ -387,7 +387,6 @@ public class GameManager : MonoBehaviour {
         if (Random.Range(1, 100) <= playerData.spawnArrowChance) {
             _uiManager.AddInfoMessage("Helping arrow spawned");
             mazeCell.hasArrow = true;
-            _mazeCellManager.SetCellHasArrow(currentCell);
         }
         
 
@@ -401,6 +400,9 @@ public class GameManager : MonoBehaviour {
 
         Destroy(fragmentIn);
         levelData.mazeCellsForFile = _mazeCellManager.FormatMazeCells(_mazeCellManager.mazeCells);
+        foreach (MazeCell cell in _mazeCellManager.mazeCells) {
+            if(cell.permanentlyRevealed) Debug.Log($"Cell {cell.transform.name} is permanently revealed");
+        }
         FileManager.SaveLevelDataFile(levelData, SceneManager.GetActiveScene().name);
         FileManager.SavePlayerDataFile(playerData);
         _uiManager.DrawMap();
