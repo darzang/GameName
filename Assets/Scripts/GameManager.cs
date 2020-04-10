@@ -47,7 +47,8 @@ public class GameManager : MonoBehaviour {
     private bool _incrementOnboardingIsRunning;
 
     private void Awake() {
-        _mazeCellManager = GameObject.Find("TileManager").GetComponent<MazeCellManager>();
+        _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
+        Debug.Log($"mazeCells in mazeCellManagers on GameMAnager awake: : {_mazeCellManager.mazeCells.Count}");
         _uiManager = GameObject.Find("UIManager").GetComponent<UiManager>();
         _fragmentManager = GameObject.Find("FragmentManager").GetComponent<FragmentManager>();
         _batteries = GameObject.Find("Batteries").gameObject;
@@ -55,12 +56,11 @@ public class GameManager : MonoBehaviour {
         levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
         if (levelData == null) {
             Debug.LogError("No Data to load, scene hasn't been generated properly");
-            levelData.mapFragments = _fragmentManager.GenerateRandomFragments(_mazeCellManager.GetMazeAsList(), _mazeCellManager);
+            levelData.mapFragments = _fragmentManager.GenerateRandomFragments();
         }
         else {
             if (levelData.mapFragments == null) {
-                levelData.mapFragments =
-                    _fragmentManager.GenerateRandomFragments(_mazeCellManager.GetMazeAsList(), _mazeCellManager);
+                levelData.mapFragments = _fragmentManager.GenerateRandomFragments();
             }
             else {
                 levelData.mapFragments = levelData.mapFragments;
@@ -68,6 +68,8 @@ public class GameManager : MonoBehaviour {
 
             levelData.tryCount = levelData.tryCount + 1;
             Debug.Log($"Data loaded: try {levelData.tryCount}");
+            Debug.Log($"mazeCells in mazeCellManagers on end of GameManager after loading: : {_mazeCellManager.mazeCells.Count}");
+
         }
 
         string sceneName = SceneManager.GetActiveScene().name;
@@ -81,6 +83,8 @@ public class GameManager : MonoBehaviour {
         }
 
         playerData = FileManager.LoadPlayerDataFile();
+        Debug.Log($"mazeCells in mazeCellManagers on end of GameManager awake: : {_mazeCellManager.mazeCells.Count}");
+
     }
 
 
@@ -273,7 +277,10 @@ public class GameManager : MonoBehaviour {
                 // Colliders detected will be floor and walls so we need to get the parent
                 Transform transform = tile.transform;
                 Transform parent = transform.parent;
-                MazeCell mazeCell = parent.GetComponent<MazeCell>();
+                MazeCell mazeCell = _mazeCellManager.GetCellByName(parent.name);
+                if (mazeCell == null) {
+                    Debug.LogError($"MazeCell not found from tileDiscovery {parent.name}");
+                }
                 if (!mazeCell.revealedForCurrentRun) {
                     needMapUpdate = true;
                     mazeCell.revealedForCurrentRun = true;
@@ -317,7 +324,7 @@ public class GameManager : MonoBehaviour {
 
     private void InstantiatePlayer() {
         // Get floor tiles
-        List<MazeCell> mazeCells = _mazeCellManager.GetMazeAsList();
+        List<MazeCell> mazeCells = _mazeCellManager.mazeCells;
 
         mazeCells = mazeCells.OrderBy(cell => cell.score).ToList();
         // Get 10 % furthest tiles
@@ -343,7 +350,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private void InstantiateBatteries() {
-        List<MazeCell> availableFloorTiles = _mazeCellManager.GetMazeAsList();
+        List<MazeCell> availableFloorTiles = _mazeCellManager.mazeCells.ToList();
         foreach (Fragment fragment in levelData.mapFragments) {
             availableFloorTiles.Remove(_mazeCellManager.GetCellFromFragmentNumber(fragment.number));
         }
@@ -364,13 +371,13 @@ public class GameManager : MonoBehaviour {
         Debug.Log($"Picking up fragment: {fragmentIn}");
         int row = (int) fragmentIn.transform.position.x;
         int column = (int) fragmentIn.transform.position.z;
-        MazeCell mazeCell = _mazeCellManager.GetCellFromName($"MazeCell_{row}_{column}");
+        MazeCell mazeCell = _mazeCellManager.GetCellByName($"MazeCell_{row}_{column}");
         Fragment fragment = _fragmentManager.GetFragmentForTile(levelData.mapFragments, mazeCell);
         fragment.discovered = true;
         _playerSoundsAudioSource.PlayOneShot(fragmentPickupAudio);
-        fragment.cellsNamesInFragment.ForEach(cellName => {
-            Debug.Log($"Fragment contains {cellName}");
-            MazeCell cellInFragment = _mazeCellManager.GetCellFromName(cellName);
+        fragment.cellsInFragment.ForEach(cell => {
+            Debug.Log($"Fragment contains {cell.name}");
+            MazeCell cellInFragment = _mazeCellManager.GetCellByName(cell.name);
             cellInFragment.permanentlyRevealed = true;
         });
         _uiManager.DrawMap();

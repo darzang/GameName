@@ -19,11 +19,4 @@ public class MazeCell {
     public int x;
     public int z;
     public string name;
-
-    
-
-
-    
-
-
 }
