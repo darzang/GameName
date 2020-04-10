@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -11,7 +10,11 @@ public class FragmentManager : MonoBehaviour {
     public Material floorMaterial;
     public Material obstacleMaterial;
     public Transform fragmentPrefab;
+    private MazeCellManager _mazeCellManager;
 
+    private void Start() {
+        _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
+    }
     public List<Fragment> GenerateRandomFragments(List<MazeCell> mazeCells, MazeCellManager mazeCellManager) {
         
         // How many fragments do we want ?
@@ -22,7 +25,7 @@ public class FragmentManager : MonoBehaviour {
         int minFragmentSize = (int) Math.Round((double) (mazeCells.Count / nbFragments));
         
         List<Fragment> fragments = new List<Fragment>();
-        List<MazeCell> availableCells = mazeCells.Where(cell => !cell.isExit).ToList();
+        List<MazeCell> availableCells = mazeCells;
         
         // Keep track of cells that lead to a dead end (will be dispatched at the end)
         List<MazeCell> cellsLeadingToIncompleteFragment = new List<MazeCell>();
@@ -33,10 +36,11 @@ public class FragmentManager : MonoBehaviour {
             List<MazeCell> cellsInFragment = new List<MazeCell>();
             
             // Get cells that doesn't lead to a dead end
-            List<MazeCell> currentCellsLeft = availableCells
-                .Where(floorTile => !cellsLeadingToIncompleteFragment
-                    .Find(tile => tile == floorTile)).ToList();
-
+            List<MazeCell> currentCellsLeft = new List<MazeCell>();
+            foreach (MazeCell availableCell in availableCells) {
+                if (cellsLeadingToIncompleteFragment.Find(cell => cell == availableCell) != null) continue;
+                currentCellsLeft.Add(availableCell);
+            }
             if (currentCellsLeft.Count == 0) {
                 // If there is no cells left we quit the loop and will dispatch the rest
                 break;
@@ -54,9 +58,9 @@ public class FragmentManager : MonoBehaviour {
                 foreach (MazeCell tile in cellsInFragment) {
                     List<MazeCell> neighborTiles = mazeCellManager.GetNeighborTiles(tile);
                     foreach (MazeCell neighborTile in neighborTiles) {
-                        if (!cellsInFragment.Find(t => t == neighborTile)
-                            && !availableNeighborTiles.Find(t => t == neighborTile)
-                            && availableCells.Find(t => t == neighborTile)) {
+                        if (neighborTile.fragmentNumber == 0
+                            && availableNeighborTiles.Find(t => t == neighborTile) == null
+                            && availableCells.Find(t => t == neighborTile) != null) {
                             availableNeighborTiles.Add(neighborTile);
                         }
                     }
@@ -77,8 +81,9 @@ public class FragmentManager : MonoBehaviour {
                 foreach (MazeCell neighborTile in availableNeighborTiles) {
                     float currentDistance = 0;
                     foreach (MazeCell fragmentTile in cellsInFragment) {
-                        currentDistance += Vector3.Distance(fragmentTile.transform.position,
-                            neighborTile.transform.position);
+                        currentDistance += Vector3.Distance(
+                            new Vector3(fragmentTile.x, 0, fragmentTile.z),
+                            new Vector3(neighborTile.x, 0, neighborTile.z));
                     }
 
                     if (!(currentDistance < distanceMax)) continue;
@@ -168,7 +173,7 @@ public class FragmentManager : MonoBehaviour {
             tileObject.name = $"FragmentTile_{realTile.name}";
             tileObject.isStatic = false;
             tileObject.tag = "FragmentTile";
-            tileObject.GetComponent<MazeCell>().SetCollidersTrigger(true);
+            _mazeCellManager.SetCollidersTrigger(tileObject.GetComponent<MazeCell>(), true);
             fragment.gameObject.isStatic = false;
             fragmentTile.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
             
@@ -177,11 +182,11 @@ public class FragmentManager : MonoBehaviour {
             MazeCell fragmentCell = fragmentTile.GetComponent<MazeCell>();
             
             // TODO: This should Check neighbor cells as well to don't destry the wall if the neighbor has a wall
-            if(!realCell.hasSouthWall) fragmentCell.DestroyWallIfExists(MazeCell.Walls.South);
-            if(!realCell.hasEastWall) fragmentCell.DestroyWallIfExists(MazeCell.Walls.East);
-            if(!realCell.hasWestWall) fragmentCell.DestroyWallIfExists(MazeCell.Walls.West);
-            if(!realCell.hasNorthWall) fragmentCell.DestroyWallIfExists(MazeCell.Walls.North);
-            fragmentCell.DestroyWallIfExists(MazeCell.Walls.Ceiling);
+            if(!realCell.hasSouthWall)_mazeCellManager.DestroyWallIfExists(fragmentCell, MazeCell.Walls.South);
+            if(!realCell.hasEastWall)_mazeCellManager.DestroyWallIfExists(fragmentCell, MazeCell.Walls.East);
+            if(!realCell.hasWestWall) _mazeCellManager.DestroyWallIfExists(fragmentCell, MazeCell.Walls.West);
+            if(!realCell.hasNorthWall) _mazeCellManager.DestroyWallIfExists(fragmentCell, MazeCell.Walls.North);
+            _mazeCellManager.DestroyWallIfExists(fragmentCell, MazeCell.Walls.Ceiling);
         }
         // Shift the tiles to be in center of parent gameObject
         Vector3 offset = GetCenterPointBetween(tilesPositions);

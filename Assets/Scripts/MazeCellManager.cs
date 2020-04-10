@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,6 +9,7 @@ public class MazeCellManager : MonoBehaviour {
     private int _mazeColumn;
     public Transform arrowPrefab;
     private GameObject _arrows;
+    public Transform lightPrefab;
 
     // Origin is top left corner corner, Z++ = east, X++ = South
 
@@ -32,33 +34,33 @@ public class MazeCellManager : MonoBehaviour {
 
     public void ShowCeiling(bool show) {
         foreach (MazeCell mazeCell in mazeCells) {
-            mazeCell.GetWall(MazeCell.Walls.Ceiling).SetActive(show);
+            GetWall(mazeCell, MazeCell.Walls.Ceiling).SetActive(show);
         }
     }
 
     private List<MazeCell> GetNeighborWalkableTiles(MazeCell mazeCell) {
         // Returns the neighbor tiles that the player can directly reach
         List<MazeCell> neighborTiles = new List<MazeCell>();
-        int x = (int) mazeCell.transform.position.x;
-        int z = (int) mazeCell.transform.position.z;
+        int x = mazeCell.x;
+        int z = mazeCell.z;
 
         MazeCell northCell = GetCellIfExists(x - 1, z);
-        if (northCell && !northCell.hasSouthWall && !mazeCell.hasNorthWall) {
+        if (northCell != null && !northCell.hasSouthWall && !mazeCell.hasNorthWall) {
             neighborTiles.Add(northCell);
         }
 
         MazeCell southCell = GetCellIfExists(x + 1, z);
-        if (southCell && !southCell.hasNorthWall && !mazeCell.hasSouthWall) {
+        if (southCell != null && !southCell.hasNorthWall && !mazeCell.hasSouthWall) {
             neighborTiles.Add(southCell);
         }
 
         MazeCell eastCell = GetCellIfExists(x, z + 1);
-        if (eastCell && !eastCell.hasWestWall && !mazeCell.hasEastWall) {
+        if (eastCell != null && !eastCell.hasWestWall && !mazeCell.hasEastWall) {
             neighborTiles.Add(eastCell);
         }
 
         MazeCell westCell = GetCellIfExists(x, z - 1);
-        if (westCell && !westCell.hasEastWall && !mazeCell.hasWestWall) {
+        if (westCell != null && !westCell.hasEastWall && !mazeCell.hasWestWall) {
             neighborTiles.Add(westCell);
         }
 
@@ -67,26 +69,24 @@ public class MazeCellManager : MonoBehaviour {
 
     public List<MazeCell> GetNeighborTiles(MazeCell mazeCell) {
         List<MazeCell> neighborTiles = new List<MazeCell>();
-        if (mazeCell.transform.position.x - 1 > 0) {
-            MazeCell northCell =
-                mazeCells[(int) mazeCell.transform.position.x - 1, (int) mazeCell.transform.position.z];
-            if (northCell) neighborTiles.Add(northCell);
+        if (mazeCell.x - 1 > 0) {
+            MazeCell northCell = mazeCells[ mazeCell.x - 1,  mazeCell.z];
+            if (northCell != null) neighborTiles.Add(northCell);
         }
 
-        if (mazeCell.transform.position.x + 1 < _mazeRow) {
-            MazeCell southCell =
-                mazeCells[(int) mazeCell.transform.position.x + 1, (int) mazeCell.transform.position.z];
-            if (southCell) neighborTiles.Add(southCell);
+        if (mazeCell.x + 1 < _mazeRow) {
+            MazeCell southCell = mazeCells[ mazeCell.x + 1,  mazeCell.z];
+            if (southCell != null) neighborTiles.Add(southCell);
         }
 
-        if (mazeCell.transform.position.z - 1 > 0) {
-            MazeCell westCell = mazeCells[(int) mazeCell.transform.position.x, (int) mazeCell.transform.position.z - 1];
-            if (westCell) neighborTiles.Add(westCell);
+        if (mazeCell.z - 1 > 0) {
+            MazeCell westCell = mazeCells[mazeCell.x,  mazeCell.z - 1];
+            if (westCell != null) neighborTiles.Add(westCell);
         }
 
-        if (mazeCell.transform.position.z + 1 < _mazeColumn) {
-            MazeCell eastCell = mazeCells[(int) mazeCell.transform.position.x, (int) mazeCell.transform.position.z + 1];
-            if (eastCell) neighborTiles.Add(eastCell);
+        if (mazeCell.z + 1 < _mazeColumn) {
+            MazeCell eastCell = mazeCells[ mazeCell.x, mazeCell.z + 1];
+            if (eastCell != null) neighborTiles.Add(eastCell);
         }
 
         return neighborTiles;
@@ -126,16 +126,16 @@ public class MazeCellManager : MonoBehaviour {
     }
 
     private void SetAction(MazeCell cell, MazeCell neighborCell) {
-        if (neighborCell.transform.position.z > cell.transform.position.z) {
+        if (neighborCell.z > cell.z) {
             cell.action = "EAST";
         }
-        else if (neighborCell.transform.position.z < cell.transform.position.z) {
+        else if (neighborCell.z < cell.z) {
             cell.action = "WEST";
         }
-        else if (neighborCell.transform.position.x > cell.transform.position.x) {
+        else if (neighborCell.x > cell.x) {
             cell.action = "SOUTH";
         }
-        else if (neighborCell.transform.position.x < cell.transform.position.x) {
+        else if (neighborCell.x < cell.x) {
             cell.action = "NORTH";
         }
         else {
@@ -157,9 +157,8 @@ public class MazeCellManager : MonoBehaviour {
      */
     public float[] GetRelativePosition(GameObject player, MazeCell tile) {
         Vector3 playerPosition = player.transform.position;
-        Vector3 tilePosition = tile.transform.position;
-        float x = playerPosition.x - tilePosition.x;
-        float z = playerPosition.z - tilePosition.z;
+        float x = playerPosition.x - tile.x;
+        float z = playerPosition.z - tile.z;
         return new[] {x, z};
     }
     
@@ -167,9 +166,9 @@ public class MazeCellManager : MonoBehaviour {
         if (!_arrows) {
             _arrows = GameObject.Find("Arrows").gameObject;
         }
-        if (GameObject.Find($"Arrow_{mazeCell.gameObject.name}")) {
+        if (GameObject.Find($"Arrow_{mazeCell.name}")) {
             //TODO: Just flip it
-            Destroy(GameObject.Find($"Arrow_{mazeCell.gameObject.name}"));
+            Destroy(GameObject.Find($"Arrow_{mazeCell.name}"));
         }
 
         float angle = 0;
@@ -189,34 +188,14 @@ public class MazeCellManager : MonoBehaviour {
         }
 
         Transform arrow = Instantiate(arrowPrefab, new Vector3(
-            mazeCell.transform.position.x,
-            mazeCell.transform.position.y + 0.05f,
-            mazeCell.transform.position.z
+            mazeCell.x,
+            0.05f,
+            mazeCell.z
         ), Quaternion.identity);
-        arrow.name = $"Arrow_{mazeCell.gameObject.name}";
+        arrow.name = $"Arrow_{mazeCell.name}";
         arrow.transform.eulerAngles = new Vector3(0, angle, 0);
         arrow.SetParent(_arrows.transform);
         mazeCell.hasArrow = true;
-    }
-    
-    public List<MazeCellForFile> FormatMazeCells(MazeCell[,] mazeCells) {
-        List<MazeCellForFile> mazeCellsFormatted = new List<MazeCellForFile>();
-        foreach (MazeCell mazeCell in mazeCells) {
-            MazeCellForFile mazeCellFormatted = new MazeCellForFile {
-                isExit = mazeCell.isExit,
-                hasLight = mazeCell.hasLight,
-                permanentlyRevealed = mazeCell.permanentlyRevealed,
-                hasEastWall = mazeCell.hasEastWall,
-                hasWestWall = mazeCell.hasWestWall,
-                hasNorthWall = mazeCell.hasNorthWall,
-                hasSouthWall = mazeCell.hasSouthWall,
-                x = (int) mazeCell.transform.position.x,
-                z = (int) mazeCell.transform.position.z
-            };
-            mazeCellsFormatted.Add(mazeCellFormatted);
-        }
-
-        return mazeCellsFormatted;
     }
     public List<MazeCell> GetMazeAsList() {
         List<MazeCell> mazeCellsList = new List<MazeCell>();
@@ -239,19 +218,110 @@ public class MazeCellManager : MonoBehaviour {
 
     public MazeCell GetCellFromName(string name) {
         foreach (MazeCell mazeCell in GetMazeAsList()) {
-            if (mazeCell.gameObject.name == name) return mazeCell;
+            if (mazeCell.name == name) return mazeCell;
         }
         return null;
     }
     
     public bool AllCellsDiscovered() {
-        if (GetMazeAsList().Find(cell => !cell.permanentlyRevealed)) return false;
+        if (GetMazeAsList().Find(cell => !cell.permanentlyRevealed) != null) return false;
         return true;
     }
 
-    public void PrintMazeCells() {
-        foreach (MazeCell mazeCell in GetMazeAsList()) {
-            Debug.Log($"Cell {mazeCell.transform.position.x} {mazeCell.transform.position.z} permanently revealed ? : {mazeCell.permanentlyRevealed}");
+    public void DestroyWallIfExists(MazeCell mazeCell, MazeCell.Walls wall) {
+        GameObject wallToDestroy = null;
+        switch (wall) {
+            case MazeCell.Walls.East:
+                mazeCell.hasEastWall = false;
+                wallToDestroy = GameObject.Find(mazeCell.name).transform.Find("EastWall").gameObject;
+                break;
+            case MazeCell.Walls.North:
+                mazeCell.hasNorthWall = false;
+                wallToDestroy = GameObject.Find(mazeCell.name).transform.Find("NorthWall").gameObject;
+                break;
+            case MazeCell.Walls.West:
+                mazeCell.hasWestWall = false;
+                wallToDestroy = GameObject.Find(mazeCell.name).transform.Find("WestWall").gameObject;
+                break;
+            case MazeCell.Walls.South:
+                mazeCell.hasSouthWall = false;
+                wallToDestroy = GameObject.Find(mazeCell.name).transform.Find("SouthWall").gameObject;
+                break;
+            case MazeCell.Walls.Ceiling:
+                wallToDestroy = GameObject.Find(mazeCell.name).transform.Find("Ceiling").gameObject;
+                break;
+            default:
+                Debug.LogError($"Trying to destroy a wall that doesn't exist ! {wall}");
+                break;
         }
+        Destroy(wallToDestroy);
+    }
+    
+    public GameObject GetWall(MazeCell mazeCell, MazeCell.Walls wall) {
+        GameObject wallToReturn = null;
+        switch (wall) {
+            case MazeCell.Walls.East:
+                if (!mazeCell.hasEastWall) {
+                    Debug.LogError($"Trying to remove already deleted wall: {wall} of {transform.name}");
+                    return null;
+                }
+                mazeCell.hasEastWall = false;
+                wallToReturn = transform.Find("EastWall").gameObject;
+                break;
+            case MazeCell.Walls.North:
+                if (!mazeCell.hasNorthWall) {
+                    Debug.LogError($"Trying to remove already deleted wall: {wall} of {transform.name}");
+                    return null;
+                }
+                mazeCell.hasNorthWall = false;
+                wallToReturn = transform.Find("NorthWall").gameObject;
+                break;
+            case MazeCell.Walls.West:
+                if (!mazeCell.hasWestWall) {
+                    Debug.LogError($"Trying to remove already deleted wall: {wall} of {transform.name}");
+                    return null;
+                }
+                mazeCell.hasWestWall = false;
+                wallToReturn = transform.Find("WestWall").gameObject;
+                break;
+            case MazeCell.Walls.South:
+                if (!mazeCell.hasSouthWall) {
+                    Debug.LogError($"Trying to remove already deleted wall: {wall} of {transform.name}");
+                    return null;
+                }
+                mazeCell.hasSouthWall = false;
+                wallToReturn = transform.Find("SouthWall").gameObject;
+                break;
+            case MazeCell.Walls.Ceiling:
+                wallToReturn = transform.Find("Ceiling").gameObject;
+                break;
+            case MazeCell.Walls.Floor:
+                wallToReturn = transform.Find("Floor").gameObject;
+                break;
+            default:
+                Debug.LogError($"Trying to get a wall that doesn't exist ! {wall}");
+                break;
+        }
+
+        return wallToReturn;
+    }
+    
+    public void SetCollidersTrigger(MazeCell mazeCell, bool trigger) {
+        // This is used for cells in fragments so they can be picked up
+        foreach(MazeCell.Walls wallType in Enum.GetValues(typeof(MazeCell.Walls)))
+        {
+            GetWall(mazeCell, wallType).GetComponent<BoxCollider>().isTrigger = trigger;
+        }
+    }
+    
+    public void SetFloorColor(MazeCell mazeCell, Color color) {
+        GetWall(mazeCell, MazeCell.Walls.Floor).GetComponent<Renderer>().material.color = color;
+    }
+    
+    public void InstantiateLight(MazeCell mazeCell) {
+        Transform cellObject = GameObject.Find(mazeCell.name).transform;
+        Transform light = Instantiate(lightPrefab, cellObject);
+        light.localPosition = new Vector3(0, 0.9f, 0);
+        mazeCell.hasLight = true;
     }
 }

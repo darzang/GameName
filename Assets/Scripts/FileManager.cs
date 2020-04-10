@@ -43,10 +43,6 @@ public class FileManager : MonoBehaviour {
         BinaryFormatter bf = new BinaryFormatter();
         LevelData data = (LevelData) bf.Deserialize(file);
         file.Close();
-        // Debug.Log($"levelData loaded: \n {JsonUtility.ToJson(data, true)}");
-        if (data.mazeCellsForFile.Find(cell => cell.permanentlyRevealed) != null) {
-            Debug.Log("levelData has permanently discovered cells");
-        }
         return data;
     }
     

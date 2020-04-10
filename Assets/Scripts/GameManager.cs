@@ -117,7 +117,7 @@ public class GameManager : MonoBehaviour {
             currentCell = _mazeCellManager.GetTileUnder(player);
             _uiManager.UpdateMiniMap();
             _uiManager.DrawMap();
-            if (currentCell) {
+            if (currentCell != null) {
                 if (currentCell.isExit) {
                     if (playerData.levelCompleted < levelNumber) {
                         playerData.levelCompleted += 1;
@@ -163,7 +163,6 @@ public class GameManager : MonoBehaviour {
         }
 
         // Useful for now, to remove later
-        if (Input.GetKeyUp("r")) _mazeCellManager.PrintMazeCells();
         // if (Input.GetKeyUp("r")) FileManager.DeleteFile(SceneManager.GetActiveScene().name);
         // if (Input.GetKeyUp("n")) NextLevel();
         // if (Input.GetKeyUp("k")) FileManager.DeleteFile("playerData");
@@ -318,24 +317,20 @@ public class GameManager : MonoBehaviour {
 
     private void InstantiatePlayer() {
         // Get floor tiles
-        List<GameObject> floorTiles = new List<GameObject>();
-        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells) {
-            floorTiles.Add(mazeCell.gameObject);
-        }
+        List<MazeCell> mazeCells = _mazeCellManager.GetMazeAsList();
 
-        floorTiles = floorTiles.OrderBy(t => t.GetComponent<MazeCell>().score).ToList();
+        mazeCells = mazeCells.OrderBy(cell => cell.score).ToList();
         // Get 10 % furthest tiles
-        int index = floorTiles.Count - Random.Range(1, (int) Math.Round(floorTiles.Count / 10f));
-        GameObject tile = floorTiles[index];
-        Vector3 position = tile.transform.position;
+        int index = mazeCells.Count - Random.Range(1, (int) Math.Round(mazeCells.Count / 10f));
+        MazeCell spawnCell = mazeCells[index];
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(
-            position.x,
+            spawnCell.x,
             0.5f,
-            position.z
+            spawnCell.z
         ), Quaternion.identity);
         player = playerTransform.gameObject;
-        currentCell = tile.GetComponent<MazeCell>();
-        previousCell = currentCell;
+        currentCell = spawnCell;
+        previousCell = spawnCell;
         _playerLamp = player.GetComponentInChildren<Light>();
         _playerLamp.enabled = false;
         _playerLamp.range *= playerData.lightMultiplier;
@@ -355,11 +350,10 @@ public class GameManager : MonoBehaviour {
 
         for (int i = 0; i < tryMax; i++) {
             MazeCell spawnTile = availableFloorTiles[Random.Range(0, availableFloorTiles.Count - 1)];
-            Vector3 position = spawnTile.transform.position;
             Transform battery = Instantiate(batteryPrefab, new Vector3(
-                position.x,
-                position.y + 0.35f,
-                position.z
+                spawnTile.x,
+                0.35f,
+                spawnTile.z
             ), Quaternion.identity);
             availableFloorTiles.Remove(spawnTile);
             battery.SetParent(_batteries.transform);
@@ -399,10 +393,6 @@ public class GameManager : MonoBehaviour {
         }
 
         Destroy(fragmentIn);
-        levelData.mazeCellsForFile = _mazeCellManager.FormatMazeCells(_mazeCellManager.mazeCells);
-        foreach (MazeCell cell in _mazeCellManager.mazeCells) {
-            if(cell.permanentlyRevealed) Debug.Log($"Cell {cell.transform.name} is permanently revealed");
-        }
         FileManager.SaveLevelDataFile(levelData, SceneManager.GetActiveScene().name);
         FileManager.SavePlayerDataFile(playerData);
         _uiManager.DrawMap();

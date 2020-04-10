@@ -6,10 +6,8 @@ using Random = UnityEngine.Random;
 
 public class SceneGenerator : MonoBehaviour {
     public Transform gameManagerPrefab;
-    public Transform tileManagerPrefab;
     public Transform uiManagerPrefab;
     public Transform fragmentManager;
-    public Transform lightPrefab;
     public Material exitMaterial;
     public int mazeRow = 10;
     public int mazeColumn = 10;
@@ -23,9 +21,11 @@ public class SceneGenerator : MonoBehaviour {
     private GameObject _arrows;
     public Transform arrowPrefab;
 
+    private MazeCellManager _mazeCellManager;
     private void Start() {
         _maze = GameObject.Find("Maze");
         _mazeCells = GenerateMazeIfExists();
+        _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
         if (_mazeCells == null) {
             _mazeCells = new MazeCell[mazeRow,mazeColumn];
             Debug.Log($"Generating new maze for {SceneManager.GetActiveScene().name}");
@@ -41,21 +41,23 @@ public class SceneGenerator : MonoBehaviour {
         fragmentManagerObject.gameObject.name = "FragmentManager";
         Transform uiManagerObject = Instantiate(uiManagerPrefab, Vector3.zero, Quaternion.identity);
         uiManagerObject.gameObject.name = "UIManager";
-        Transform tileManagerObject = Instantiate(tileManagerPrefab, Vector3.zero, Quaternion.identity);
-        tileManagerObject.gameObject.name = "TileManager";
-        tileManagerObject.GetComponent<MazeCellManager>().SetMazeCells(_mazeCells, mazeRow, mazeColumn);
         Transform gameManagerObject = Instantiate(gameManagerPrefab, Vector3.zero, Quaternion.identity);
         gameManagerObject.gameObject.name = "GameManager";
     }
 
     // Maze Generation related
     private GameObject InstantiateMazeCell(int row, int column) {
-        Transform mazeCell = Instantiate(mazeCellPrefab, new Vector3(row, 0, column), Quaternion.identity,
+        Transform mazeCellObject = Instantiate(mazeCellPrefab, new Vector3(row, 0, column), Quaternion.identity,
             _maze.transform);
-        mazeCell.gameObject.name = $"MazeCell_{row}_{column}";
-        mazeCell.GetComponent<MazeCell>().score = mazeRow * mazeColumn;
-        mazeCell.GetComponent<MazeCell>().GetWall(MazeCell.Walls.Ceiling).SetActive(!hideCeiling);
-        return mazeCell.gameObject;
+        mazeCellObject.gameObject.name = $"MazeCell_{row}_{column}";
+        MazeCell mazeCell = mazeCellObject.GetComponent<MazeCell>();
+        mazeCell.score = mazeRow * mazeColumn;
+        _mazeCellManager.GetWall(mazeCell, MazeCell.Walls.Ceiling).SetActive(!hideCeiling);
+        mazeCell.x = row;
+        mazeCell.z = column;
+        mazeCell.fragmentNumber = 0;
+        mazeCell.name = $"MazeCell_{row}_{column}";
+        return mazeCellObject.gameObject;
     }
 
     private void InstantiateMaze() {
@@ -64,8 +66,7 @@ public class SceneGenerator : MonoBehaviour {
             for (int c = 0; c < mazeColumn; c++) {
                 _mazeCells[r, c] = InstantiateMazeCell(r, c).gameObject.GetComponent<MazeCell>();
                 if (index % 3 == 0) {
-                    InstantiateLight(_mazeCells[r, c]);
-                    _mazeCells[r, c].hasLight = true;
+                    _mazeCellManager.InstantiateLight(_mazeCells[r, c]);
                 }
                 index++;
             }
@@ -74,12 +75,12 @@ public class SceneGenerator : MonoBehaviour {
         int x = Random.Range(0, _mazeCells.GetLength(0));
         int z = Random.Range(0, _mazeCells.GetLength(1));
         _mazeCells[x, z].isExit = true;
-        _mazeCells[x, z].GetWall(MazeCell.Walls.Floor).GetComponent<Renderer>().material = exitMaterial;
+        _mazeCellManager.GetWall(_mazeCells[x, z], MazeCell.Walls.Floor).GetComponent<Renderer>().material = exitMaterial;
     }
 
     private IEnumerator HuntAndKillCoroutine() {
         _mazeCells[_currentRow, _currentColumn].visited = true;
-        _mazeCells[_currentRow, _currentColumn].SetFloorColor(Color.blue);
+        _mazeCellManager.SetFloorColor(_mazeCells[_currentRow, _currentColumn], Color.blue);
         while (!_courseComplete) {
             while (RouteStillAvailable(_currentRow, _currentColumn)) {
                 Kill();
@@ -92,7 +93,8 @@ public class SceneGenerator : MonoBehaviour {
 
     private void HuntAndKill() {
         _mazeCells[_currentRow, _currentColumn].visited = true;
-        _mazeCells[_currentRow, _currentColumn].SetFloorColor(Color.blue);
+        // Coloring here was used for visual demo of what was going on
+        // _mazeCellManager.SetFloorColor(_mazeCells[_currentRow, _currentColumn], Color.blue);
         while (!_courseComplete) {
             Kill();
             Hunt();
@@ -103,40 +105,38 @@ public class SceneGenerator : MonoBehaviour {
     private void Kill() {
         if (RouteStillAvailable(_currentRow, _currentColumn)) {
             int direction = Random.Range(1, 5);
-            _mazeCells[_currentRow, _currentColumn].SetFloorColor(Color.blue);
+            // _mazeCells[_currentRow, _currentColumn].SetFloorColor(Color.blue);
             if (direction == 1 && CellIsAvailable(_currentRow - 1, _currentColumn)) {
                 // Going north, so destroy current north wall + north cell's south wall
-                _mazeCells[_currentRow, _currentColumn].DestroyWallIfExists(MazeCell.Walls.North);
-                _mazeCells[_currentRow - 1, _currentColumn].DestroyWallIfExists(MazeCell.Walls.South);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[_currentRow, _currentColumn], MazeCell.Walls.North);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[_currentRow -1, _currentColumn], MazeCell.Walls.South);
                 _currentRow--;
             }
             else if (direction == 2 && CellIsAvailable(_currentRow + 1, _currentColumn)) {
                 // Going south
-                _mazeCells[_currentRow, _currentColumn].DestroyWallIfExists(MazeCell.Walls.South);
-                _mazeCells[_currentRow + 1, _currentColumn].DestroyWallIfExists(MazeCell.Walls.North);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[_currentRow, _currentColumn],MazeCell.Walls.South);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[_currentRow + 1, _currentColumn],MazeCell.Walls.North);
                 _currentRow++;
             }
             else if (direction == 3 && CellIsAvailable(_currentRow, _currentColumn + 1)) {
                 // Going east
-                _mazeCells[_currentRow, _currentColumn].DestroyWallIfExists(MazeCell.Walls.East);
-                _mazeCells[_currentRow, _currentColumn + 1].DestroyWallIfExists(MazeCell.Walls.West);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[_currentRow, _currentColumn],MazeCell.Walls.East);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[_currentRow, _currentColumn + 1],MazeCell.Walls.West);
                 _currentColumn++;
             }
             else if (direction == 4 && CellIsAvailable(_currentRow, _currentColumn - 1)) {
                 // Going west
-                _mazeCells[_currentRow, _currentColumn].DestroyWallIfExists(MazeCell.Walls.West);
-                _mazeCells[_currentRow, _currentColumn - 1].DestroyWallIfExists(MazeCell.Walls.East);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[_currentRow, _currentColumn],MazeCell.Walls.West);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[_currentRow, _currentColumn - 1],MazeCell.Walls.East);
                 _currentColumn--;
             }
 
             _mazeCells[_currentRow, _currentColumn].visited = true;
-            _mazeCells[_currentRow, _currentColumn].SetFloorColor(Color.yellow);
         }
     }
 
     private void Hunt() {
         _courseComplete = true;
-        _mazeCells[_currentRow, _currentColumn].SetFloorColor(Color.blue);
         for (int r = 0; r < mazeRow; r++) {
             for (int c = 0; c < mazeColumn; c++) {
                 if (!_mazeCells[r, c].visited && CellHasAnAdjacentVisitedCell(r, c)) {
@@ -145,7 +145,6 @@ public class SceneGenerator : MonoBehaviour {
                     _currentColumn = c;
                     DestroyAdjacentWall(_currentRow, _currentColumn);
                     _mazeCells[_currentRow, _currentColumn].visited = true;
-                    _mazeCells[_currentRow, _currentColumn].SetFloorColor(Color.yellow);
                     return;
                 }
             }
@@ -178,23 +177,23 @@ public class SceneGenerator : MonoBehaviour {
             int direction = Random.Range(1, 5);
 
             if (direction == 1 && row > 0 && _mazeCells[row - 1, column].visited) {
-                _mazeCells[row, column].DestroyWallIfExists(MazeCell.Walls.North);
-                _mazeCells[row - 1, column].DestroyWallIfExists(MazeCell.Walls.South);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[row, column],MazeCell.Walls.North);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[row - 1, column],MazeCell.Walls.South);
                 wallDestroyed = true;
             }
             else if (direction == 2 && row < (mazeRow - 2) && _mazeCells[row + 1, column].visited) {
-                _mazeCells[row, column].DestroyWallIfExists(MazeCell.Walls.South);
-                _mazeCells[row + 1, column].DestroyWallIfExists(MazeCell.Walls.North);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[row, column],MazeCell.Walls.South);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[row + 1, column],MazeCell.Walls.North);
                 wallDestroyed = true;
             }
             else if (direction == 3 && column > 0 && _mazeCells[row, column - 1].visited) {
-                _mazeCells[row, column].DestroyWallIfExists(MazeCell.Walls.West);
-                _mazeCells[row, column - 1].DestroyWallIfExists(MazeCell.Walls.East);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[row, column],MazeCell.Walls.West);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[row, column - 1],MazeCell.Walls.East);
                 wallDestroyed = true;
             }
             else if (direction == 4 && column < mazeColumn - 2 && _mazeCells[row, column + 1].visited) {
-                _mazeCells[row, column].DestroyWallIfExists(MazeCell.Walls.East);
-                _mazeCells[row, column + 1].DestroyWallIfExists(MazeCell.Walls.West);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[row, column],MazeCell.Walls.East);
+                _mazeCellManager.DestroyWallIfExists(_mazeCells[row, column + 1],MazeCell.Walls.West);
                 wallDestroyed = true;
             }
         }
@@ -207,14 +206,14 @@ public class SceneGenerator : MonoBehaviour {
     private void DestroyDoubleWalls() {
         // Destroy double walls where two adjacent cells share a common wall
         foreach (MazeCell mazeCell in _mazeCells) {
-            _currentColumn = (int) mazeCell.transform.position.z;
-            _currentRow = (int) mazeCell.transform.position.x;
+            _currentRow = (int) mazeCell.x;
+            _currentColumn = (int) mazeCell.z;
             // Check tile north
             if (CellExists(_currentRow - 1, _currentColumn)
                 && _mazeCells[_currentRow - 1, _currentColumn].hasSouthWall
                 && mazeCell.hasNorthWall
             ) {
-                mazeCell.DestroyWallIfExists(MazeCell.Walls.North);
+                _mazeCellManager.DestroyWallIfExists(mazeCell, MazeCell.Walls.North);
             }
 
             // Check tile west
@@ -222,41 +221,23 @@ public class SceneGenerator : MonoBehaviour {
                 && _mazeCells[_currentRow, _currentColumn - 1].hasEastWall
                 && mazeCell.hasWestWall
             ) {
-                mazeCell.DestroyWallIfExists(MazeCell.Walls.West);
+                _mazeCellManager.DestroyWallIfExists(mazeCell, MazeCell.Walls.West);
             }
         }
     }
 
-    private void InstantiateLight(MazeCell mazeCell) {
-        Transform light = Instantiate(lightPrefab, mazeCell.transform);
-        light.localPosition = new Vector3(0, 0.9f, 0);
-    }
 
-
-    private List<MazeCellForFile> FormatMazeCells(MazeCell[,] mazeCells) {
-        List<MazeCellForFile> mazeCellsFormatted = new List<MazeCellForFile>();
-        foreach (MazeCell mazeCell in mazeCells) {
-            MazeCellForFile mazeCellFormatted = new MazeCellForFile {
-                isExit = mazeCell.isExit,
-                hasLight = mazeCell.hasLight,
-                hasEastWall = mazeCell.hasEastWall,
-                hasWestWall = mazeCell.hasWestWall,
-                hasNorthWall = mazeCell.hasNorthWall,
-                hasSouthWall = mazeCell.hasSouthWall,
-                x = (int) mazeCell.transform.position.x,
-                z = (int) mazeCell.transform.position.z
-            };
-            mazeCellsFormatted.Add(mazeCellFormatted);
-        }
-
-        return mazeCellsFormatted;
-    }
+    
     private void CreateLevelData() {
+        List<MazeCell> mazeCells = new List<MazeCell>();
+        foreach (MazeCell mazeCell in _mazeCells) {
+            mazeCells.Add(mazeCell);
+        }
         FileManager.SaveLevelDataFile(
             new LevelData(
                 0, 
                 false, 
-                FormatMazeCells(_mazeCells), 
+                mazeCells, 
                 _mazeCells.GetLength(0), 
                 _mazeCells.GetLength(1)
                 ),
@@ -269,65 +250,31 @@ public class SceneGenerator : MonoBehaviour {
         if (levelData == null) return null;
         Debug.Log($"Generating existing maze for {SceneManager.GetActiveScene().name}");
         MazeCell[,] mazeCells = new MazeCell[levelData.mazeRow, levelData.mazeColumns];
-        foreach (MazeCellForFile mazeCellForFile in levelData.mazeCellsForFile) {
-            GameObject cellObject = InstantiateMazeCell((int) mazeCellForFile.x, (int) mazeCellForFile.z);
+        foreach (MazeCell mazeCellData in levelData.mazeCells) {
+            GameObject cellObject = InstantiateMazeCell( mazeCellData.x, mazeCellData.z);
             MazeCell mazeCell = cellObject.GetComponent<MazeCell>();
-            if (!mazeCellForFile.hasEastWall) mazeCell.DestroyWallIfExists(MazeCell.Walls.East);
-            if (!mazeCellForFile.hasWestWall) mazeCell.DestroyWallIfExists(MazeCell.Walls.West);
-            if (!mazeCellForFile.hasNorthWall) mazeCell.DestroyWallIfExists(MazeCell.Walls.North);
-            if (!mazeCellForFile.hasSouthWall) mazeCell.DestroyWallIfExists(MazeCell.Walls.South);
-            if(mazeCellForFile.hasLight) InstantiateLight(mazeCell);
-            if (mazeCellForFile.isExit) {
+            
+            if (!mazeCellData.hasEastWall) _mazeCellManager.DestroyWallIfExists(mazeCell, MazeCell.Walls.East);
+            if (!mazeCellData.hasWestWall) _mazeCellManager.DestroyWallIfExists(mazeCell, MazeCell.Walls.West);
+            if (!mazeCellData.hasNorthWall) _mazeCellManager.DestroyWallIfExists(mazeCell, MazeCell.Walls.North);
+            if (!mazeCellData.hasSouthWall) _mazeCellManager.DestroyWallIfExists(mazeCell, MazeCell.Walls.South);
+            if(mazeCellData.hasLight) _mazeCellManager.InstantiateLight(mazeCell);
+            if (mazeCellData.isExit) {
                 cellObject.transform.Find("Floor").GetComponent<Renderer>().material = exitMaterial;
                 mazeCell.isExit = true;
             }
-            mazeCell.action = mazeCellForFile.action;
-            if (mazeCellForFile.hasArrow) {
-                mazeCell.hasArrow = true;
-                InstantiateArrow(mazeCell);
+            mazeCell.action = mazeCellData.action;
+            if (mazeCellData.hasArrow) {
+                _mazeCellManager.InstantiateArrow(mazeCell);
             }
 
-            mazeCell.permanentlyRevealed = mazeCellForFile.permanentlyRevealed;
+            mazeCell.permanentlyRevealed = mazeCellData.permanentlyRevealed;
 
-            mazeCells[mazeCellForFile.x, mazeCellForFile.z] = mazeCell;
+            mazeCells[mazeCellData.x, mazeCellData.z] = mazeCell;
         }
 
         return mazeCells;
     }
     
-    private void InstantiateArrow(MazeCell mazeCell) {
-        if (!_arrows) {
-            _arrows = GameObject.Find("Arrows").gameObject;
-        }
-        if (GameObject.Find($"Arrow_{mazeCell.gameObject.name}")) {
-            //TODO: Just flip it
-            Destroy(GameObject.Find($"Arrow_{mazeCell.gameObject.name}"));
-        }
-
-        float angle = 0;
-        switch (mazeCell.action) {
-            case "SOUTH":
-                angle = 270;
-                break;            
-            case "EAST":
-                angle = 180;
-                break;
-            case "NORTH":
-                angle = 90;
-                break;
-            case "WEST":
-                angle = 0;
-                break;
-        }
-
-        Transform arrow = Instantiate(arrowPrefab, new Vector3(
-            mazeCell.transform.position.x,
-            mazeCell.transform.position.y + 0.05f,
-            mazeCell.transform.position.z
-        ), Quaternion.identity);
-        arrow.name = $"Arrow_{mazeCell.gameObject.name}";
-        arrow.transform.eulerAngles = new Vector3(0, angle, 0);
-        arrow.SetParent(_arrows.transform);
-        mazeCell.hasArrow = true;
-    }
+    
 }
