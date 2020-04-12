@@ -48,7 +48,6 @@ public class GameManager : MonoBehaviour {
 
     private void Awake() {
         _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
-        Debug.Log($"mazeCells in mazeCellManagers on GameMAnager awake: : {_mazeCellManager.mazeCells.Count}");
         _uiManager = GameObject.Find("UIManager").GetComponent<UiManager>();
         _fragmentManager = GameObject.Find("FragmentManager").GetComponent<FragmentManager>();
         _batteries = GameObject.Find("Batteries").gameObject;
@@ -65,10 +64,8 @@ public class GameManager : MonoBehaviour {
             else {
                 levelData.mapFragments = levelData.mapFragments;
             }
-
             levelData.tryCount = levelData.tryCount + 1;
             Debug.Log($"Data loaded: try {levelData.tryCount}");
-            Debug.Log($"mazeCells in mazeCellManagers on end of GameManager after loading: : {_mazeCellManager.mazeCells.Count}");
 
         }
 
@@ -83,7 +80,6 @@ public class GameManager : MonoBehaviour {
         }
 
         playerData = FileManager.LoadPlayerDataFile();
-        Debug.Log($"mazeCells in mazeCellManagers on end of GameManager awake: : {_mazeCellManager.mazeCells.Count}");
 
     }
 
@@ -273,7 +269,7 @@ public class GameManager : MonoBehaviour {
         bool needMapUpdate = false;
         Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, playerData.discoveryRange);
         foreach (Collider tile in hitColliders) {
-            if (tile.name == "Floor") {
+            if (tile.name == "Floor" && tile.transform.parent.name.StartsWith("MazeCell")) {
                 // Colliders detected will be floor and walls so we need to get the parent
                 Transform transform = tile.transform;
                 Transform parent = transform.parent;
@@ -376,7 +372,7 @@ public class GameManager : MonoBehaviour {
         fragment.discovered = true;
         _playerSoundsAudioSource.PlayOneShot(fragmentPickupAudio);
         fragment.cellsInFragment.ForEach(cell => {
-            Debug.Log($"Fragment contains {cell.name}");
+            // Debug.Log($"Fragment contains {cell.name}");
             MazeCell cellInFragment = _mazeCellManager.GetCellByName(cell.name);
             cellInFragment.permanentlyRevealed = true;
         });

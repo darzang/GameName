@@ -29,9 +29,7 @@ public class SceneGenerator : MonoBehaviour {
             HuntAndKill();
             CreateLevelData();
         }
-        Debug.Log($"mazeCells in mazeCellManagers Before managers: {_mazeCellManager.mazeCells.Count}");
         InstantiateManagers();
-        Debug.Log($"mazeCells in mazeCellManagers After managers: {_mazeCellManager.mazeCells.Count}");
     }
 
     private void InstantiateManagers() {

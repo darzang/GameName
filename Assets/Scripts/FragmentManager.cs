@@ -12,33 +12,33 @@ public class FragmentManager : MonoBehaviour {
     public Material obstacleMaterial;
     public Transform fragmentPrefab;
     private MazeCellManager _mazeCellManager;
-    
+
     public List<Fragment> GenerateRandomFragments() {
-        if(!_mazeCellManager) _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
-        Debug.Log($"mazeCells in mazeCellManagers GenerateRandomFragments start: {_mazeCellManager.mazeCells.Count}");
+        if (!_mazeCellManager) _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
         // How many fragments do we want ?
         //TODO: Bigger fragments in the beginning, than more so harder to find all of them ?
         int nbFragments = (int) Math.Round(_mazeCellManager.GetMapSize() / 15.0);
-        
+
         // How many cells per fragment minimum ? 
         int minFragmentSize = (int) Math.Round((double) (_mazeCellManager.GetMapSize() / nbFragments));
-        
+
         List<Fragment> fragments = new List<Fragment>();
         List<MazeCell> availableCells = _mazeCellManager.mazeCells.ToList();
-        
+
         // Keep track of cells that lead to a dead end (will be dispatched at the end)
         List<MazeCell> cellsLeadingToIncompleteFragment = new List<MazeCell>();
 
         // Create each fragment
         for (int i = 0; i < nbFragments; i++) {
             List<MazeCell> cellsInFragment = new List<MazeCell>();
-            
+
             // Get cells that doesn't lead to a dead end
             List<MazeCell> currentCellsLeft = new List<MazeCell>();
             foreach (MazeCell availableCell in availableCells) {
                 if (cellsLeadingToIncompleteFragment.Find(cell => cell == availableCell) != null) continue;
                 currentCellsLeft.Add(availableCell);
             }
+
             if (currentCellsLeft.Count == 0) {
                 // If there is no cells left we quit the loop and will dispatch the rest
                 break;
@@ -108,6 +108,7 @@ public class FragmentManager : MonoBehaviour {
                 updatedFragment.cellsInFragment.Add(tileLeft);
             }
         }
+
         int totalTilesInFragments = 0;
         foreach (Fragment fragment in fragments) {
             totalTilesInFragments += fragment.cellsInFragment.Count;
@@ -117,9 +118,7 @@ public class FragmentManager : MonoBehaviour {
             }
         }
 
-        Debug.Log(
-            $"{fragments.Count} fragments, {totalTilesInFragments} tiles covered");
-        Debug.Log($"mazeCells in mazeCellManagers GenerateRandomFragments end: {_mazeCellManager.mazeCells.Count}");
+        Debug.Log($"{fragments.Count} fragments, {totalTilesInFragments} tiles covered");
         return fragments;
     }
 
@@ -128,8 +127,10 @@ public class FragmentManager : MonoBehaviour {
     }
 
     public void InstantiateFragment(Fragment fragmentIn) {
+        if (!_mazeCellManager) _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
         // Get a random spawn tile from the cells contained in the fragment
-        GameObject spawnTile = GameObject.Find(fragmentIn.cellsInFragment[Random.Range(0,fragmentIn.cellsInFragment.Count - 1)].name);
+        GameObject spawnTile =
+            GameObject.Find(fragmentIn.cellsInFragment[Random.Range(0, fragmentIn.cellsInFragment.Count - 1)].name);
         _mazeCellManager.GetCellByName(spawnTile.name).fragmentNumber = fragmentIn.number;
         Vector3 position = spawnTile.transform.position;
         Transform fragment = Instantiate(fragmentPrefab, new Vector3(
@@ -140,50 +141,53 @@ public class FragmentManager : MonoBehaviour {
         fragment.name = $"Fragment_{fragmentIn.number}";
         fragment.SetParent(GameObject.Find("Fragments").transform);
 
-        List<Vector3> tilesPositions = new List<Vector3>();
+        List<Vector3> fragmentCellsPositions = new List<Vector3>();
         List<Transform> fragmentTiles = new List<Transform>();
         foreach (MazeCell mazeCell in fragmentIn.cellsInFragment) {
-            Transform fragmentTransform = Instantiate(mazeCellPrefab, new Vector3(
-                mazeCell.x / 2,
+            Transform fragmentCell = Instantiate(mazeCellPrefab, new Vector3(
+                mazeCell.x,
                 0,
-                mazeCell.z / 2
+                mazeCell.z
             ), Quaternion.identity);
-            tilesPositions.Add(fragmentTransform.transform.position);
-            fragmentTiles.Add(fragmentTransform);
-            fragmentTransform.SetParent(fragment);
-            GameObject fragmentObject = fragmentTransform.gameObject;
-            fragmentObject.name = $"FragmentTile_{mazeCell.name}";
-            fragmentObject.isStatic = false;
-            fragmentObject.tag = "FragmentTile";
-            foreach (Transform cellObject in fragmentObject.transform) {
-                foreach (Transform wall in cellObject.transform) {
-                    wall.GetComponent<BoxCollider>().isTrigger = true;
-                }
-            }
+            fragmentCellsPositions.Add(fragmentCell.transform.position);
+            fragmentTiles.Add(fragmentCell);
+            fragmentCell.SetParent(fragment);
+            GameObject fragmentCellGameObject = fragmentCell.gameObject;
+            fragmentCellGameObject.name = $"FragmentTile_{mazeCell.name}";
+            fragmentCellGameObject.isStatic = false;
+            fragmentCellGameObject.tag = "FragmentTile";
+
             fragment.gameObject.isStatic = false;
-            fragmentTransform.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+            fragmentCellGameObject.transform.localScale = new Vector3(1f, 1f, 1f);
             // Remove walls that are not in the "real" cell
             MazeCell realCell = _mazeCellManager.GetCellByName(mazeCell.name);
             // TODO: This should Check neighbor cells as well to don't destry the wall if the neighbor has a wall
-            if (!realCell.hasSouthWall) Destroy(fragmentObject.transform.Find("SouthWall").gameObject);
-            if(!realCell.hasEastWall) Destroy(fragmentObject.transform.Find("EastWall").gameObject);
-            if(!realCell.hasWestWall) Destroy(fragmentObject.transform.Find("WestWall").gameObject);
-            if(!realCell.hasNorthWall) Destroy(fragmentObject.transform.Find("NorthWall").gameObject);
-            Destroy(fragmentObject.transform.Find("Ceiling").gameObject);
+            if (!realCell.hasSouthWall) Destroy(fragmentCellGameObject.transform.Find("SouthWall").gameObject);
+            if (!realCell.hasEastWall) Destroy(fragmentCellGameObject.transform.Find("EastWall").gameObject);
+            if (!realCell.hasWestWall) Destroy(fragmentCellGameObject.transform.Find("WestWall").gameObject);
+            if (!realCell.hasNorthWall) Destroy(fragmentCellGameObject.transform.Find("NorthWall").gameObject);
+
+            Destroy(fragmentCellGameObject.transform.Find("Ceiling").gameObject);
+            foreach (Transform wall in fragmentCellGameObject.transform) {
+                wall.GetComponent<BoxCollider>().isTrigger = true;
+            }
         }
+
         // Shift the tiles to be in center of parent gameObject
-        Vector3 offset = GetCenterPointBetween(tilesPositions);
+        Vector3 offset = GetCenterPointBetween(fragmentCellsPositions);
         foreach (Transform tile in fragmentTiles) {
-            tile.transform.position += offset;
+            // tile.transform.position += offset;
         }
-        fragment.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+
+        fragment.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
     }
 
-    private Vector3 GetCenterPointBetween(List<Vector3> positions){
-        Vector3 center = new Vector3(0,0,0);
+    private Vector3 GetCenterPointBetween(List<Vector3> positions) {
+        Vector3 center = new Vector3(0, 0, 0);
         foreach (Vector3 position in positions) {
             center += position;
         }
+
         return center /= positions.Count; //TODO: Why /= and not just / ?
     }
 }

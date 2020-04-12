@@ -243,7 +243,7 @@ public class MazeCellManager : MonoBehaviour {
                 wallToDestroy = GameObject.Find(mazeCell.name).transform.Find("Ceiling").gameObject;
                 break;
             default:
-                Debug.LogError($"Trying to destroy a wall that doesn't exist ! {wall}");
+                Debug.LogWarning($"Trying to destroy a wall that doesn't exist ! {wall}");
                 break;
         }
 
