@@ -129,8 +129,15 @@ public class FragmentManager : MonoBehaviour {
     public void InstantiateFragment(Fragment fragmentIn) {
         if (!_mazeCellManager) _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
         // Get a random spawn tile from the cells contained in the fragment
-        List<MazeCell> availableFloorTiles = fragmentIn.cellsInFragment.Where(cell => !cell.isExit && !cell.hasBattery && !cell.hasFragment).ToList();
-        MazeCell spawnCell= availableFloorTiles[Random.Range(0, fragmentIn.cellsInFragment.Count - 1)];
+        List<MazeCell> availableFloorTiles = new List<MazeCell>();
+        foreach (MazeCell mazeCell in fragmentIn.cellsInFragment) {
+            if (mazeCell.hasFragment || mazeCell.hasBattery || mazeCell.isExit) {
+                Debug.Log($"Can't spawn fragment {fragmentIn.number} on {mazeCell.name}");
+                continue;
+            }
+            availableFloorTiles.Add(mazeCell);
+        }
+        MazeCell spawnCell= availableFloorTiles[Random.Range(0, availableFloorTiles.Count - 1)];
         _mazeCellManager.GetCellByName(spawnCell.name).fragmentNumber = fragmentIn.number;
         _mazeCellManager.GetCellByName(spawnCell.name).hasFragment = true;
         Transform fragment = Instantiate(fragmentPrefab, new Vector3(spawnCell.x, 0.35f, spawnCell.z), Quaternion.identity);
