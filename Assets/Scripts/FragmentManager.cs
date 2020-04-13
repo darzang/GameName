@@ -129,15 +129,11 @@ public class FragmentManager : MonoBehaviour {
     public void InstantiateFragment(Fragment fragmentIn) {
         if (!_mazeCellManager) _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
         // Get a random spawn tile from the cells contained in the fragment
-        GameObject spawnTile =
-            GameObject.Find(fragmentIn.cellsInFragment[Random.Range(0, fragmentIn.cellsInFragment.Count - 1)].name);
-        _mazeCellManager.GetCellByName(spawnTile.name).fragmentNumber = fragmentIn.number;
-        Vector3 position = spawnTile.transform.position;
-        Transform fragment = Instantiate(fragmentPrefab, new Vector3(
-            position.x,
-            position.y + 0.35f,
-            position.z
-        ), Quaternion.identity);
+        List<MazeCell> availableFloorTiles = fragmentIn.cellsInFragment.Where(cell => !cell.isExit && !cell.hasBattery && !cell.hasFragment).ToList();
+        MazeCell spawnCell= availableFloorTiles[Random.Range(0, fragmentIn.cellsInFragment.Count - 1)];
+        _mazeCellManager.GetCellByName(spawnCell.name).fragmentNumber = fragmentIn.number;
+        _mazeCellManager.GetCellByName(spawnCell.name).hasFragment = true;
+        Transform fragment = Instantiate(fragmentPrefab, new Vector3(spawnCell.x, 0.35f, spawnCell.z), Quaternion.identity);
         fragment.name = $"Fragment_{fragmentIn.number}";
         fragment.SetParent(GameObject.Find("Fragments").transform);
 
@@ -161,6 +157,7 @@ public class FragmentManager : MonoBehaviour {
             fragmentCellGameObject.transform.localScale = new Vector3(1f, 1f, 1f);
             // Remove walls that are not in the "real" cell
             MazeCell realCell = _mazeCellManager.GetCellByName(mazeCell.name);
+            realCell.fragmentNumber = fragmentIn.number;
             // TODO: This should Check neighbor cells as well to don't destry the wall if the neighbor has a wall
             if (!realCell.hasSouthWall) Destroy(fragmentCellGameObject.transform.Find("SouthWall").gameObject);
             if (!realCell.hasEastWall) Destroy(fragmentCellGameObject.transform.Find("EastWall").gameObject);

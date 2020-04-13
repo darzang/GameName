@@ -15,6 +15,8 @@ public class MazeCell {
     public bool revealedForCurrentRun = false;
     public bool hasLight = false;
     public bool hasArrow = false;
+    public bool hasFragment = false;
+    public bool hasBattery = false;
     public int fragmentNumber = 0;
     public int x;
     public int z;

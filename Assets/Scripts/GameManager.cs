@@ -319,13 +319,13 @@ public class GameManager : MonoBehaviour {
     }
 
     private void InstantiatePlayer() {
-        // Get floor tiles
-        List<MazeCell> mazeCells = _mazeCellManager.mazeCells;
-
-        mazeCells = mazeCells.OrderBy(cell => cell.score).ToList();
+        // Get available cells
+        List<MazeCell> mazeCells = _mazeCellManager.mazeCells.Where(cell => !cell.isExit).OrderBy(cell => cell.score).ToList();
         // Get 10 % furthest tiles
         int index = mazeCells.Count - Random.Range(1, (int) Math.Round(mazeCells.Count / 10f));
+        Debug.Log($"Instantiating player, {mazeCells.Count} cells, index is {index}, max disrance is {mazeCells[0].score}, min is: {mazeCells[mazeCells.Count - 1].score}");
         MazeCell spawnCell = mazeCells[index];
+        Debug.Log($"Instantiating player, cell is: {spawnCell.name}, {spawnCell.score} distance");
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(
             spawnCell.x,
             0.5f,
@@ -346,20 +346,17 @@ public class GameManager : MonoBehaviour {
     }
 
     private void InstantiateBatteries() {
-        List<MazeCell> availableFloorTiles = _mazeCellManager.mazeCells.ToList();
-        foreach (Fragment fragment in levelData.mapFragments) {
-            availableFloorTiles.Remove(_mazeCellManager.GetCellFromFragmentNumber(fragment.number));
-        }
-
+        List<MazeCell> availableFloorTiles = _mazeCellManager.mazeCells.Where(cell => !cell.isExit && !cell.hasBattery && !cell.hasFragment).ToList();
         for (int i = 0; i < tryMax; i++) {
-            MazeCell spawnTile = availableFloorTiles[Random.Range(0, availableFloorTiles.Count - 1)];
+            MazeCell mazeCell = availableFloorTiles[Random.Range(0, availableFloorTiles.Count - 1)];
             Transform battery = Instantiate(batteryPrefab, new Vector3(
-                spawnTile.x,
+                mazeCell.x,
                 0.35f,
-                spawnTile.z
+                mazeCell.z
             ), Quaternion.identity);
-            availableFloorTiles.Remove(spawnTile);
+            availableFloorTiles.Remove(mazeCell);
             battery.SetParent(_batteries.transform);
+            _mazeCellManager.GetCellByName(mazeCell.name).hasBattery = true;
         }
     }
 
