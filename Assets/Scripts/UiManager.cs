@@ -200,7 +200,8 @@ public class UiManager : MonoBehaviour {
     private void AddTileToMiniMap(MazeCell mazeCell) {
         GameObject existingMiniMapCell = GameObject.Find($"MiniMap_{mazeCell.name}");
 
-        float distance = Vector3.Distance(new Vector3(mazeCell.x, 0f, mazeCell.z), _player.gameObject.transform.position);
+        float distance =
+            Vector3.Distance(new Vector3(mazeCell.x, 0f, mazeCell.z), _player.gameObject.transform.position);
         if (distance > minDistanceMiniMap) {
             // TODO: Maybe just disabled then later replace + reenable ?
             if (existingMiniMapCell) {
@@ -284,6 +285,7 @@ public class UiManager : MonoBehaviour {
         if (previousCellMap) {
             Destroy(previousCellMap);
         }
+
         GameObject playerObject = new GameObject($"{prefix}_Player");
         playerObject.transform.SetParent(canvasCell);
         SpriteRenderer playerSpriteRenderer = playerObject.AddComponent<SpriteRenderer>();
@@ -301,50 +303,74 @@ public class UiManager : MonoBehaviour {
         MazeCell southCell = _mazeCellManager.GetCellIfExists(mazeCell.x + 1, mazeCell.z);
         MazeCell eastCell = _mazeCellManager.GetCellIfExists(mazeCell.x, mazeCell.z + 1);
         MazeCell westCell = _mazeCellManager.GetCellIfExists(mazeCell.x, mazeCell.z - 1);
-        if (mazeCell.hasNorthWall || (northCell !=null && northCell.hasSouthWall)) {
+        if (mazeCell.hasNorthWall || (northCell != null && northCell.hasSouthWall)) {
             GameObject northWallObject = new GameObject($"{prefix}_{mazeCell.name}_North_Wall");
             northWallObject.transform.SetParent(canvasCell);
             SpriteRenderer northWallSprite = northWallObject.AddComponent<SpriteRenderer>();
             northWallSprite.sprite = wallSprite;
-            northWallObject.transform.localPosition = new Vector3(5f, 0f, 0f);
+            if (prefix == "MiniMap") {
+                northWallObject.transform.localPosition = new Vector3(5f, 0f, 0f);
+                northWallObject.transform.localRotation = Quaternion.identity;
+            }
+            else {
+                northWallObject.transform.localPosition = new Vector3(0f, 5f, 0f);
+                northWallObject.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 90f));
+            }
+
             northWallObject.transform.localScale = new Vector3(1f, 1f, 1f);
-            northWallObject.transform.localRotation = Quaternion.identity;
+
             northWallSprite.sortingOrder = 1;
         }
 
-        if (mazeCell.hasSouthWall || (southCell !=null && southCell.hasNorthWall)) {
+        if (mazeCell.hasSouthWall || (southCell != null && southCell.hasNorthWall)) {
             GameObject southWallObject = new GameObject($"{prefix}_{mazeCell.name}_South_Wall");
             southWallObject.transform.SetParent(canvasCell);
             SpriteRenderer southWallSprite = southWallObject.AddComponent<SpriteRenderer>();
             southWallSprite.sprite = wallSprite;
-            southWallSprite.sortingOrder = 1;
-            southWallObject.transform.localPosition = new Vector3(-5f, 0f, 0f);
+            if (prefix == "MiniMap") {
+                southWallObject.transform.localPosition = new Vector3(-5f, 0f, 0f);
+                southWallObject.transform.localRotation = Quaternion.identity;
+            }
+            else {
+                southWallObject.transform.localPosition = new Vector3(0f, -5f, 0f);
+                southWallObject.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 90f));
+            }
             southWallObject.transform.localScale = new Vector3(1f, 1f, 1f);
-            southWallObject.transform.localRotation = Quaternion.identity;
+            southWallSprite.sortingOrder = 1;
         }
 
-        if (mazeCell.hasEastWall || (eastCell !=null && eastCell.hasWestWall)) {
+        if (mazeCell.hasEastWall || (eastCell != null && eastCell.hasWestWall)) {
             GameObject eastWallObject = new GameObject($"{prefix}_{mazeCell.name}_East_Wall");
             eastWallObject.transform.SetParent(canvasCell);
             SpriteRenderer eastWallSprite = eastWallObject.AddComponent<SpriteRenderer>();
             eastWallSprite.sprite = wallSprite;
-            eastWallObject.transform.localPosition = new Vector3(0f, -5f, 0f);
-            Vector3 rotation = new Vector3(0f, 0f, 90f);
-            Quaternion rotationQuaternion = Quaternion.Euler(rotation);
-            eastWallObject.transform.localRotation = rotationQuaternion;
+           if (prefix == "MiniMap") {
+                eastWallObject.transform.localPosition = new Vector3(0f, -5f, 0f);
+                eastWallObject.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 90f));
+            }
+            else {
+                eastWallObject.transform.localPosition = new Vector3(5f, 0f, 0f);
+                eastWallObject.transform.localRotation = Quaternion.identity;
+            }
             eastWallObject.transform.localScale = new Vector3(1f, 1f, 1f);
             eastWallSprite.sortingOrder = 1;
         }
 
-        if (mazeCell.hasWestWall || (westCell !=null && westCell.hasEastWall)) {
+        if (mazeCell.hasWestWall || (westCell != null && westCell.hasEastWall)) {
             GameObject westWallObject = new GameObject($"{prefix}_{mazeCell.name}_West_Wall");
             westWallObject.transform.SetParent(canvasCell);
             SpriteRenderer westWallSprite = westWallObject.AddComponent<SpriteRenderer>();
             westWallSprite.sprite = wallSprite;
-            westWallObject.transform.localPosition = new Vector3(0f, 5f, 0f);
-            Vector3 rotation = new Vector3(0f, 0f, 90f);
-            Quaternion rotationQuaternion = Quaternion.Euler(rotation);
-            westWallObject.transform.localRotation = rotationQuaternion;
+            
+            if (prefix == "MiniMap") {
+                westWallObject.transform.localPosition = new Vector3(0f, 5f, 0f);
+                westWallObject.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 90f));
+            }
+            else {
+                westWallObject.transform.localPosition = new Vector3(-5f, 0f, 0f);
+                westWallObject.transform.localRotation = Quaternion.identity;
+            }
+
             westWallObject.transform.localScale = new Vector3(1f, 1f, 1f);
             westWallSprite.sortingOrder = 1;
         }
