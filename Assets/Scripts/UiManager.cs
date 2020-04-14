@@ -345,7 +345,6 @@ public class UiManager : MonoBehaviour {
             // TODO: Get playing position relative to current tile
         // Rotation
         playerMapIcon.transform.localRotation = Quaternion.Euler(new Vector3(0f,0f,-(player.transform.eulerAngles.y + 90)));
-        // playerMapIcon.GetComponent<SpriteRenderer>().sortingOrder = 2;
     }
 
     private void AddWallSprites(MazeCell mazeCell, Transform canvasCell, String prefix) {
