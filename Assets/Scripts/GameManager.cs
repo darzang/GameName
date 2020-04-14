@@ -111,6 +111,7 @@ public class GameManager : MonoBehaviour {
             HandleOnboarding();
         }
 
+        _uiManager.RotatePlayerSprite();
         // Is the player on a new tile ?
         if (_mazeCellManager.GetTileUnder(player) != currentCell || CheckForTileDiscovery()) {
             previousCell = currentCell;
@@ -343,6 +344,7 @@ public class GameManager : MonoBehaviour {
         _lightAudio = _playerLamp.GetComponent<AudioSource>();
         _eyeLids = GameObject.Find("EyeLids").gameObject;
         _anim = player.GetComponent<Animation>();
+        _uiManager.player = player;
     }
 
     private void InstantiateBatteries() {
@@ -395,7 +397,6 @@ public class GameManager : MonoBehaviour {
         Destroy(fragmentIn);
         FileManager.SaveLevelDataFile(levelData, SceneManager.GetActiveScene().name);
         FileManager.SavePlayerDataFile(playerData);
-        _uiManager.DrawMap();
     }
 
     public void PickupBattery(GameObject batteryIn) {

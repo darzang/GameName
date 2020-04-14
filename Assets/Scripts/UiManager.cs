@@ -21,6 +21,7 @@ public class UiManager : MonoBehaviour {
     private Button _pauseResumeButton;
     private Button _pauseBackButton;
     private GameObject _batteryBar;
+    public GameObject player;
     private Image _batteryBarImage;
     private GameObject _miniMapPanel;
     private Player _player;
@@ -292,10 +293,18 @@ public class UiManager : MonoBehaviour {
         playerSpriteRenderer.sprite = playerSprite;
         playerObject.transform.localPosition = new Vector3(0f, 0f, 0f);
         playerObject.transform.localScale = new Vector3(1f, 1f, 1f);
-        Vector3 rotation = new Vector3(0f, 0f, 0f);
-        Quaternion rotationQuaternion = Quaternion.Euler(rotation);
-        playerObject.transform.localRotation = rotationQuaternion;
+        playerObject.transform.localRotation = Quaternion.Euler(
+            prefix == "MiniMap"
+                ? new Vector3(0f, 180f, 0f)
+                : new Vector3(0f, 0f, 0f));
         playerSpriteRenderer.sortingOrder = 1;
+    }
+
+    public void RotatePlayerSprite() {
+        GameObject playerSprite = GameObject.Find("Map_Player");
+        if (playerSprite != null) {
+            playerSprite.transform.localRotation = Quaternion.Euler(new Vector3(0f,0f,(player.transform.eulerAngles.y - 90)));
+        }
     }
 
     private void AddWallSprites(MazeCell mazeCell, Transform canvasCell, String prefix) {
@@ -386,7 +395,8 @@ public class UiManager : MonoBehaviour {
 
     public void DrawWholeMap() {
         foreach (MazeCell cell in _mazeCellManager.mazeCells) {
-            AddTileToMap(cell);
+            cell.permanentlyRevealed = true;
+            DrawMap();
         }
     }
 
