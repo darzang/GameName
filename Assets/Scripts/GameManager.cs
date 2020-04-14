@@ -111,13 +111,11 @@ public class GameManager : MonoBehaviour {
             HandleOnboarding();
         }
 
-        _uiManager.RotatePlayerSprite();
         // Is the player on a new tile ?
         if (_mazeCellManager.GetTileUnder(player) != currentCell || CheckForTileDiscovery()) {
             previousCell = currentCell;
             currentCell = _mazeCellManager.GetTileUnder(player);
             _uiManager.UpdateMiniMap();
-            _uiManager.DrawMap();
             if (currentCell != null) {
                 if (currentCell.isExit) {
                     if (playerData.levelCompleted < levelNumber) {
@@ -375,7 +373,6 @@ public class GameManager : MonoBehaviour {
             MazeCell cellInFragment = _mazeCellManager.GetCellByName(cell.name);
             cellInFragment.permanentlyRevealed = true;
         });
-        _uiManager.DrawMap();
         _uiManager.UpdateDiscoveryText(_mazeCellManager.GetDiscoveredCellsCount(), _mazeCellManager.GetMapSize());
         _uiManager.AddInfoMessage("Fragment picked up");
         // Randomly spawn arrow
@@ -393,7 +390,6 @@ public class GameManager : MonoBehaviour {
             _uiManager.AddInfoMessage($"Obtained 1 coin, total : {playerData.cash}");
             levelData.allFragmentsPickedUp = true;
         }
-
         Destroy(fragmentIn);
         FileManager.SaveLevelDataFile(levelData, SceneManager.GetActiveScene().name);
         FileManager.SavePlayerDataFile(playerData);

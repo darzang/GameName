@@ -1,17 +1,28 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UiManager : MonoBehaviour {
+    
+    // Managers
     private MazeCellManager _mazeCellManager;
     private GameManager _gameManager;
+    
+    // Texts
     [HideInInspector] public TextMeshProUGUI onboardingText;
     private GameObject _batteryLevelText;
     private TextMeshProUGUI _batteryDeadText;
     private GameObject _exitReachedText;
+    private TextMeshProUGUI _discoveryText;
+    private TextMeshProUGUI _tryCountText;
+    private TextMeshProUGUI _batteryText;
+    private int _totalInfoText;
+    
+    // Buttons
     private GameObject _exitReachedButtons;
     private Button _retryButton;
     private Button _nextLevelButton;
@@ -20,28 +31,8 @@ public class UiManager : MonoBehaviour {
     private Button _pauseRetryButton;
     private Button _pauseResumeButton;
     private Button _pauseBackButton;
-    private GameObject _batteryBar;
-    public GameObject player;
-    private Image _batteryBarImage;
-    private GameObject _miniMapPanel;
-    private Player _player;
-    private GameObject _infoPanel;
-    private TextMeshProUGUI _discoveryText;
-    private TextMeshProUGUI _tryCountText;
-    private TextMeshProUGUI _batteryText;
-
-
-    private Quaternion _initialRotation;
-    private int _totalInfoText;
-    public Sprite wallSprite;
-    public Sprite obstacleSprite;
-    public Sprite exitSprite;
-    public Sprite floorSprite;
-    public Sprite playerSprite;
-    public GameObject infoTextPrefab;
-
-    public float minDistanceMiniMap = 5;
-
+    
+    // Panels/Canvas
     private GameObject _mainCanvas;
     private GameObject _pauseCanvas;
     private GameObject _mapCanvas;
@@ -50,10 +41,30 @@ public class UiManager : MonoBehaviour {
     private GameObject _infoCanvas;
     private GameObject _exitReachedCanvas;
     private GameObject _batteryDeadCanvas;
-    private GameObject _onboardingCanvas;
-
+    private GameObject _onboardingCanvas;    
+    private GameObject _miniMapPanel;
+    private GameObject _infoPanel;
+    
+    // Sprites/Prefabs etc
+    private Image _batteryBarImage;
+    public Sprite wallSprite;
+    public Sprite exitSprite;
+    public Sprite floorSprite;
+    public Sprite playerSprite;
+    public GameObject infoTextPrefab; 
+    
+    // Misc
+    private GameObject _batteryBar;
+    public GameObject player;
+    private Player _player;
+    private Quaternion _initialRotation;
+    public float minDistanceMiniMap = 5;
     private bool _batteryLevelBlinking;
     [HideInInspector] public bool batteryOnboardingBlinking;
+    
+    // Map 
+    private GameObject playerMapIcon;
+    private List<GameObject> mapCells = new List<GameObject>();
 
     private void Awake() {
         Cursor.visible = false;
@@ -106,9 +117,9 @@ public class UiManager : MonoBehaviour {
         _pauseRetryButton.onClick.AddListener(_gameManager.Retry);
         _pauseBackButton.onClick.AddListener(_gameManager.GiveUp);
 
-        DrawMap();
+        InstantiateMap();
         _tryCountText.text = $"Try number {_gameManager.levelData.tryCount} / {_gameManager.tryMax}";
-        UpdateDiscoveryText(_mazeCellManager.GetDiscoveredCellsCount(), _mazeCellManager.GetMapSize());
+        UpdateDiscoveryText(_mazeCellManager.GetDiscoveredCellsCount(), _mazeCellManager.mazeCells.Count);
         if (_mazeCellManager.GetDiscoveredCellsCount() > 0) AddInfoMessage("Previous data loaded");
         _nextLevelButton.onClick.AddListener(_gameManager.NextLevel);
         _backToMenuButton.onClick.AddListener(_gameManager.BackToMenu);
@@ -116,6 +127,7 @@ public class UiManager : MonoBehaviour {
 
     private void Update() {
         RotateMiniMap();
+        UpdateMap();
         _player.fuelCount = _player.GetComponent<Player>().fuelCount;
         if (_player.fuelCount > 0) {
             UpdateBatteryLevel();
@@ -156,11 +168,9 @@ public class UiManager : MonoBehaviour {
         while (angle > 360) {
             angle -= 360;
         }
-
         while (angle < 0) {
             angle += 360;
         }
-
         _miniMapPanel.GetComponent<RectTransform>().localRotation = Quaternion.Euler(0, 0, angle);
     }
 
@@ -217,9 +227,6 @@ public class UiManager : MonoBehaviour {
                     _mazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[0] * 10,
                     _mazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[1] * 10,
                     0);
-                if (mazeCell == _gameManager.currentCell) {
-                    AddPlayerSprite(existingMiniMapCell.transform, "MiniMap");
-                }
             }
             else {
                 // Instantiate new cell
@@ -243,68 +250,102 @@ public class UiManager : MonoBehaviour {
 
                 newMiniMapCell.SetActive(true);
                 AddWallSprites(mazeCell, newMiniMapCell.transform, "MiniMap");
-                if (mazeCell == _gameManager.currentCell) {
-                    AddPlayerSprite(newMiniMapCell.transform, "MiniMap");
-                }
             }
         }
     }
 
     private void AddTileToMap(MazeCell mazeCell) {
-        GameObject existingTile = GameObject.Find($"Map_{mazeCell.name}");
-        if (!existingTile) {
-            GameObject newCellObject = new GameObject($"Map_{mazeCell.name}");
-            SpriteRenderer floorRenderer = newCellObject.AddComponent<SpriteRenderer>();
-            newCellObject.transform.SetParent(_mapCanvas.transform);
-            floorRenderer.sprite = floorSprite;
-            if (mazeCell.isExit) floorRenderer.sprite = exitSprite;
-            newCellObject.transform.localPosition = new Vector3(
-                mazeCell.z * 10 + 5,
-                -(mazeCell.x * 10 + 35),
-                0
-            );
-            newCellObject.transform.localRotation = Quaternion.identity;
-            newCellObject.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-            newCellObject.layer = 5;
-            newCellObject.SetActive(true);
+        GameObject newCellObject = new GameObject($"Map_{mazeCell.name}");
+        newCellObject.transform.SetParent(_mapCanvas.transform);
+        mapCells.Add(newCellObject);
+        newCellObject.transform.localPosition = new Vector3(
+            mazeCell.z * 10 + 5,
+            -(mazeCell.x * 10 + 35),
+            0
+        );
+        newCellObject.transform.localRotation = Quaternion.identity;
+        newCellObject.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+        newCellObject.layer = 5;
 
-            // Add walls sprites for each wall of the cell
-            AddWallSprites(mazeCell, newCellObject.transform, "Map");
-            if (mazeCell == _gameManager.currentCell) {
-                AddPlayerSprite(newCellObject.transform, "Map");
-            }
+        newCellObject.SetActive(true);
+
+
+        AddFloorSprite(mazeCell, newCellObject.transform);
+        // Add walls sprites for each wall of the cell
+        AddWallSprites(mazeCell, newCellObject.transform, "Map");
+        foreach (Transform child in newCellObject.transform) {
+            child.gameObject.GetComponent<SpriteRenderer>().enabled = mazeCell.permanentlyRevealed;
         }
-        else {
-            if (mazeCell == _gameManager.currentCell) {
-                AddPlayerSprite(existingTile.transform, "Map");
-            }
+
+        if (mazeCell == _gameManager.currentCell) AddPlayerSprite(newCellObject.transform);
+    }
+
+    private void InstantiateMap() {
+        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells) {
+            AddTileToMap(mazeCell);
         }
     }
 
-    private void AddPlayerSprite(Transform canvasCell, String prefix) {
-        GameObject previousCellMap = GameObject.Find($"{prefix}_Player");
-        if (previousCellMap) {
-            Destroy(previousCellMap);
+    public void UpdateMap() {
+        // Make sure all discovered cells' sprites are enabled
+        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells) {
+            if (mazeCell.permanentlyRevealed) {
+                GameObject mapCell = mapCells.Find(cell => cell.name == $"Map_{mazeCell.name}");
+                foreach (Transform sprite in mapCell.transform) {
+                    sprite.GetComponent<SpriteRenderer>().enabled = true;
+                }
+            }
         }
+        // Make sure the player is on the right tile
+        MazeCell currentCell = _gameManager.currentCell;
+        GameObject mapCurrentCell = mapCells.Find(cell => cell.name == $"Map_{currentCell.name}");
+        MovePlayerSpriteToCell(mapCurrentCell.transform);
+        
+        UpdatePlayerSpritePositionRotation();
 
-        GameObject playerObject = new GameObject($"{prefix}_Player");
-        playerObject.transform.SetParent(canvasCell);
-        SpriteRenderer playerSpriteRenderer = playerObject.AddComponent<SpriteRenderer>();
+    }
+
+    public void DrawWholeMap() {
+        foreach (MazeCell cell in _mazeCellManager.mazeCells) {
+            cell.permanentlyRevealed = true;
+            UpdateMap();
+        }
+    }
+    private void AddPlayerSprite(Transform canvasCell) {
+        playerMapIcon = new GameObject("Map_Player");
+        SpriteRenderer playerSpriteRenderer = playerMapIcon.AddComponent<SpriteRenderer>();
         playerSpriteRenderer.sprite = playerSprite;
-        playerObject.transform.localPosition = new Vector3(0f, 0f, 0f);
-        playerObject.transform.localScale = new Vector3(1f, 1f, 1f);
-        playerObject.transform.localRotation = Quaternion.Euler(
-            prefix == "MiniMap"
-                ? new Vector3(0f, 180f, 0f)
-                : new Vector3(0f, 0f, 0f));
-        playerSpriteRenderer.sortingOrder = 1;
+        playerMapIcon.transform.SetParent(canvasCell);
+        playerMapIcon.transform.localPosition = new Vector3(0f, 0f, 0f);
+        playerMapIcon.transform.localScale = new Vector3(1f, 1f, 1f);
+        playerMapIcon.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f));
+        playerSpriteRenderer.sortingOrder = 2;
     }
 
-    public void RotatePlayerSprite() {
-        GameObject playerSprite = GameObject.Find("Map_Player");
-        if (playerSprite != null) {
-            playerSprite.transform.localRotation = Quaternion.Euler(new Vector3(0f,0f,(player.transform.eulerAngles.y - 90)));
-        }
+    private void AddFloorSprite(MazeCell mazeCell, Transform mapCell) {
+        // Add floor sprite
+        GameObject floorSpriteObject = new GameObject($"Map_{mazeCell.name}_Floor");
+        SpriteRenderer floorRenderer = floorSpriteObject.AddComponent<SpriteRenderer>();
+        floorRenderer.sprite = floorSprite;
+        if (mazeCell.isExit) floorRenderer.sprite = exitSprite;
+        floorSpriteObject.transform.SetParent(mapCell);
+        floorSpriteObject.transform.localPosition = new Vector3(0f, 0f, 0f);
+        floorSpriteObject.transform.localRotation = Quaternion.identity;
+        floorSpriteObject.transform.localScale = new Vector3(1f, 1f, 1f);
+        floorRenderer.sortingOrder = 1;
+    }
+
+    private void MovePlayerSpriteToCell(Transform canvasCell) {
+        playerMapIcon.transform.SetParent(canvasCell);
+        playerMapIcon.transform.localPosition = new Vector3(0f, 0f, 0f);
+    }
+
+    private void UpdatePlayerSpritePositionRotation() {
+        // Position
+            // TODO: Get playing position relative to current tile
+        // Rotation
+        playerMapIcon.transform.localRotation = Quaternion.Euler(new Vector3(0f,0f,-(player.transform.eulerAngles.y + 90)));
+        // playerMapIcon.GetComponent<SpriteRenderer>().sortingOrder = 2;
     }
 
     private void AddWallSprites(MazeCell mazeCell, Transform canvasCell, String prefix) {
@@ -325,9 +366,7 @@ public class UiManager : MonoBehaviour {
                 northWallObject.transform.localPosition = new Vector3(0f, 5f, 0f);
                 northWallObject.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 90f));
             }
-
             northWallObject.transform.localScale = new Vector3(1f, 1f, 1f);
-
             northWallSprite.sortingOrder = 1;
         }
 
@@ -382,39 +421,6 @@ public class UiManager : MonoBehaviour {
 
             westWallObject.transform.localScale = new Vector3(1f, 1f, 1f);
             westWallSprite.sortingOrder = 1;
-        }
-    }
-
-    public void DrawMap() {
-        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells) {
-            if (mazeCell.permanentlyRevealed) {
-                AddTileToMap(mazeCell);
-            }
-        }
-    }
-
-    public void DrawWholeMap() {
-        foreach (MazeCell cell in _mazeCellManager.mazeCells) {
-            cell.permanentlyRevealed = true;
-            DrawMap();
-        }
-    }
-
-    private Sprite GetTileSprite(string tileTag) {
-        switch (tileTag) {
-            case "Wall":
-                return wallSprite;
-            case "Floor":
-                return floorSprite;
-            case "Obstacle":
-                return obstacleSprite;
-            case "Player":
-                return playerSprite;
-            case "Exit":
-                return exitSprite;
-            default:
-                Debug.LogWarning("TAG_NOT_FOUND_FOR_TILE: " + tileTag);
-                return floorSprite;
         }
     }
 
