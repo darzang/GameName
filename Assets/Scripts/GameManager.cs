@@ -115,7 +115,6 @@ public class GameManager : MonoBehaviour {
         if (_mazeCellManager.GetTileUnder(player) != currentCell || CheckForTileDiscovery()) {
             previousCell = currentCell;
             currentCell = _mazeCellManager.GetTileUnder(player);
-            _uiManager.UpdateMiniMap();
             if (currentCell != null) {
                 if (currentCell.isExit) {
                     if (playerData.levelCompleted < levelNumber) {
