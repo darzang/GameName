@@ -31,8 +31,7 @@ public class GameManager : MonoBehaviour {
     public AudioClip[] welcomeToLevelAudio;
     public AudioClip congratulationsAudio;
 
-    // Tiles
-    public MazeCell previousCell;
+    // Cells
     public MazeCell currentCell;
     public int tryMax;
     
@@ -53,22 +52,10 @@ public class GameManager : MonoBehaviour {
         _batteries = GameObject.Find("Batteries").gameObject;
 
         levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
-        if (levelData == null) {
-            Debug.LogError("No Data to load, scene hasn't been generated properly");
-            levelData.mapFragments = _fragmentManager.GenerateRandomFragments();
-        }
-        else {
-            if (levelData.mapFragments == null) {
-                levelData.mapFragments = _fragmentManager.GenerateRandomFragments();
-            }
-            else {
-                levelData.mapFragments = levelData.mapFragments;
-            }
-            levelData.tryCount = levelData.tryCount + 1;
-            Debug.Log($"Data loaded: try {levelData.tryCount}");
-
-        }
-
+        levelData.mapFragments = levelData.mapFragments ?? _fragmentManager.GenerateRandomFragments();
+        levelData.tryCount += 1;
+        Debug.Log($"Data loaded: try {levelData.tryCount}");
+            
         string sceneName = SceneManager.GetActiveScene().name;
         int.TryParse(sceneName.Substring(sceneName.Length - 1), out levelNumber);
 
@@ -113,7 +100,6 @@ public class GameManager : MonoBehaviour {
 
         // Is the player on a new tile ?
         if (_mazeCellManager.GetTileUnder(player) != currentCell || CheckForTileDiscovery()) {
-            previousCell = currentCell;
             currentCell = _mazeCellManager.GetTileUnder(player);
             if (currentCell != null) {
                 if (currentCell.isExit) {
@@ -267,19 +253,14 @@ public class GameManager : MonoBehaviour {
         bool needMapUpdate = false;
         Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, playerData.discoveryRange);
         foreach (Collider tile in hitColliders) {
-            if (tile.name == "Floor" && tile.transform.parent.name.StartsWith("MazeCell")) {
-                // Colliders detected will be floor and walls so we need to get the parent
-                Transform transform = tile.transform;
-                Transform parent = transform.parent;
-                MazeCell mazeCell = _mazeCellManager.GetCellByName(parent.name);
-                if (mazeCell == null) {
-                    Debug.LogError($"MazeCell not found from tileDiscovery {parent.name}");
-                }
-                if (!mazeCell.revealedForCurrentRun) {
-                    needMapUpdate = true;
-                    mazeCell.revealedForCurrentRun = true;
-                }
-            }
+            if (tile.name != "Floor" || !tile.transform.parent.name.StartsWith("MazeCell")) continue;
+            // Colliders detected will be floor and walls so we need to get the parent
+            Transform transform = tile.transform;
+            Transform parent = transform.parent;
+            MazeCell mazeCell = _mazeCellManager.GetCellByName(parent.name);
+            if (mazeCell.revealedForCurrentRun) continue;
+            needMapUpdate = true;
+            mazeCell.revealedForCurrentRun = true;
         }
 
         return needMapUpdate;
@@ -321,7 +302,7 @@ public class GameManager : MonoBehaviour {
         List<MazeCell> mazeCells = _mazeCellManager.mazeCells.Where(cell => !cell.isExit).OrderBy(cell => cell.score).ToList();
         // Get 10 % furthest tiles
         int index = mazeCells.Count - Random.Range(1, (int) Math.Round(mazeCells.Count / 10f));
-        Debug.Log($"Instantiating player, {mazeCells.Count} cells, index is {index}, max disrance is {mazeCells[0].score}, min is: {mazeCells[mazeCells.Count - 1].score}");
+        Debug.Log($"Instantiating player, {mazeCells.Count} cells, index is {index}, max distance is {mazeCells[0].score}, min is: {mazeCells[mazeCells.Count - 1].score}");
         MazeCell spawnCell = mazeCells[index];
         Debug.Log($"Instantiating player, cell is: {spawnCell.name}, {spawnCell.score} distance");
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(
@@ -331,7 +312,6 @@ public class GameManager : MonoBehaviour {
         ), Quaternion.identity);
         player = playerTransform.gameObject;
         currentCell = spawnCell;
-        previousCell = spawnCell;
         _playerLamp = player.GetComponentInChildren<Light>();
         _playerLamp.enabled = false;
         _playerLamp.range *= playerData.lightMultiplier;
@@ -364,7 +344,7 @@ public class GameManager : MonoBehaviour {
         int row = (int) fragmentIn.transform.position.x;
         int column = (int) fragmentIn.transform.position.z;
         MazeCell mazeCell = _mazeCellManager.GetCellByName($"MazeCell_{row}_{column}");
-        Fragment fragment = _fragmentManager.GetFragmentForTile(levelData.mapFragments, mazeCell);
+        Fragment fragment = FragmentManager.GetFragmentForTile(levelData.mapFragments, mazeCell);
         fragment.discovered = true;
         _playerSoundsAudioSource.PlayOneShot(fragmentPickupAudio);
         fragment.cellsInFragment.ForEach(cell => {
@@ -387,7 +367,6 @@ public class GameManager : MonoBehaviour {
             playerData.cash += 1;
             _uiManager.AddInfoMessage("Map fully discovered");
             _uiManager.AddInfoMessage($"Obtained 1 coin, total : {playerData.cash}");
-            levelData.allFragmentsPickedUp = true;
         }
         Destroy(fragmentIn);
         FileManager.SaveLevelDataFile(levelData, SceneManager.GetActiveScene().name);

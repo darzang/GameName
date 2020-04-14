@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,7 +16,7 @@ public class UiManager : MonoBehaviour {
     [HideInInspector] public TextMeshProUGUI onboardingText;
     private GameObject _batteryLevelText;
     private TextMeshProUGUI _batteryDeadText;
-    private GameObject _exitReachedText;
+    private TextMeshProUGUI _exitReachedText;
     private TextMeshProUGUI _discoveryText;
     private TextMeshProUGUI _tryCountText;
     private TextMeshProUGUI _batteryText;
@@ -57,14 +58,20 @@ public class UiManager : MonoBehaviour {
     public GameObject player;
     private Player _player;
     private Quaternion _initialRotation;
-    public float minDistanceMiniMap = 5;
     private bool _batteryLevelBlinking;
     [HideInInspector] public bool batteryOnboardingBlinking;
 
     // Map 
-    private GameObject playerMapIcon;
-    private List<GameObject> mapCells = new List<GameObject>();
-    private List<GameObject> miniMapCells = new List<GameObject>();
+    private GameObject _playerMapIcon;
+    private List<GameObject> _mapCells = new List<GameObject>();
+
+    private List<SpriteRenderer> _mapCellsRenderer = new List<SpriteRenderer>(); 
+    // MiniMap
+    private RectTransform miniMapRectTransform;
+    public float minDistanceMiniMap = 5;
+    private List<GameObject> _miniMapCells = new List<GameObject>();
+    private List<SpriteRenderer> _miniMapCellsRenderer = new List<SpriteRenderer>(); 
+
 
     private void Awake() {
         Cursor.visible = false;
@@ -77,12 +84,13 @@ public class UiManager : MonoBehaviour {
         _tryCountText = _mapCanvas.transform.Find("TryCountText").GetComponent<TextMeshProUGUI>();
         _miniMapCanvas = _mainCanvas.transform.Find("MiniMapCanvas").gameObject;
         _miniMapPanel = _miniMapCanvas.transform.Find("MiniMapPanel").gameObject;
+        miniMapRectTransform = _miniMapPanel.GetComponent<RectTransform>();
         _batteryBarCanvas = _mainCanvas.transform.Find("BatteryBarCanvas").gameObject;
         _infoCanvas = _mainCanvas.transform.Find("InfoCanvas").gameObject;
         _infoPanel = _infoCanvas.transform.Find("InfoPanel").gameObject;
         _exitReachedCanvas = _mainCanvas.transform.Find("ExitReachedCanvas").gameObject;
         _batteryDeadCanvas = _mainCanvas.transform.Find("BatteryDeadCanvas").gameObject;
-        _exitReachedText = _exitReachedCanvas.transform.Find("ExitReachedText").gameObject;
+        _exitReachedText = _exitReachedCanvas.transform.Find("ExitReachedText").gameObject.GetComponent<TextMeshProUGUI>();
         _exitReachedButtons = _exitReachedCanvas.transform.Find("ExitReachedButtons").gameObject;
         _nextLevelButton = _exitReachedButtons.transform.Find("NextLevelButton").GetComponent<Button>();
         _backToMenuButton = _exitReachedButtons.transform.Find("BackToMenuButton").GetComponent<Button>();
@@ -130,7 +138,7 @@ public class UiManager : MonoBehaviour {
         RotateMiniMap();
         UpdateMap();
         UpdateMiniMap();
-        _player.fuelCount = _player.GetComponent<Player>().fuelCount;
+        _player.fuelCount = _player.fuelCount;
         if (_player.fuelCount > 0) {
             UpdateBatteryLevel();
             if (_player.fuelCount > _gameManager.playerData.batteryMax * 0.5) {
@@ -170,12 +178,10 @@ public class UiManager : MonoBehaviour {
         while (angle > 360) {
             angle -= 360;
         }
-
         while (angle < 0) {
             angle += 360;
         }
-
-        _miniMapPanel.GetComponent<RectTransform>().localRotation = Quaternion.Euler(0, 0, angle);
+        miniMapRectTransform.localRotation = Quaternion.Euler(0, 0, angle);
     }
 
     private void UpdateBatteryLevel() {
@@ -224,8 +230,8 @@ public class UiManager : MonoBehaviour {
         AddFloorSprite(mazeCell, newMiniMapCell.transform, "MiniMap");
         // Set the position of the new tile
         newMiniMapCell.transform.localPosition = new Vector3(
-            _mazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[0] * 10,
-            _mazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[1] * 10,
+            MazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[0] * 10,
+            MazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[1] * 10,
             0);
 
         newMiniMapCell.SetActive(true);
@@ -233,9 +239,11 @@ public class UiManager : MonoBehaviour {
 
         // TODO: Maybe just disabled then later replace + reenable ?
         foreach (Transform child in newMiniMapCell.transform) {
-            child.GetComponent<SpriteRenderer>().enabled = !(distance > minDistanceMiniMap) && mazeCell.revealedForCurrentRun;
+            SpriteRenderer renderer = child.GetComponent<SpriteRenderer>();
+            renderer.enabled = !(distance > minDistanceMiniMap) && mazeCell.revealedForCurrentRun;
+            _miniMapCellsRenderer.Add(renderer);
         }
-        miniMapCells.Add(newMiniMapCell);
+        _miniMapCells.Add(newMiniMapCell);
     }
 
     private void UpdateMiniMap() {
@@ -244,13 +252,15 @@ public class UiManager : MonoBehaviour {
                 new Vector3(mazeCell.x, 0f, mazeCell.z),
                 _player.gameObject.transform.position
             );
-            GameObject miniMapCell = miniMapCells.Find(cell => cell.name == $"MiniMap_{mazeCell.name}");
+            GameObject miniMapCell = _miniMapCells.Find(cell => cell.name == $"MiniMap_{mazeCell.name}");
             miniMapCell.transform.localPosition = new Vector3(
-                _mazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[0] * 10,
-                _mazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[1] * 10,
+                MazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[0] * 10,
+                MazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[1] * 10,
                 0);
-            foreach (Transform child in miniMapCell.transform) {
-                child.GetComponent<SpriteRenderer>().enabled = !(distance > minDistanceMiniMap) && mazeCell.revealedForCurrentRun;
+            List<SpriteRenderer> cellRenderers =
+                _miniMapCellsRenderer.Where(cell => cell.transform.name.Contains(mazeCell.name)).ToList();
+            foreach (SpriteRenderer renderer in cellRenderers) {
+                renderer.enabled = !(distance > minDistanceMiniMap) && mazeCell.revealedForCurrentRun;
             }
         }
     }
@@ -270,7 +280,7 @@ public class UiManager : MonoBehaviour {
     private void AddTileToMap(MazeCell mazeCell) {
         GameObject newCellObject = new GameObject($"Map_{mazeCell.name}");
         newCellObject.transform.SetParent(_mapCanvas.transform);
-        mapCells.Add(newCellObject);
+        _mapCells.Add(newCellObject);
         newCellObject.transform.localPosition = new Vector3(
             mazeCell.z * 10 + 5,
             -(mazeCell.x * 10 + 35),
@@ -287,7 +297,9 @@ public class UiManager : MonoBehaviour {
         // Add walls sprites for each wall of the cell
         AddWallSprites(mazeCell, newCellObject.transform, "Map");
         foreach (Transform child in newCellObject.transform) {
-            child.gameObject.GetComponent<SpriteRenderer>().enabled = mazeCell.permanentlyRevealed;
+            SpriteRenderer renderer = child.gameObject.GetComponent<SpriteRenderer>();
+            renderer.enabled = mazeCell.permanentlyRevealed;
+            _mapCellsRenderer.Add(renderer);
         }
 
         if (mazeCell == _gameManager.currentCell) AddPlayerSprite(newCellObject.transform);
@@ -297,16 +309,17 @@ public class UiManager : MonoBehaviour {
         // Make sure all discovered cells' sprites are enabled
         foreach (MazeCell mazeCell in _mazeCellManager.mazeCells) {
             if (mazeCell.permanentlyRevealed) {
-                GameObject mapCell = mapCells.Find(cell => cell.name == $"Map_{mazeCell.name}");
-                foreach (Transform sprite in mapCell.transform) {
-                    sprite.GetComponent<SpriteRenderer>().enabled = true;
+                List<SpriteRenderer> cellRenderers =
+                    _mapCellsRenderer.Where(cell => cell.name.Contains(mazeCell.name)).ToList();
+                foreach (SpriteRenderer renderer in cellRenderers) {
+                    renderer.enabled = true;
                 }
             }
         }
 
         // Make sure the player is on the right tile
         MazeCell currentCell = _gameManager.currentCell;
-        GameObject mapCurrentCell = mapCells.Find(cell => cell.name == $"Map_{currentCell.name}");
+        GameObject mapCurrentCell = _mapCells.Find(cell => cell.name == $"Map_{currentCell.name}");
         MovePlayerSpriteToCell(mapCurrentCell.transform);
 
         UpdatePlayerSpritePositionRotation();
@@ -320,13 +333,13 @@ public class UiManager : MonoBehaviour {
     }
 
     private void AddPlayerSprite(Transform canvasCell) {
-        playerMapIcon = new GameObject("Map_Player");
-        SpriteRenderer playerSpriteRenderer = playerMapIcon.AddComponent<SpriteRenderer>();
+        _playerMapIcon = new GameObject("Map_Player");
+        SpriteRenderer playerSpriteRenderer = _playerMapIcon.AddComponent<SpriteRenderer>();
         playerSpriteRenderer.sprite = playerSprite;
-        playerMapIcon.transform.SetParent(canvasCell);
-        playerMapIcon.transform.localPosition = new Vector3(0f, 0f, 0f);
-        playerMapIcon.transform.localScale = new Vector3(1f, 1f, 1f);
-        playerMapIcon.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f));
+        _playerMapIcon.transform.SetParent(canvasCell);
+        _playerMapIcon.transform.localPosition = new Vector3(0f, 0f, 0f);
+        _playerMapIcon.transform.localScale = new Vector3(1f, 1f, 1f);
+        _playerMapIcon.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 0f));
         playerSpriteRenderer.sortingOrder = 2;
     }
 
@@ -344,15 +357,15 @@ public class UiManager : MonoBehaviour {
     }
 
     private void MovePlayerSpriteToCell(Transform canvasCell) {
-        playerMapIcon.transform.SetParent(canvasCell);
-        playerMapIcon.transform.localPosition = new Vector3(0f, 0f, 0f);
+        _playerMapIcon.transform.SetParent(canvasCell);
+        _playerMapIcon.transform.localPosition = new Vector3(0f, 0f, 0f);
     }
 
     private void UpdatePlayerSpritePositionRotation() {
         // Position
         // TODO: Get playing position relative to current tile
         // Rotation
-        playerMapIcon.transform.localRotation =
+        _playerMapIcon.transform.localRotation =
             Quaternion.Euler(new Vector3(0f, 0f, -(player.transform.eulerAngles.y + 90)));
     }
 
@@ -361,7 +374,7 @@ public class UiManager : MonoBehaviour {
         MazeCell southCell = _mazeCellManager.GetCellIfExists(mazeCell.x + 1, mazeCell.z);
         MazeCell eastCell = _mazeCellManager.GetCellIfExists(mazeCell.x, mazeCell.z + 1);
         MazeCell westCell = _mazeCellManager.GetCellIfExists(mazeCell.x, mazeCell.z - 1);
-        if (mazeCell.hasNorthWall || (northCell != null && northCell.hasSouthWall)) {
+        if (mazeCell.hasNorthWall || northCell != null && northCell.hasSouthWall) {
             GameObject northWallObject = new GameObject($"{prefix}_{mazeCell.name}_North_Wall");
             northWallObject.transform.SetParent(canvasCell);
             SpriteRenderer northWallSprite = northWallObject.AddComponent<SpriteRenderer>();
@@ -379,7 +392,7 @@ public class UiManager : MonoBehaviour {
             northWallSprite.sortingOrder = 1;
         }
 
-        if (mazeCell.hasSouthWall || (southCell != null && southCell.hasNorthWall)) {
+        if (mazeCell.hasSouthWall || southCell != null && southCell.hasNorthWall) {
             GameObject southWallObject = new GameObject($"{prefix}_{mazeCell.name}_South_Wall");
             southWallObject.transform.SetParent(canvasCell);
             SpriteRenderer southWallSprite = southWallObject.AddComponent<SpriteRenderer>();
@@ -397,7 +410,7 @@ public class UiManager : MonoBehaviour {
             southWallSprite.sortingOrder = 1;
         }
 
-        if (mazeCell.hasEastWall || (eastCell != null && eastCell.hasWestWall)) {
+        if (mazeCell.hasEastWall || eastCell != null && eastCell.hasWestWall) {
             GameObject eastWallObject = new GameObject($"{prefix}_{mazeCell.name}_East_Wall");
             eastWallObject.transform.SetParent(canvasCell);
             SpriteRenderer eastWallSprite = eastWallObject.AddComponent<SpriteRenderer>();
@@ -415,7 +428,7 @@ public class UiManager : MonoBehaviour {
             eastWallSprite.sortingOrder = 1;
         }
 
-        if (mazeCell.hasWestWall || (westCell != null && westCell.hasEastWall)) {
+        if (mazeCell.hasWestWall || westCell != null && westCell.hasEastWall) {
             GameObject westWallObject = new GameObject($"{prefix}_{mazeCell.name}_West_Wall");
             westWallObject.transform.SetParent(canvasCell);
             SpriteRenderer westWallSprite = westWallObject.AddComponent<SpriteRenderer>();
@@ -449,7 +462,7 @@ public class UiManager : MonoBehaviour {
         _pauseCanvas.SetActive(true);
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-        _player.GetComponent<Player>().lockPlayer = true;
+        _player.lockPlayer = true;
     }
 
     private void ResumeGame() {
@@ -457,20 +470,19 @@ public class UiManager : MonoBehaviour {
         _pauseCanvas.SetActive(false);
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        _player.GetComponent<Player>().lockPlayer = false;
+        _player.lockPlayer = false;
     }
 
     public void ShowExitUi() {
-        _exitReachedText.SetActive(true);
+        _exitReachedText.enabled=true;
         _exitReachedButtons.SetActive(true);
         // set posX of ack to menu to 0
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-        _player.GetComponent<Player>().lockPlayer = true;
+        _player.lockPlayer = true;
         if (SceneManager.GetActiveScene().name != "Level7") return;
-        _exitReachedText.GetComponent<TextMeshProUGUI>().text =
-            "Congrats beta tester, you've been through all the levels !!";
-        _exitReachedText.GetComponent<TextMeshProUGUI>().fontSize = 17;
+        _exitReachedText.text = "Congrats beta tester, you've been through all the levels !!";
+        _exitReachedText.fontSize = 17;
         _backToMenuButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
     }
 

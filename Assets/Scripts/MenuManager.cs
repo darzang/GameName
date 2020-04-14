@@ -76,7 +76,7 @@ public class MenuManager : MonoBehaviour {
             else {
                 GameObject.Find("OptionsSoundsButton").GetComponent<TextMeshPro>().text = "X";
                 player.transform.Find("SoundsAudioSource").GetComponent<AudioSource>().enabled = false;
-                SetFlickeringLightEnable(false);
+                SetFlickeringLightSoundEnable(false);
             }
 
             if (PlayerPrefs.GetInt("EnableMusic") == 1) {
@@ -230,13 +230,13 @@ public class MenuManager : MonoBehaviour {
                     PlayerPrefs.SetInt("EnableSounds", 0);
                     button.GetComponent<TextMeshPro>().text = "X";
                     _playerSoundsAudioSource.enabled = false;
-                    SetFlickeringLightEnable(false);
+                    SetFlickeringLightSoundEnable(false);
                 }
                 else {
                     PlayerPrefs.SetInt("EnableSounds", 1);
                     button.GetComponent<TextMeshPro>().text = "V";
                     _playerSoundsAudioSource.enabled = true;
-                    SetFlickeringLightEnable(true);
+                    SetFlickeringLightSoundEnable(true);
                 }
                 break;
             default:
@@ -305,7 +305,7 @@ public class MenuManager : MonoBehaviour {
         FileManager.SavePlayerDataFile(playerData);
     }
 
-    private void SetFlickeringLightEnable(bool state) {
+    private static void SetFlickeringLightSoundEnable(bool state) {
         GameObject lights = GameObject.Find("Lights").gameObject;
         foreach (AudioSource lightAudio in lights.transform.GetComponentsInChildren<AudioSource>()) {
             lightAudio.enabled = state;

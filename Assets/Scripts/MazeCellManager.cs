@@ -21,16 +21,7 @@ public class MazeCellManager : MonoBehaviour {
     }
 
     public MazeCell GetCellIfExists(int row, int column) {
-        if (CellIsAvailable(row, column)) {
-            return mazeCells.Find(cell => cell.x == row && cell.z == column);
-        }
-        return null;
-    }
-
-    public void ShowCeiling(bool show) {
-        foreach (MazeCell mazeCell in mazeCells) {
-            GetWall(mazeCell, MazeCell.Walls.Ceiling).SetActive(show);
-        }
+        return CellIsAvailable(row, column) ? mazeCells.Find(cell => cell.x == row && cell.z == column) : null;
     }
 
     private List<MazeCell> GetNeighborWalkableTiles(MazeCell mazeCell) {
@@ -119,7 +110,7 @@ public class MazeCellManager : MonoBehaviour {
         } while (updated);
     }
 
-    private void SetAction(MazeCell cell, MazeCell neighborCell) {
+    private static void SetAction(MazeCell cell, MazeCell neighborCell) {
         if (neighborCell.z > cell.z) {
             cell.action = "EAST";
         }
@@ -140,18 +131,13 @@ public class MazeCellManager : MonoBehaviour {
     public MazeCell GetTileUnder(GameObject player) {
         Ray ray = new Ray(player.transform.position, Vector3.down);
         Physics.Raycast(ray, out RaycastHit hit, 10);
-        if (hit.collider) {
-            return GetCellByName(hit.collider.transform.parent.name);
-        }
-
-        Debug.LogWarning("No tile under player");
-        return null;
+        return hit.collider ? GetCellByName(hit.collider.transform.parent.name) : null;
     }
 
     /*
      * Returns the position between the tile and the player (Unity distance)
      */
-    public float[] GetRelativePosition(GameObject player, MazeCell tile) {
+    public static float[] GetRelativePosition(GameObject player, MazeCell tile) {
         Vector3 playerPosition = player.transform.position;
         float x = playerPosition.x - tile.x;
         float z = playerPosition.z - tile.z;
@@ -199,28 +185,19 @@ public class MazeCellManager : MonoBehaviour {
         return mazeCells.Count(mazeCell => mazeCell.permanentlyRevealed);
     }
 
-    public MazeCell GetCellFromFragmentNumber(int fragmentNumber) {
-        foreach (MazeCell mazeCell in mazeCells) {
-            if (mazeCell.fragmentNumber == fragmentNumber) return mazeCell;
-        }
-
-        return null;
-    }
-
     public MazeCell GetCellByName(string name) {
         MazeCell mazeCell = mazeCells.Find(cell => cell.name == name);
         if (mazeCell == null) {
-            Debug.LogError($"Cell not found: {name}");
+            // Debug.LogError($"Cell not found: {name}");
         }
         return mazeCell;
     }
 
     public bool AllCellsDiscovered() {
-        if (mazeCells.Find(cell => !cell.permanentlyRevealed) != null) return false;
-        return true;
+        return mazeCells.Find(cell => !cell.permanentlyRevealed) == null;
     }
 
-    public void DestroyWallIfExists(MazeCell mazeCell, MazeCell.Walls wall) {
+    public static void DestroyWallIfExists(MazeCell mazeCell, MazeCell.Walls wall) {
         GameObject wallToDestroy = null;
         switch (wall) {
             case MazeCell.Walls.East:
@@ -242,6 +219,9 @@ public class MazeCellManager : MonoBehaviour {
             case MazeCell.Walls.Ceiling:
                 wallToDestroy = GameObject.Find(mazeCell.name).transform.Find("Ceiling").gameObject;
                 break;
+            case MazeCell.Walls.Floor:
+                wallToDestroy = GameObject.Find(mazeCell.name).transform.Find("Floor").gameObject;
+                break;
             default:
                 Debug.LogWarning($"Trying to destroy a wall that doesn't exist ! {wall}");
                 break;
@@ -250,7 +230,7 @@ public class MazeCellManager : MonoBehaviour {
         Destroy(wallToDestroy);
     }
 
-    public GameObject GetWall(MazeCell mazeCell, MazeCell.Walls wall) {
+    public static GameObject GetWall(MazeCell mazeCell, MazeCell.Walls wall) {
         GameObject cellObject = GameObject.Find(mazeCell.name);
         switch (wall) {
             case MazeCell.Walls.East:

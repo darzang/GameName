@@ -5,7 +5,7 @@ using UnityEngine;
 public class FileManager : MonoBehaviour {
 //  Application.persistentDataPath points to %userprofile%\AppData\Local\Packages\<productname>\LocalState.
     public static void SaveLevelDataFile(LevelData levelData, string fileName) {
-        Debug.Log($"Saving levelData file: \n {JsonUtility.ToJson(levelData, true)}");
+        // Debug.Log($"Saving levelData file: \n {JsonUtility.ToJson(levelData, true)}");
         if (levelData == null) {
             // Yep, that's harsh
             DeleteFile(fileName);
@@ -19,7 +19,7 @@ public class FileManager : MonoBehaviour {
     }
 
     public static void SavePlayerDataFile(PlayerData playerData) {
-        Debug.Log($"Saving playerData file: \n {JsonUtility.ToJson(playerData, true)}");
+        // Debug.Log($"Saving playerData file: \n {JsonUtility.ToJson(playerData, true)}");
 
         string path = $"{Application.persistentDataPath}/PlayerData.dat";
         FileStream file = File.Exists(path) ? File.OpenWrite(path) : File.Create(path);
@@ -32,11 +32,11 @@ public class FileManager : MonoBehaviour {
         FileStream file;
         string path = $"{Application.persistentDataPath}/{fileName}.dat";
         if (File.Exists(path)) {
-            Debug.Log($"Opening levelData file at: {path}");
+            // Debug.Log($"Opening levelData file at: {path}");
             file = File.OpenRead(path);
         }
         else {
-            Debug.LogWarning($"File {fileName}.dat not found");
+            // Debug.LogWarning($"File {fileName}.dat not found");
             return null;
         }
 
@@ -50,11 +50,11 @@ public class FileManager : MonoBehaviour {
         FileStream file;
         string path = $"{Application.persistentDataPath}/PlayerData.dat";
         if (File.Exists(path)) {
-            Debug.Log($"Opening playerData file at: {path}");
+            // Debug.Log($"Opening playerData file at: {path}");
             file = File.OpenRead(path);
         }
         else {
-            Debug.LogWarning("File PlayerData.dat not found");
+            // Debug.LogWarning("File PlayerData.dat not found");
             return null;
         }
 
@@ -65,10 +65,10 @@ public class FileManager : MonoBehaviour {
         return data;
     }
 
-    public static void DeleteFile(string fileName) {
+    private static void DeleteFile(string fileName) {
         string path = $"{Application.persistentDataPath}/{fileName}.dat";
         if (!File.Exists(path)) return;
-        Debug.Log($"Deleting file {fileName}.dat");
+        // Debug.Log($"Deleting file {fileName}.dat");
         File.Delete(path);
     }
 }

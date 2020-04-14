@@ -6,10 +6,6 @@ using Random = UnityEngine.Random;
 
 public class FragmentManager : MonoBehaviour {
     public Transform mazeCellPrefab;
-    public Material exitMaterial;
-    public Material wallMaterial;
-    public Material floorMaterial;
-    public Material obstacleMaterial;
     public Transform fragmentPrefab;
     private MazeCellManager _mazeCellManager;
 
@@ -33,17 +29,12 @@ public class FragmentManager : MonoBehaviour {
             List<MazeCell> cellsInFragment = new List<MazeCell>();
 
             // Get cells that doesn't lead to a dead end
-            List<MazeCell> currentCellsLeft = new List<MazeCell>();
-            foreach (MazeCell availableCell in availableCells) {
-                if (cellsLeadingToIncompleteFragment.Find(cell => cell == availableCell) != null) continue;
-                currentCellsLeft.Add(availableCell);
-            }
-
+            List<MazeCell> currentCellsLeft = availableCells.Where(availableCell =>
+                cellsLeadingToIncompleteFragment.Find(cell => cell == availableCell) == null).ToList();
             if (currentCellsLeft.Count == 0) {
                 // If there is no cells left we quit the loop and will dispatch the rest
                 break;
             }
-
             // Select the first tile randomly among all tiles left
             MazeCell firstTile = currentCellsLeft[Random.Range(0, currentCellsLeft.Count - 1)];
             availableCells.Remove(firstTile);
@@ -104,9 +95,7 @@ public class FragmentManager : MonoBehaviour {
         foreach (MazeCell tileLeft in availableCells) {
             Fragment closestFragment = GetFragmentForTile(fragments, tileLeft);
             Fragment updatedFragment = fragments.Find(frg => frg == closestFragment);
-            if (updatedFragment != null) {
-                updatedFragment.cellsInFragment.Add(tileLeft);
-            }
+            updatedFragment?.cellsInFragment.Add(tileLeft);
         }
 
         int totalTilesInFragments = 0;
@@ -122,7 +111,7 @@ public class FragmentManager : MonoBehaviour {
         return fragments;
     }
 
-    public Fragment GetFragmentForTile(List<Fragment> fragments, MazeCell cell) {
+    public static Fragment GetFragmentForTile(List<Fragment> fragments, MazeCell cell) {
         return fragments.Find(fragment => fragment.number == cell.fragmentNumber);
     }
 
@@ -165,7 +154,7 @@ public class FragmentManager : MonoBehaviour {
             // Remove walls that are not in the "real" cell
             MazeCell realCell = _mazeCellManager.GetCellByName(mazeCell.name);
             realCell.fragmentNumber = fragmentIn.number;
-            // TODO: This should Check neighbor cells as well to don't destry the wall if the neighbor has a wall
+            // TODO: This should Check neighbor cells as well to don't destroy the wall if the neighbor has a wall
             if (!realCell.hasSouthWall) Destroy(fragmentCellGameObject.transform.Find("SouthWall").gameObject);
             if (!realCell.hasEastWall) Destroy(fragmentCellGameObject.transform.Find("EastWall").gameObject);
             if (!realCell.hasWestWall) Destroy(fragmentCellGameObject.transform.Find("WestWall").gameObject);
@@ -178,20 +167,20 @@ public class FragmentManager : MonoBehaviour {
         }
 
         // Shift the tiles to be in center of parent gameObject
-        Vector3 offset = GetCenterPointBetween(fragmentCellsPositions);
-        foreach (Transform tile in fragmentTiles) {
-            // tile.transform.position += offset;
-        }
+        // Vector3 offset = GetCenterPointBetween(fragmentCellsPositions);
+        // foreach (Transform tile in fragmentTiles) {
+        //     tile.transform.localPosition += offset;
+        // }
 
         fragment.transform.localScale = new Vector3(0.05f, 0.05f, 0.05f);
     }
 
-    private Vector3 GetCenterPointBetween(List<Vector3> positions) {
-        Vector3 center = new Vector3(0, 0, 0);
-        foreach (Vector3 position in positions) {
-            center += position;
-        }
-
-        return center /= positions.Count; //TODO: Why /= and not just / ?
-    }
+    // private Vector3 GetCenterPointBetween(List<Vector3> positions) {
+    //     Vector3 center = new Vector3(0, 0, 0);
+    //     foreach (Vector3 position in positions) {
+    //         center += position;
+    //     }
+    //
+    //     return center /= positions.Count; //TODO: Why /= and not just / ?
+    // }
 }
