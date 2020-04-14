@@ -299,10 +299,10 @@ public class GameManager : MonoBehaviour {
 
     private void InstantiatePlayer() {
         // Get available cells
-        List<MazeCell> mazeCells = _mazeCellManager.mazeCells.Where(cell => !cell.isExit).OrderBy(cell => cell.score).ToList();
+        List<MazeCell> mazeCells = _mazeCellManager.mazeCells.Where(cell => !cell.isExit &!cell.hasBattery && !cell.hasFragment).OrderBy(cell => cell.score).ToList();
         // Get 10 % furthest tiles
         int index = mazeCells.Count - Random.Range(1, (int) Math.Round(mazeCells.Count / 10f));
-        Debug.Log($"Instantiating player, {mazeCells.Count} cells, index is {index}, max distance is {mazeCells[0].score}, min is: {mazeCells[mazeCells.Count - 1].score}");
+        Debug.Log($"Instantiating player, {mazeCells.Count} cells, index is {index}, min distance is {mazeCells[0].score}, max is: {mazeCells[mazeCells.Count - 1].score}");
         MazeCell spawnCell = mazeCells[index];
         Debug.Log($"Instantiating player, cell is: {spawnCell.name}, {spawnCell.score} distance");
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(

@@ -24,33 +24,35 @@ public class MazeCellManager : MonoBehaviour {
         return CellIsAvailable(row, column) ? mazeCells.Find(cell => cell.x == row && cell.z == column) : null;
     }
 
-    private List<MazeCell> GetNeighborWalkableTiles(MazeCell mazeCell) {
+    private List<MazeCell> GetReachableCells(MazeCell mazeCell) {
         // Returns the neighbor tiles that the player can directly reach
-        List<MazeCell> neighborTiles = new List<MazeCell>();
+        List<MazeCell> reachableCells = new List<MazeCell>();
         int x = mazeCell.x;
         int z = mazeCell.z;
 
-        MazeCell northCell = GetCellIfExists(x - 1, z);
-        if (northCell != null && !northCell.hasSouthWall && !mazeCell.hasNorthWall) {
-            neighborTiles.Add(northCell);
+        if (!mazeCell.hasNorthWall) {
+            MazeCell northCell = GetCellIfExists(x - 1, z);
+            if (northCell != null && !northCell.hasSouthWall) reachableCells.Add(northCell);
         }
 
-        MazeCell southCell = GetCellIfExists(x + 1, z);
-        if (southCell != null && !southCell.hasNorthWall && !mazeCell.hasSouthWall) {
-            neighborTiles.Add(southCell);
+        if (!mazeCell.hasSouthWall) {
+            MazeCell southCell = GetCellIfExists(x + 1, z);
+            if (southCell != null && !southCell.hasNorthWall) reachableCells.Add(southCell);
         }
 
-        MazeCell eastCell = GetCellIfExists(x, z + 1);
-        if (eastCell != null && !eastCell.hasWestWall && !mazeCell.hasEastWall) {
-            neighborTiles.Add(eastCell);
+        if (!mazeCell.hasEastWall) {
+            MazeCell eastCell = GetCellIfExists(x, z + 1);
+            if (eastCell != null && !eastCell.hasWestWall) reachableCells.Add(eastCell);
         }
 
-        MazeCell westCell = GetCellIfExists(x, z - 1);
-        if (westCell != null && !westCell.hasEastWall && !mazeCell.hasWestWall) {
-            neighborTiles.Add(westCell);
+        if (!mazeCell.hasWestWall) {
+            MazeCell westCell = GetCellIfExists(x, z - 1);
+            if (westCell != null && !westCell.hasEastWall) {
+                reachableCells.Add(westCell);
+            }
         }
 
-        return neighborTiles;
+        return reachableCells;
     }
 
     public List<MazeCell> GetNeighborTiles(MazeCell mazeCell) {
@@ -87,14 +89,14 @@ public class MazeCellManager : MonoBehaviour {
                 if (mazeCell.isExit) continue;
                 // Check Neighbor tiles
                 //TODO: Check if score doesn't exist, mean higher
-                List<MazeCell> neighborTiles = GetNeighborWalkableTiles(mazeCell);
+                List<MazeCell> neighborTiles = GetReachableCells(mazeCell);
                 foreach (MazeCell neighborCell in neighborTiles) {
                     if (neighborCell.isExit) {
                         if (mazeCell.score == 1) continue;
                         updated = true;
                         mazeCell.score = 1;
                         SetAction(mazeCell, neighborCell);
-                        InstantiateArrow(mazeCell);
+                        // InstantiateArrow(mazeCell);
                     }
                     else if (
                         neighborCell.score < mazeCell.score
@@ -103,7 +105,7 @@ public class MazeCellManager : MonoBehaviour {
                         mazeCell.score = neighborCell.score + 1;
                         SetAction(mazeCell, neighborCell);
                         updated = true;
-                        InstantiateArrow(mazeCell);
+                        // InstantiateArrow(mazeCell);
                     }
                 }
             }
@@ -190,6 +192,7 @@ public class MazeCellManager : MonoBehaviour {
         if (mazeCell == null) {
             // Debug.LogError($"Cell not found: {name}");
         }
+
         return mazeCell;
     }
 
@@ -272,7 +275,7 @@ public class MazeCellManager : MonoBehaviour {
 
         return null;
     }
-    
+
     public void InstantiateLight(MazeCell mazeCell) {
         Transform cellObject = GameObject.Find(mazeCell.name).transform;
         Transform light = Instantiate(lightPrefab, cellObject);

@@ -58,18 +58,21 @@ public class SceneGenerator : MonoBehaviour {
 
     private void InstantiateMaze() {
         int index = 0;
-        int exitX = Random.Range(0, _mazeCellManager.GetMapSize()-1);
-        int exitZ = Random.Range(0, _mazeCellManager.GetMapSize()-1);
-        for (int r = 0; r < _mazeCellManager.mazeRow; r++) {
-            for (int c = 0; c < _mazeCellManager.mazeColumn; c++) {
-                MazeCell newCell = InstantiateMazeCell(r, c);
-
+        int cellsCount = _mazeCellManager.mazeRow * _mazeCellManager.mazeColumn;
+        int exitX = Random.Range(0, _mazeCellManager.mazeRow-1);
+        int exitZ = Random.Range(0, _mazeCellManager.mazeColumn-1);
+        Debug.Log($"Exit is at {exitX} {exitZ}");
+        for (int row = 0; row < _mazeCellManager.mazeRow; row++) {
+            for (int column = 0; column < _mazeCellManager.mazeColumn; column++) {
+                MazeCell newCell = InstantiateMazeCell(row, column);
+                newCell.score = cellsCount;
                 if (index % 3 == 0) {
                     _mazeCellManager.InstantiateLight(newCell);
                 }
 
-                if (r == exitX && c == exitZ) {
+                if (row == exitX && column == exitZ) {
                     newCell.isExit = true;
+                    newCell.score = 0;
                     MazeCellManager.GetWall(newCell, MazeCell.Walls.Floor)
                             .GetComponent<Renderer>().material = exitMaterial;
                 }

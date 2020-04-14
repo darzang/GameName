@@ -7,9 +7,10 @@ using Random = UnityEngine.Random;
 public class FragmentManager : MonoBehaviour {
     public Transform mazeCellPrefab;
     public Transform fragmentPrefab;
-    private MazeCellManager _mazeCellManager;
+    private static MazeCellManager _mazeCellManager;
 
     public List<Fragment> GenerateRandomFragments() {
+        Debug.Log("Generating random fragments");
         if (!_mazeCellManager) _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
         // How many fragments do we want ?
         //TODO: Bigger fragments in the beginning, than more so harder to find all of them ?
@@ -78,7 +79,6 @@ public class FragmentManager : MonoBehaviour {
                     distanceMax = currentDistance;
                     closestTile = neighborTile;
                 }
-
                 cellsInFragment.Add(closestTile);
                 availableCells.Remove(closestTile);
             }
@@ -111,8 +111,25 @@ public class FragmentManager : MonoBehaviour {
         return fragments;
     }
 
-    public static Fragment GetFragmentForTile(List<Fragment> fragments, MazeCell cell) {
-        return fragments.Find(fragment => fragment.number == cell.fragmentNumber);
+    public static Fragment GetFragmentForTile(List<Fragment> fragments, MazeCell lonelyCell) {
+        Fragment fragmentForTile = null;
+        
+        float distanceMin = _mazeCellManager.mazeCells.Count;
+        foreach (Fragment fragment in fragments) {
+            float distanceSum = 0f;
+            foreach (MazeCell mazeCell in fragment.cellsInFragment) {
+                distanceSum += Vector3.Distance(
+                    new Vector3(mazeCell.x, 0, mazeCell.z),
+                    new Vector3(lonelyCell.x, 0, lonelyCell.z)
+                );
+            }
+            float averageDistance = distanceSum / fragment.cellsInFragment.Count;
+            if (averageDistance < distanceMin) {
+                distanceMin = averageDistance;
+                fragmentForTile = fragment;
+            }
+        }
+        return fragmentForTile;
     }
 
     public void InstantiateFragment(Fragment fragmentIn) {
@@ -121,7 +138,6 @@ public class FragmentManager : MonoBehaviour {
         List<MazeCell> availableFloorTiles = new List<MazeCell>();
         foreach (MazeCell mazeCell in fragmentIn.cellsInFragment) {
             if (mazeCell.hasFragment || mazeCell.hasBattery || mazeCell.isExit) {
-                Debug.Log($"Can't spawn fragment {fragmentIn.number} on {mazeCell.name}");
                 continue;
             }
             availableFloorTiles.Add(mazeCell);
