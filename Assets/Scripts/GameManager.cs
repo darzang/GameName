@@ -8,18 +8,19 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
     public static string CurrentVersion = "0.3";
-// Managers
+    // Managers
     private MazeCellManager _mazeCellManager;
     private FragmentManager _fragmentManager;
     private UiManager _uiManager;
 
-    // Player components
+    // Player components / Related
+    public Player player;
     public Transform playerPrefab;
     public Transform batteryPrefab;
-    public GameObject player;
     private GameObject _eyeLids;
     private Animation _anim;
     private Light _playerLamp;
+    
     
     private AudioSource _lightAudio;
     private AudioSource _playerSoundsAudioSource;
@@ -41,7 +42,6 @@ public class GameManager : MonoBehaviour {
     public LevelData levelData;
     public bool gameIsPaused;
     private GameObject _batteries;
-    private bool _isDead;
     public int levelNumber;
     public int onboardingStage;
     private bool _incrementOnboardingIsRunning;
@@ -100,8 +100,8 @@ public class GameManager : MonoBehaviour {
         }
 
         // Is the player on a new tile ?
-        if (_mazeCellManager.GetTileUnder(player) != currentCell || CheckForTileDiscovery()) {
-            currentCell = _mazeCellManager.GetTileUnder(player);
+        if (_mazeCellManager.GetTileUnder(player.transform.gameObject) != currentCell || CheckForTileDiscovery()) {
+            currentCell = _mazeCellManager.GetTileUnder(player.transform.gameObject);
             if (currentCell != null) {
                 if (currentCell.isExit) {
                     if (playerData.levelCompleted < levelNumber) {
@@ -141,11 +141,11 @@ public class GameManager : MonoBehaviour {
             _uiManager.DrawWholeMap();
         }
 
-        if (player.GetComponent<Player>().fuelCount <= 0 && !_isDead) {
-            _isDead = true;
+        if (player.isDead) {
             _playerSoundsAudioSource.PlayOneShot(batteryDeadAudio);
             if (levelData.tryCount >= tryMax) _playerSoundsAudioSource.PlayOneShot(youLostAudio);
         }
+
 
         // Useful for now, to remove later
         // if (Input.GetKeyUp("r")) FileManager.DeleteFile(SceneManager.GetActiveScene().name);
@@ -311,7 +311,7 @@ public class GameManager : MonoBehaviour {
             0.5f,
             spawnCell.z
         ), Quaternion.identity);
-        player = playerTransform.gameObject;
+        player = playerTransform.GetComponent<Player>();
         currentCell = spawnCell;
         _playerLamp = player.GetComponentInChildren<Light>();
         _playerLamp.enabled = false;
@@ -322,7 +322,7 @@ public class GameManager : MonoBehaviour {
         _lightAudio = _playerLamp.GetComponent<AudioSource>();
         _eyeLids = GameObject.Find("EyeLids").gameObject;
         _anim = player.GetComponent<Animation>();
-        _uiManager.player = player;
+        _uiManager.playerObject = player.gameObject;
     }
 
     private void InstantiateBatteries() {
