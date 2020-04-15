@@ -45,9 +45,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mazeCellPrefab: {fileID: 6791483153816139213, guid: 776c7c9c393b3964caf245bf29cffbac,
     type: 3}
-  exitMaterial: {fileID: 2100000, guid: 4847d4c98cf65ca48b00f7e2ba3bc651, type: 2}
-  wallMaterial: {fileID: 2100000, guid: 88fdc8854646c1d4d8a0bc276d466fec, type: 2}
-  floorMaterial: {fileID: 2100000, guid: 483b54c86b4c29c408a545a374726537, type: 2}
-  obstacleMaterial: {fileID: 2100000, guid: f33e3dabf34d3e544a34866a6911519b, type: 2}
   fragmentPrefab: {fileID: 6377249713866120990, guid: 1840936fa43ae6d4aa5f18dc7e0c3ecd,
     type: 3}
+  floorInFragmentMaterial: {fileID: 2100000, guid: 483b54c86b4c29c408a545a374726537,
+    type: 2}
+  obstacleInFragmentMaterial: {fileID: 2100000, guid: f33e3dabf34d3e544a34866a6911519b,
+    type: 2}
+  exitInFragmentMaterial: {fileID: 2100000, guid: 4847d4c98cf65ca48b00f7e2ba3bc651,
+    type: 2}

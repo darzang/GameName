@@ -11,6 +11,7 @@ public class SceneGenerator : MonoBehaviour {
     public Transform fragmentManager;
     public Material exitMaterial;
     public Transform mazeCellPrefab;
+    public Transform exitLightPrefab;
     private GameObject _maze;
     private int _currentRow;
     private int _currentColumn;
@@ -81,8 +82,8 @@ public class SceneGenerator : MonoBehaviour {
                 if (row == exitX && column == exitZ) {
                     newCell.isExit = true;
                     newCell.score = 0;
-                    MazeCellManager.GetWall(newCell, MazeCell.Walls.Floor)
-                        .GetComponent<Renderer>().material = exitMaterial;
+                    MazeCellManager.GetWall(newCell, MazeCell.Walls.Floor).GetComponent<Renderer>().material = exitMaterial;
+                    Instantiate(exitLightPrefab, GameObject.Find(newCell.name).transform);
                 }
 
                 _mazeCellManager.mazeCells.Add(newCell);
@@ -267,6 +268,7 @@ public class SceneGenerator : MonoBehaviour {
                 MazeCellManager.GetWall(mazeCell, MazeCell.Walls.Floor).GetComponent<Renderer>().material =
                     exitMaterial;
                 mazeCell.isExit = true;
+                Instantiate(exitLightPrefab, GameObject.Find(mazeCell.name).transform);
             }
 
             mazeCell.action = mazeCellData.action;

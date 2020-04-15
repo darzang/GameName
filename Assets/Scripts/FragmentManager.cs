@@ -7,6 +7,9 @@ using Random = UnityEngine.Random;
 public class FragmentManager : MonoBehaviour {
     public Transform mazeCellPrefab;
     public Transform fragmentPrefab;
+    public Material floorInFragmentMaterial;
+    public Material obstacleInFragmentMaterial;
+    public Material exitInFragmentMaterial;
     private static MazeCellManager _mazeCellManager;
 
     public List<Fragment> GenerateRandomFragments() {
@@ -36,6 +39,7 @@ public class FragmentManager : MonoBehaviour {
                 // If there is no cells left we quit the loop and will dispatch the rest
                 break;
             }
+
             // Select the first tile randomly among all tiles left
             MazeCell firstTile = currentCellsLeft[Random.Range(0, currentCellsLeft.Count - 1)];
             availableCells.Remove(firstTile);
@@ -79,6 +83,7 @@ public class FragmentManager : MonoBehaviour {
                     distanceMax = currentDistance;
                     closestTile = neighborTile;
                 }
+
                 cellsInFragment.Add(closestTile);
                 availableCells.Remove(closestTile);
             }
@@ -113,7 +118,7 @@ public class FragmentManager : MonoBehaviour {
 
     public static Fragment GetFragmentForTile(List<Fragment> fragments, MazeCell lonelyCell) {
         Fragment fragmentForTile = null;
-        
+
         float distanceMin = _mazeCellManager.mazeCells.Count;
         foreach (Fragment fragment in fragments) {
             float distanceSum = 0f;
@@ -123,29 +128,27 @@ public class FragmentManager : MonoBehaviour {
                     new Vector3(lonelyCell.x, 0, lonelyCell.z)
                 );
             }
+
             float averageDistance = distanceSum / fragment.cellsInFragment.Count;
             if (averageDistance < distanceMin) {
                 distanceMin = averageDistance;
                 fragmentForTile = fragment;
             }
         }
+
         return fragmentForTile;
     }
 
     public void InstantiateFragment(Fragment fragmentIn) {
         if (!_mazeCellManager) _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
         // Get a random spawn tile from the cells contained in the fragment
-        List<MazeCell> availableFloorTiles = new List<MazeCell>();
-        foreach (MazeCell mazeCell in fragmentIn.cellsInFragment) {
-            if (mazeCell.hasFragment || mazeCell.hasBattery || mazeCell.isExit) {
-                continue;
-            }
-            availableFloorTiles.Add(mazeCell);
-        }
-        MazeCell spawnCell= availableFloorTiles[Random.Range(0, availableFloorTiles.Count - 1)];
+        List<MazeCell> availableFloorTiles = fragmentIn.cellsInFragment
+            .Where(mazeCell => !mazeCell.hasFragment && !mazeCell.hasBattery && !mazeCell.isExit).ToList();
+        MazeCell spawnCell = availableFloorTiles[Random.Range(0, availableFloorTiles.Count - 1)];
         _mazeCellManager.GetCellByName(spawnCell.name).fragmentNumber = fragmentIn.number;
         _mazeCellManager.GetCellByName(spawnCell.name).hasFragment = true;
-        Transform fragment = Instantiate(fragmentPrefab, new Vector3(spawnCell.x, 0.35f, spawnCell.z), Quaternion.identity);
+        Transform fragment = Instantiate(fragmentPrefab, new Vector3(spawnCell.x, 0.35f, spawnCell.z),
+            Quaternion.identity);
         fragment.name = $"Fragment_{fragmentIn.number}";
         fragment.SetParent(GameObject.Find("Fragments").transform);
 
@@ -164,17 +167,47 @@ public class FragmentManager : MonoBehaviour {
             fragmentCellGameObject.name = $"FragmentTile_{mazeCell.name}";
             fragmentCellGameObject.isStatic = false;
             fragmentCellGameObject.tag = "FragmentTile";
-
             fragment.gameObject.isStatic = false;
             fragmentCellGameObject.transform.localScale = new Vector3(1f, 1f, 1f);
-            // Remove walls that are not in the "real" cell
+
+
+            // Assign correct material so the fragments are visible from far away
             MazeCell realCell = _mazeCellManager.GetCellByName(mazeCell.name);
-            realCell.fragmentNumber = fragmentIn.number;
-            // TODO: This should Check neighbor cells as well to don't destroy the wall if the neighbor has a wall
-            if (!realCell.hasSouthWall) Destroy(fragmentCellGameObject.transform.Find("SouthWall").gameObject);
-            if (!realCell.hasEastWall) Destroy(fragmentCellGameObject.transform.Find("EastWall").gameObject);
-            if (!realCell.hasWestWall) Destroy(fragmentCellGameObject.transform.Find("WestWall").gameObject);
-            if (!realCell.hasNorthWall) Destroy(fragmentCellGameObject.transform.Find("NorthWall").gameObject);
+            realCell.fragmentNumber = fragmentIn.number;            
+            
+            fragmentCell.transform.Find("SouthWall").GetComponent<Renderer>().material = obstacleInFragmentMaterial;
+            fragmentCell.transform.Find("NorthWall").GetComponent<Renderer>().material = obstacleInFragmentMaterial;
+            fragmentCell.transform.Find("EastWall").GetComponent<Renderer>().material = obstacleInFragmentMaterial;
+            fragmentCell.transform.Find("WestWall").GetComponent<Renderer>().material = obstacleInFragmentMaterial;
+            fragmentCell.transform.Find("Floor").GetComponent<Renderer>().material =
+                realCell.isExit ? exitInFragmentMaterial : floorInFragmentMaterial;
+            // Remove walls that are not in the "real" cell
+
+            
+            if (!realCell.hasSouthWall) {
+                MazeCell southCell = _mazeCellManager.GetCellIfExists(realCell.x + 1, realCell.z);
+                if (southCell != null && !southCell.hasNorthWall)
+                    Destroy(fragmentCellGameObject.transform.Find("SouthWall").gameObject);
+            }
+
+            if (!realCell.hasNorthWall) {
+                MazeCell northCell = _mazeCellManager.GetCellIfExists(realCell.x - 1, realCell.z);
+                if (northCell != null && !northCell.hasSouthWall)
+                    Destroy(fragmentCellGameObject.transform.Find("NorthWall").gameObject);
+            }
+
+            if (!realCell.hasEastWall) {
+                MazeCell eastCell = _mazeCellManager.GetCellIfExists(realCell.x, realCell.z + 1);
+                if (eastCell != null && !eastCell.hasWestWall)
+                    Destroy(fragmentCellGameObject.transform.Find("EastWall").gameObject);
+            }
+
+            if (!realCell.hasWestWall) {
+                MazeCell westCell = _mazeCellManager.GetCellIfExists(realCell.x, realCell.z - 1);
+                if (westCell != null && !westCell.hasEastWall)
+                    Destroy(fragmentCellGameObject.transform.Find("WestWall").gameObject);
+            }
+
 
             Destroy(fragmentCellGameObject.transform.Find("Ceiling").gameObject);
             foreach (Transform wall in fragmentCellGameObject.transform) {
