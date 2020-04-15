@@ -2,6 +2,7 @@
 
 [Serializable]
 public class PlayerData : object {
+    public string version;
     public float playerSpeed;
     public int batteryMax;
     public float fuelConsumption;
@@ -38,5 +39,6 @@ public class PlayerData : object {
         baseLightIntensity = 3;
         baseLightAngle = 60;
         baseLightRange = 2;
+        version = GameManager.CurrentVersion;
     }
 }

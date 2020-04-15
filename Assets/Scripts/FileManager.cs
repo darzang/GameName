@@ -65,7 +65,7 @@ public class FileManager : MonoBehaviour {
         return data;
     }
 
-    private static void DeleteFile(string fileName) {
+    public static void DeleteFile(string fileName) {
         string path = $"{Application.persistentDataPath}/{fileName}.dat";
         if (!File.Exists(path)) return;
         // Debug.Log($"Deleting file {fileName}.dat");

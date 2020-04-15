@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
+    public static string CurrentVersion = "0.3";
 // Managers
     private MazeCellManager _mazeCellManager;
     private FragmentManager _fragmentManager;

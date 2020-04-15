@@ -29,9 +29,13 @@ public class MenuManager : MonoBehaviour {
         _playerLamp = player.GetComponentInChildren<Light>();
         _playerSoundsAudioSource = player.transform.Find("SoundsAudioSource").GetComponent<AudioSource>();
         playerData = FileManager.LoadPlayerDataFile();
-        if (playerData == null) {
+        if (playerData == null || playerData.version == null || playerData.version != GameManager.CurrentVersion ) {
             playerData = new PlayerData();
             FileManager.SavePlayerDataFile(playerData);
+            // Cleanup all levelData
+            for (int i = 0; i < 10; i++) {
+                FileManager.DeleteFile($"Level{i}");
+            }
         }
         else {
             _playerLamp.range *= playerData.lightMultiplier;
