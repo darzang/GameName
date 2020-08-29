@@ -40,7 +40,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7748974775818772744}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0bffa65c5c768764ab94530149d60347, type: 3}
+  m_Script: {fileID: 11500000, guid: be3a8a430321ba940936ec082d1a25a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   mazeCellPrefab: {fileID: 6791483153816139213, guid: 776c7c9c393b3964caf245bf29cffbac,

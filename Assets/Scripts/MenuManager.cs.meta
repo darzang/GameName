@@ -1,20 +1,9 @@
 fileFormatVersion: 2
-guid: dc4f28facbb1de448b9e6e0638eb49b3
+guid: 2cb4c22d5b7e1c941a3992486600e04a
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences:
-  - player: {instanceID: 0}
-  - ceiling: {instanceID: 0}
-  - batteryMaxText: {instanceID: 0}
-  - batteryUseText: {instanceID: 0}
-  - lightText: {instanceID: 0}
-  - cashTexts: {instanceID: 0}
-  - openingAudio: {fileID: 8300000, guid: d867c50126b7633418f79e7a3e21b70c, type: 3}
-  - levelAvailableMaterial: {fileID: 2100000, guid: f13d4aa96293d5d449d3d51672b01947,
-      type: 2}
-  - levelNotAvailableMaterial: {fileID: 2100000, guid: 172b7247cd977854fa8d24c8dee72268,
-      type: 2}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

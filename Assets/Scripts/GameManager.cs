@@ -255,7 +255,7 @@ public class GameManager : MonoBehaviour {
         Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, playerData.discoveryRange);
         foreach (Collider tile in hitColliders) {
             if (tile.name != "Floor" || !tile.transform.parent.name.StartsWith("MazeCell")) continue;
-            // Colliders detected will be floor and walls so we need to get the parent
+            // Colliders detected will be floor and walls so we need to get the parent cell
             Transform transform = tile.transform;
             Transform parent = transform.parent;
             MazeCell mazeCell = _mazeCellManager.GetCellByName(parent.name);
@@ -356,7 +356,6 @@ public class GameManager : MonoBehaviour {
         _uiManager.UpdateDiscoveryText(_mazeCellManager.GetDiscoveredCellsCount(), _mazeCellManager.GetMapSize());
         _uiManager.AddInfoMessage("Fragment picked up");
         // Randomly spawn arrow
-
         if (Random.Range(1, 100) <= playerData.spawnArrowChance) {
             _uiManager.AddInfoMessage("Helping arrow spawned");
             mazeCell.hasArrow = true;

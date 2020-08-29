@@ -1,11 +1,9 @@
 fileFormatVersion: 2
-guid: 0f7d3531e7ee35d43a1afb49b39f4b56
+guid: 716c84e6b269ae04cbea61bf7f077ea4
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences:
-  - lampOn: {fileID: 2100000, guid: 6a26c29b0186b3949a52130085310c48, type: 2}
-  - lampOff: {fileID: 2100000, guid: 43e1eaee58e6e1f42a8e6d905a406298, type: 2}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

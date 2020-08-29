@@ -21,7 +21,6 @@ public class Player : MonoBehaviour {
         } else {
             _playerLamp.enabled = true;
         }
-
         _charController = GetComponent<CharacterController>();
     }
 
@@ -43,7 +42,6 @@ public class Player : MonoBehaviour {
                 fuelCount += 300;
                 if (fuelCount > gameManager.playerData.batteryMax) fuelCount = gameManager.playerData.batteryMax;
             }
-
             _doubleTap = false;
         }
 
@@ -55,7 +53,6 @@ public class Player : MonoBehaviour {
         if (_playerLamp.enabled && !gameManager.gameIsPaused) {
             fuelCount -= gameManager.playerData.lightConsumption / 10 * (Time.deltaTime + 1);
         }
-
         // TODO: this should check fuel count and send to gameManager 
     }
 

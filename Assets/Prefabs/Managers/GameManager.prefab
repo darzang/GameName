@@ -40,16 +40,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 7978820328755584369}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 841b57ee3d0056b4abe03e5ea438c184, type: 3}
+  m_Script: {fileID: 11500000, guid: 1591d1be8b920df4ca4baeb00bb184a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 0}
   playerPrefab: {fileID: 9136995392935929742, guid: f5d7b6cc7630fec498d6191d0ee75270,
-    type: 3}
-  arrowPrefab: {fileID: 3571792468748946464, guid: 1b264faa0166ec340babe252fb9b46b7,
     type: 3}
   batteryPrefab: {fileID: 5878541371688319195, guid: 0b461ca252827154bbda9ec2264db2d9,
     type: 3}
-  player: {fileID: 0}
   lightSounds:
   - {fileID: 8300000, guid: aa6e66827baa5014e985b00727cc0559, type: 3}
   - {fileID: 8300000, guid: 0b4daed8fcca1054e9a78803540fddcc, type: 3}
@@ -57,9 +55,9 @@ MonoBehaviour:
   fragmentPickupAudio: {fileID: 8300000, guid: 065638a6cdbf7f143a6eb5e992779f65, type: 3}
   batteryPickupAudio: {fileID: 8300000, guid: edf26447368d7a6499a1e77c6177b49f, type: 3}
   youLostAudio: {fileID: 8300000, guid: 781ff338100e70d418ef2b0f116b7e1e, type: 3}
-  openingAudio: {fileID: 8300000, guid: d867c50126b7633418f79e7a3e21b70c, type: 3}
+  openingAudio: {fileID: 0}
   welcomeToLevelAudio:
-  - {fileID: 8300000, guid: 1ce369082df36a048aeec95871ec3e9a, type: 3}
+  - {fileID: 8300000, guid: 517fd798f784da840bc88029f2d2884b, type: 3}
   - {fileID: 8300000, guid: 045beaceee7b27c4e9bf9606d0924df2, type: 3}
   - {fileID: 8300000, guid: c10b598ab3656b9458bcb6b334413a43, type: 3}
   - {fileID: 8300000, guid: a3e6ca5802358bd4ead4ddbfc6b8835d, type: 3}
@@ -69,19 +67,32 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 657fa6c175c4d554cbc7e04ba04a615d, type: 3}
   - {fileID: 8300000, guid: ac83512c53848ca47a0d890b794c2056, type: 3}
   - {fileID: 8300000, guid: 0ed2da07704776a48a249daf4abf6ec3, type: 3}
-  congratulationsAudio: {fileID: 8300000, guid: 014a98aac2407c342970c26341aa47e2,
-    type: 3}
-  previousTile: {fileID: 0}
-  currentTile: {fileID: 0}
-  tryCount: 0
+  congratulationsAudio: {fileID: 0}
+  currentCell:
+    score: 0
+    action: NULL
+    visited: 0
+    isExit: 0
+    hasNorthWall: 1
+    hasSouthWall: 1
+    hasEastWall: 1
+    hasWestWall: 1
+    permanentlyRevealed: 0
+    revealedForCurrentRun: 0
+    hasLight: 0
+    hasArrow: 0
+    hasFragment: 0
+    hasBattery: 0
+    fragmentNumber: 0
+    x: 0
+    z: 0
+    name: 
   tryMax: 0
-  mapFragments: []
-  revealedTilesInRun: []
-  totalDiscoveredTiles: []
   playerData:
+    version: 
     playerSpeed: 0
     batteryMax: 0
-    fuelComsumption: 0
+    fuelConsumption: 0
     lightMultiplier: 0
     lightConsumption: 0
     discoveryRange: 0
@@ -92,16 +103,13 @@ MonoBehaviour:
     batteryMaxLevel: 0
     batteryUseLevel: 0
     lightLevel: 0
-    baseBatteryMax: 0
-    baseBatteryUse: 0
     baseLightAngle: 0
     baseLightIntensity: 0
     baseLightRange: 0
   levelData:
     tryCount: 0
     mapFragments: []
-    totalDiscoveredTiles: []
-    allFragmentsPickedUp: 0
+    mazeCells: []
   gameIsPaused: 0
-  allFragmentsPickedUp: 0
   levelNumber: 0
+  onboardingStage: 0
