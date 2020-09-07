@@ -102,7 +102,6 @@ public class MazeCellManager : MonoBehaviour
 
     public void DoPathPlanning()
     {
-        Debug.Log("Doing path planning");
         bool updated;
         do
         {
@@ -158,7 +157,7 @@ public class MazeCellManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("Action not found");
+            Debug.LogError("Action not found");
         }
     }
 

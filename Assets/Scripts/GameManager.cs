@@ -55,7 +55,6 @@ public class GameManager : MonoBehaviour {
         levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
         levelData.mapFragments = levelData.mapFragments ?? _fragmentManager.GenerateRandomFragments();
         levelData.tryCount += 1;
-        Debug.Log($"Data loaded: try {levelData.tryCount}");
             
         string sceneName = SceneManager.GetActiveScene().name;
         int.TryParse(sceneName.Substring(sceneName.Length - 1), out levelNumber);
@@ -303,9 +302,7 @@ public class GameManager : MonoBehaviour {
         List<MazeCell> mazeCells = _mazeCellManager.mazeCells.Where(cell => !cell.isExit &!cell.hasBattery && !cell.hasFragment).OrderBy(cell => cell.score).ToList();
         // Get 10 % furthest tiles
         int index = mazeCells.Count - Random.Range(1, (int) Math.Round(mazeCells.Count / 10f));
-        Debug.Log($"Instantiating player, {mazeCells.Count} cells, index is {index}, min distance is {mazeCells[0].score}, max is: {mazeCells[mazeCells.Count - 1].score}");
         MazeCell spawnCell = mazeCells[index];
-        Debug.Log($"Instantiating player, cell is: {spawnCell.name}, {spawnCell.score} distance");
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(
             spawnCell.x,
             0.5f,
@@ -340,7 +337,6 @@ public class GameManager : MonoBehaviour {
     }
 
     public void PickupFragment(GameObject fragmentIn) {
-        Debug.Log($"Picking up fragment: {fragmentIn}");
         int row = (int) fragmentIn.transform.position.x;
         int column = (int) fragmentIn.transform.position.z;
         MazeCell mazeCell = _mazeCellManager.GetCellByName($"MazeCell_{row}_{column}");
@@ -348,17 +344,16 @@ public class GameManager : MonoBehaviour {
         fragment.discovered = true;
         _playerSoundsAudioSource.PlayOneShot(fragmentPickupAudio);
         fragment.cellsInFragment.ForEach(cell => {
-            // Debug.Log($"Fragment contains {cell.name}");
             MazeCell cellInFragment = _mazeCellManager.GetCellByName(cell.name);
             cellInFragment.permanentlyRevealed = true;
         });
         _uiManager.UpdateDiscoveryText(_mazeCellManager.GetDiscoveredCellsCount(), _mazeCellManager.GetMapSize());
         _uiManager.AddInfoMessage("Fragment picked up");
         // Randomly spawn arrow
-        if (Random.Range(1, 100) <= playerData.spawnArrowChance) {
-            _uiManager.AddInfoMessage("Helping arrow spawned");
-            mazeCell.hasArrow = true;
-        }
+        // if (Random.Range(1, 100) <= playerData.spawnArrowChance) {
+        //     _uiManager.AddInfoMessage("Helping arrow spawned");
+        //     mazeCell.hasArrow = true;
+        // }
         
 
         if (_mazeCellManager.AllCellsDiscovered()) {

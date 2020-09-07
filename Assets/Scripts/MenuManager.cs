@@ -51,7 +51,6 @@ public class MenuManager : MonoBehaviour
 
         _playerLamp.enabled = false;
         SetSkillsText();
-        Debug.Log(JsonUtility.ToJson(playerData, true));
         Cursor.visible = false;
         HandleAvailableLevels();
     }
@@ -145,8 +144,8 @@ public class MenuManager : MonoBehaviour
                 break;
             case 3:
                 batteryMaxText.GetComponent<TextMeshPro>().text = "[v][v][v]";
-                GameObject.Find("BatteryMaxButton").GetComponent<TextMeshPro>().text = "MAXED";
-                GameObject.Find("BatteryMaxButton").GetComponent<BoxCollider>().enabled = false;
+                GameObject.Find("BatteryMaxUpgradeButton").GetComponent<TextMeshPro>().text = "MAXED";
+                GameObject.Find("BatteryMaxUpgradeButton").GetComponent<BoxCollider>().enabled = false;
                 break;
         }
 
@@ -163,8 +162,8 @@ public class MenuManager : MonoBehaviour
                 break;
             case 3:
                 batteryUseText.GetComponent<TextMeshPro>().text = "[v][v][v]";
-                GameObject.Find("BatteryUseButton").GetComponent<TextMeshPro>().text = "MAXED";
-                GameObject.Find("BatteryUseButton").GetComponent<BoxCollider>().enabled = false;
+                GameObject.Find("BatteryUseUpgradeButton").GetComponent<TextMeshPro>().text = "MAXED";
+                GameObject.Find("BatteryUseUpgradeButton").GetComponent<BoxCollider>().enabled = false;
                 break;
         }
 
@@ -181,8 +180,8 @@ public class MenuManager : MonoBehaviour
                 break;
             case 3:
                 lightText.GetComponent<TextMeshPro>().text = "[v][v][v]";
-                GameObject.Find("LightButton").GetComponent<TextMeshPro>().text = "MAXED";
-                GameObject.Find("LightButton").GetComponent<BoxCollider>().enabled = false;
+                GameObject.Find("LightUpgradeButton").GetComponent<TextMeshPro>().text = "MAXED";
+                GameObject.Find("LightUpgradeButton").GetComponent<BoxCollider>().enabled = false;
                 break;
         }
 
@@ -282,14 +281,9 @@ public class MenuManager : MonoBehaviour
                     }
                     if (playerData.levelCompleted > levelNumber - 2)
                     {
-                        Debug.Log($"Loading level {levelNumber}");
                         _eyeLids.SetActive(true);
                         _anim.Play("EyeLidClose");
                         StartCoroutine(CloseEyes(levelNumber));
-                    }
-                    else
-                    {
-                        Debug.Log($"Can't load level {levelNumber}");
                     }
                 }
                 break;
@@ -313,7 +307,6 @@ public class MenuManager : MonoBehaviour
         }
 
         if (playerData.cash < cost) return;
-        Debug.Log($"Upgrade {skill} possible");
         switch (skill)
         {
             case "BatteryMax":

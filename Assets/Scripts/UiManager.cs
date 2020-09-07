@@ -303,12 +303,8 @@ public class UiManager : MonoBehaviour
                 continue;
             }
             // Adjust position and visibility of reachable cells
-            Debug.Log($"playerCellVector before: " + playerCellVector.ToString());
             playerCellVector = MazeCellManager.GetRelativePosition(_gameManager.player.gameObject,mazeCell);
-            Debug.Log($"playerCellVector after: " + playerCellVector.ToString());
-            Debug.Log($"miniMapCell before: " + miniMapCell.transform.localPosition.ToString());
             miniMapCell.transform.localPosition = playerCellVector;
-            Debug.Log($"miniMapCell after: " + miniMapCell.transform.localPosition.ToString());
             SetCellRenderersState(mazeCell.name, true);
         }
     }

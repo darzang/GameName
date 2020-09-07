@@ -26,7 +26,6 @@ public class SceneGenerator : MonoBehaviour {
         _mazeCellManager.mazeCells = GenerateMazeIfExists();
         if (_mazeCellManager.mazeCells == null) {
             _mazeCellManager.mazeCells = new List<MazeCell>();
-            Debug.Log($"Generating new maze for {SceneManager.GetActiveScene().name}");
             InstantiateMaze();
             HuntAndKill();
             CreateLevelData();
@@ -70,7 +69,6 @@ public class SceneGenerator : MonoBehaviour {
         int cellsCount = _mazeCellManager.mazeRow * _mazeCellManager.mazeColumn;
         int exitX = Random.Range(0, _mazeCellManager.mazeRow - 1);
         int exitZ = Random.Range(0, _mazeCellManager.mazeColumn - 1);
-        Debug.Log($"Exit is at {exitX} {exitZ}");
         for (int row = 0; row < _mazeCellManager.mazeRow; row++) {
             for (int column = 0; column < _mazeCellManager.mazeColumn; column++) {
                 MazeCell newCell = InstantiateMazeCell(row, column);
@@ -255,7 +253,6 @@ public class SceneGenerator : MonoBehaviour {
         LevelData levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
 
         if (levelData == null) return null;
-        Debug.Log($"Generating existing maze for {SceneManager.GetActiveScene().name}");
         foreach (MazeCell mazeCellData in levelData.mazeCells) {
             MazeCell mazeCell = InstantiateMazeCell(mazeCellData.x, mazeCellData.z);
 
