@@ -322,7 +322,6 @@ public class GameManager : MonoBehaviour {
         _lightAudio = _playerLamp.GetComponent<AudioSource>();
         _eyeLids = GameObject.Find("EyeLids").gameObject;
         _anim = player.GetComponent<Animation>();
-        _uiManager.playerObject = player.gameObject;
     }
 
     private void InstantiateBatteries() {

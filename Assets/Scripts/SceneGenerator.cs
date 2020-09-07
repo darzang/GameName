@@ -16,7 +16,7 @@ public class SceneGenerator : MonoBehaviour {
     private int _currentRow;
     private int _currentColumn;
     private bool _courseComplete;
-    private bool hideCeiling = true;
+    private bool hideCeiling = false;
     private GameObject _arrows;
     private MazeCellManager _mazeCellManager;
 

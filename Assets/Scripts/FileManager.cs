@@ -61,7 +61,7 @@ public class FileManager : MonoBehaviour {
         BinaryFormatter bf = new BinaryFormatter();
         PlayerData data = (PlayerData) bf.Deserialize(file);
         file.Close();
-        Debug.Log($"PlayerData loaded: \n {JsonUtility.ToJson(data, true)}");
+        // Debug.Log($"PlayerData loaded: \n {JsonUtility.ToJson(data, true)}");
         return data;
     }
 

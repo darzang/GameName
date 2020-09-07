@@ -13,7 +13,7 @@ public class FragmentManager : MonoBehaviour {
     private static MazeCellManager _mazeCellManager;
 
     public List<Fragment> GenerateRandomFragments() {
-        Debug.Log("Generating random fragments");
+        // Debug.Log("Generating random fragments");
         if (!_mazeCellManager) _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
         // How many fragments do we want ?
         //TODO: Bigger fragments in the beginning, then more so harder to find all of them ?
@@ -111,7 +111,7 @@ public class FragmentManager : MonoBehaviour {
                 cell.fragmentNumber = fragment.number;
             }
         }
-        Debug.Log($"{fragments.Count} fragments, {totalTilesInFragments} tiles covered");
+        // Debug.Log($"{fragments.Count} fragments, {totalTilesInFragments} tiles covered");
         return fragments;
     }
 
