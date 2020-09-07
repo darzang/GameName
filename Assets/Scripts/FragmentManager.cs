@@ -13,10 +13,10 @@ public class FragmentManager : MonoBehaviour {
     private static MazeCellManager _mazeCellManager;
 
     public List<Fragment> GenerateRandomFragments() {
-        Debug.Log("Generating random fragments");
+        // Debug.Log("Generating random fragments");
         if (!_mazeCellManager) _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
         // How many fragments do we want ?
-        //TODO: Bigger fragments in the beginning, than more so harder to find all of them ?
+        //TODO: Bigger fragments in the beginning, then more so harder to find all of them ?
         int nbFragments = (int) Math.Round(_mazeCellManager.GetMapSize() / 15.0);
 
         // How many cells per fragment minimum ? 
@@ -96,7 +96,7 @@ public class FragmentManager : MonoBehaviour {
             }
         }
 
-        // Add the lonely tiles
+        // Dispatch the lonely tiles
         foreach (MazeCell tileLeft in availableCells) {
             Fragment closestFragment = GetFragmentForTile(fragments, tileLeft);
             Fragment updatedFragment = fragments.Find(frg => frg == closestFragment);
@@ -111,8 +111,7 @@ public class FragmentManager : MonoBehaviour {
                 cell.fragmentNumber = fragment.number;
             }
         }
-
-        Debug.Log($"{fragments.Count} fragments, {totalTilesInFragments} tiles covered");
+        // Debug.Log($"{fragments.Count} fragments, {totalTilesInFragments} tiles covered");
         return fragments;
     }
 
@@ -181,9 +180,8 @@ public class FragmentManager : MonoBehaviour {
             fragmentCell.transform.Find("WestWall").GetComponent<Renderer>().material = obstacleInFragmentMaterial;
             fragmentCell.transform.Find("Floor").GetComponent<Renderer>().material =
                 realCell.isExit ? exitInFragmentMaterial : floorInFragmentMaterial;
-            // Remove walls that are not in the "real" cell
-
             
+            // Remove walls that are not in the "real" cell            
             if (!realCell.hasSouthWall) {
                 MazeCell southCell = _mazeCellManager.GetCellIfExists(realCell.x + 1, realCell.z);
                 if (southCell != null && !southCell.hasNorthWall)

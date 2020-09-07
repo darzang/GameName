@@ -8,18 +8,19 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
     public static string CurrentVersion = "0.3";
-// Managers
+    // Managers
     private MazeCellManager _mazeCellManager;
     private FragmentManager _fragmentManager;
     private UiManager _uiManager;
 
-    // Player components
+    // Player components / Related
+    public Player player;
     public Transform playerPrefab;
     public Transform batteryPrefab;
-    public GameObject player;
     private GameObject _eyeLids;
     private Animation _anim;
     private Light _playerLamp;
+    
     
     private AudioSource _lightAudio;
     private AudioSource _playerSoundsAudioSource;
@@ -41,7 +42,6 @@ public class GameManager : MonoBehaviour {
     public LevelData levelData;
     public bool gameIsPaused;
     private GameObject _batteries;
-    private bool _isDead;
     public int levelNumber;
     public int onboardingStage;
     private bool _incrementOnboardingIsRunning;
@@ -55,7 +55,6 @@ public class GameManager : MonoBehaviour {
         levelData = FileManager.LoadLevelDataFile(SceneManager.GetActiveScene().name);
         levelData.mapFragments = levelData.mapFragments ?? _fragmentManager.GenerateRandomFragments();
         levelData.tryCount += 1;
-        Debug.Log($"Data loaded: try {levelData.tryCount}");
             
         string sceneName = SceneManager.GetActiveScene().name;
         int.TryParse(sceneName.Substring(sceneName.Length - 1), out levelNumber);
@@ -100,8 +99,8 @@ public class GameManager : MonoBehaviour {
         }
 
         // Is the player on a new tile ?
-        if (_mazeCellManager.GetTileUnder(player) != currentCell || CheckForTileDiscovery()) {
-            currentCell = _mazeCellManager.GetTileUnder(player);
+        if (_mazeCellManager.GetTileUnder(player.transform.gameObject) != currentCell || CheckForTileDiscovery()) {
+            currentCell = _mazeCellManager.GetTileUnder(player.transform.gameObject);
             if (currentCell != null) {
                 if (currentCell.isExit) {
                     if (playerData.levelCompleted < levelNumber) {
@@ -141,11 +140,11 @@ public class GameManager : MonoBehaviour {
             _uiManager.DrawWholeMap();
         }
 
-        if (player.GetComponent<Player>().fuelCount <= 0 && !_isDead) {
-            _isDead = true;
+        if (player.isDead) {
             _playerSoundsAudioSource.PlayOneShot(batteryDeadAudio);
             if (levelData.tryCount >= tryMax) _playerSoundsAudioSource.PlayOneShot(youLostAudio);
         }
+
 
         // Useful for now, to remove later
         // if (Input.GetKeyUp("r")) FileManager.DeleteFile(SceneManager.GetActiveScene().name);
@@ -255,7 +254,7 @@ public class GameManager : MonoBehaviour {
         Collider[] hitColliders = Physics.OverlapSphere(player.transform.position, playerData.discoveryRange);
         foreach (Collider tile in hitColliders) {
             if (tile.name != "Floor" || !tile.transform.parent.name.StartsWith("MazeCell")) continue;
-            // Colliders detected will be floor and walls so we need to get the parent
+            // Colliders detected will be floor and walls so we need to get the parent cell
             Transform transform = tile.transform;
             Transform parent = transform.parent;
             MazeCell mazeCell = _mazeCellManager.GetCellByName(parent.name);
@@ -303,15 +302,13 @@ public class GameManager : MonoBehaviour {
         List<MazeCell> mazeCells = _mazeCellManager.mazeCells.Where(cell => !cell.isExit &!cell.hasBattery && !cell.hasFragment).OrderBy(cell => cell.score).ToList();
         // Get 10 % furthest tiles
         int index = mazeCells.Count - Random.Range(1, (int) Math.Round(mazeCells.Count / 10f));
-        Debug.Log($"Instantiating player, {mazeCells.Count} cells, index is {index}, min distance is {mazeCells[0].score}, max is: {mazeCells[mazeCells.Count - 1].score}");
         MazeCell spawnCell = mazeCells[index];
-        Debug.Log($"Instantiating player, cell is: {spawnCell.name}, {spawnCell.score} distance");
         Transform playerTransform = Instantiate(playerPrefab, new Vector3(
             spawnCell.x,
             0.5f,
             spawnCell.z
         ), Quaternion.identity);
-        player = playerTransform.gameObject;
+        player = playerTransform.GetComponent<Player>();
         currentCell = spawnCell;
         _playerLamp = player.GetComponentInChildren<Light>();
         _playerLamp.enabled = false;
@@ -322,7 +319,6 @@ public class GameManager : MonoBehaviour {
         _lightAudio = _playerLamp.GetComponent<AudioSource>();
         _eyeLids = GameObject.Find("EyeLids").gameObject;
         _anim = player.GetComponent<Animation>();
-        _uiManager.player = player;
     }
 
     private void InstantiateBatteries() {
@@ -341,7 +337,6 @@ public class GameManager : MonoBehaviour {
     }
 
     public void PickupFragment(GameObject fragmentIn) {
-        Debug.Log($"Picking up fragment: {fragmentIn}");
         int row = (int) fragmentIn.transform.position.x;
         int column = (int) fragmentIn.transform.position.z;
         MazeCell mazeCell = _mazeCellManager.GetCellByName($"MazeCell_{row}_{column}");
@@ -349,18 +344,16 @@ public class GameManager : MonoBehaviour {
         fragment.discovered = true;
         _playerSoundsAudioSource.PlayOneShot(fragmentPickupAudio);
         fragment.cellsInFragment.ForEach(cell => {
-            // Debug.Log($"Fragment contains {cell.name}");
             MazeCell cellInFragment = _mazeCellManager.GetCellByName(cell.name);
             cellInFragment.permanentlyRevealed = true;
         });
         _uiManager.UpdateDiscoveryText(_mazeCellManager.GetDiscoveredCellsCount(), _mazeCellManager.GetMapSize());
         _uiManager.AddInfoMessage("Fragment picked up");
         // Randomly spawn arrow
-
-        if (Random.Range(1, 100) <= playerData.spawnArrowChance) {
-            _uiManager.AddInfoMessage("Helping arrow spawned");
-            mazeCell.hasArrow = true;
-        }
+        // if (Random.Range(1, 100) <= playerData.spawnArrowChance) {
+        //     _uiManager.AddInfoMessage("Helping arrow spawned");
+        //     mazeCell.hasArrow = true;
+        // }
         
 
         if (_mazeCellManager.AllCellsDiscovered()) {

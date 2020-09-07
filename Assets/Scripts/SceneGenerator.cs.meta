@@ -1,29 +1,9 @@
 fileFormatVersion: 2
-guid: 35b62cdf8d4df8a46b3715e4cedfe2fb
+guid: 455ca9963e07e774886a76f4fe4d826e
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences:
-  - gameManagerPrefab: {fileID: 7978820328755584370, guid: 4e54f20615e79b14da2a55e0c1af87e4,
-      type: 3}
-  - tileManagerPrefab: {fileID: 3817444224504055254, guid: efc5a5e07b73db24d8375d7f92f7ff96,
-      type: 3}
-  - uiManagerPrefab: {fileID: 3983913435235712373, guid: a415d86c37487f446b948dee3ac40750,
-      type: 3}
-  - fragmentManager: {fileID: 7748974775818772750, guid: 064a1dcd5a6529f4c8f39cd57af2d71e,
-      type: 3}
-  - wallPrefab: {fileID: 4345155007248232, guid: 3f42b47c5f893bb468d058ac8e5059c0,
-      type: 3}
-  - obstaclePrefab: {fileID: 4372593797964682, guid: 14be0063672697c468fd25e4670f3ab5,
-      type: 3}
-  - exitPrefab: {fileID: 3830427674932654569, guid: 19c916e848d22034bb8008127516b320,
-      type: 3}
-  - floorPrefab: {fileID: 4460191914706220, guid: de45bfeb962f55545b93a84e0d8f138a,
-      type: 3}
-  - ceilingPrefab: {fileID: 4460191914706220, guid: c042b28bda3c6b340a17ccbb445a4615,
-      type: 3}
-  - lightPrefab: {fileID: 6364061260219373835, guid: d11cf17e2c46ca949adee3ced91ae643,
-      type: 3}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

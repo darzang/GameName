@@ -54,6 +54,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -545,6 +546,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -609,9 +611,10 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9136995392302656203}
   m_Enabled: 1
-  serializedVersion: 9
+  serializedVersion: 10
   m_Type: 0
-  m_Color: {r: 0.37299523, g: 0.3443396, b: 1, a: 1}
+  m_Shape: 0
+  m_Color: {r: 0, g: 0.13757372, b: 1, a: 1}
   m_Intensity: 3
   m_Range: 2
   m_SpotAngle: 60
@@ -768,7 +771,7 @@ GameObject:
   - component: {fileID: 9136995392673958705}
   - component: {fileID: 9136995392673958706}
   - component: {fileID: 9136995392673958707}
-  - component: {fileID: 9136995392673958704}
+  - component: {fileID: 6505176036645592943}
   m_Layer: 0
   m_Name: PlayerCamera
   m_TagString: MainCamera
@@ -843,7 +846,7 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9136995392673958710}
   m_Enabled: 1
---- !u!114 &9136995392673958704
+--- !u!114 &6505176036645592943
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -852,7 +855,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 9136995392673958710}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b0a7c3e1fa7049a46b44364013fc2ec0, type: 3}
+  m_Script: {fileID: 11500000, guid: 7d51836a57fb2e94ab47e067ea65b9d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   mouseXInputName: Mouse X
@@ -870,8 +873,8 @@ GameObject:
   m_Component:
   - component: {fileID: 9136995392935929742}
   - component: {fileID: 9136995392935929743}
-  - component: {fileID: 9136995392935929737}
   - component: {fileID: -7323596093640162965}
+  - component: {fileID: 8134316141566150117}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -915,23 +918,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &9136995392935929737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9136995392935929741}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd0214ee21ee0be488f906dbed39f06c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  horizontalInputName: Horizontal
-  verticalInputName: Vertical
-  fuelCount: 500
-  lockPlayer: 0
-  gameManager: {fileID: 0}
 --- !u!111 &-7323596093640162965
 Animation:
   m_ObjectHideFlags: 0
@@ -961,3 +947,21 @@ Animation:
   m_PlayAutomatically: 0
   m_AnimatePhysics: 0
   m_CullingType: 0
+--- !u!114 &8134316141566150117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9136995392935929741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b8175b603fdb2f4e8e91b6013d29d71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  horizontalInputName: Horizontal
+  verticalInputName: Vertical
+  fuelCount: 500
+  lockPlayer: 0
+  gameManager: {fileID: 0}
+  isDead: 0

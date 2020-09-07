@@ -11,6 +11,7 @@ public class Player : MonoBehaviour {
     public GameManager gameManager;
     private bool _doubleTap;
     private float _doubleTapTime;
+    public bool isDead;
 
     private void Awake() {
         _playerLamp = GameObject.Find("PlayerLamp").GetComponent<Light>();
@@ -20,7 +21,6 @@ public class Player : MonoBehaviour {
         } else {
             _playerLamp.enabled = true;
         }
-
         _charController = GetComponent<CharacterController>();
     }
 
@@ -33,14 +33,15 @@ public class Player : MonoBehaviour {
                 PlayerMovement();
             }
         }
-
+        if (fuelCount <= 0 && !isDead) {
+            isDead = true;
+        }
         if (Input.GetKeyUp("l") && _doubleTap) {
-            if (Time.time - _doubleTapTime < 0.2f) {
+            if (Time.time - _doubleTapTime < 0.3f) {
                 _doubleTapTime = 0f;
                 fuelCount += 300;
                 if (fuelCount > gameManager.playerData.batteryMax) fuelCount = gameManager.playerData.batteryMax;
             }
-
             _doubleTap = false;
         }
 
@@ -52,7 +53,6 @@ public class Player : MonoBehaviour {
         if (_playerLamp.enabled && !gameManager.gameIsPaused) {
             fuelCount -= gameManager.playerData.lightConsumption / 10 * (Time.deltaTime + 1);
         }
-
         // TODO: this should check fuel count and send to gameManager 
     }
 

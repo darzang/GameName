@@ -39,11 +39,12 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6364061259225105585}
   m_Enabled: 1
-  serializedVersion: 9
+  serializedVersion: 10
   m_Type: 2
+  m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 0.5
-  m_Range: 2
+  m_Intensity: 0.8
+  m_Range: 2.5
   m_SpotAngle: 90
   m_InnerSpotAngle: 4
   m_CookieSize: 1
@@ -145,6 +146,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -178,8 +180,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6364061260219373835}
-  - component: {fileID: 6364061260301629762}
   - component: {fileID: 4676705089765090060}
+  - component: {fileID: 1727676521372132692}
   m_Layer: 0
   m_Name: FlickeringLight
   m_TagString: FlickeringLight
@@ -203,20 +205,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6364061260301629762
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6364061260219605919}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f7d3531e7ee35d43a1afb49b39f4b56, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lampOn: {fileID: 2100000, guid: 6a26c29b0186b3949a52130085310c48, type: 2}
-  lampOff: {fileID: 2100000, guid: 43e1eaee58e6e1f42a8e6d905a406298, type: 2}
 --- !u!82 &4676705089765090060
 AudioSource:
   m_ObjectHideFlags: 0
@@ -313,3 +301,17 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1727676521372132692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6364061260219605919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 716c84e6b269ae04cbea61bf7f077ea4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lampOn: {fileID: 2100000, guid: 6a26c29b0186b3949a52130085310c48, type: 2}
+  lampOff: {fileID: 2100000, guid: 43e1eaee58e6e1f42a8e6d905a406298, type: 2}

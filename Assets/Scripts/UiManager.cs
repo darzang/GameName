@@ -7,7 +7,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class UiManager : MonoBehaviour {
+public class UiManager : MonoBehaviour
+{
     // Managers
     private MazeCellManager _mazeCellManager;
     private GameManager _gameManager;
@@ -55,7 +56,6 @@ public class UiManager : MonoBehaviour {
 
     // Misc
     private GameObject _batteryBar;
-    public GameObject player;
     private Player _player;
     private Quaternion _initialRotation;
     private bool _batteryLevelBlinking;
@@ -64,16 +64,24 @@ public class UiManager : MonoBehaviour {
     // Map 
     private GameObject _playerMapIcon;
     private List<GameObject> _mapCells = new List<GameObject>();
-
-    private List<SpriteRenderer> _mapCellsRenderer = new List<SpriteRenderer>(); 
+    List<SpriteRenderer> cellRenderers;
+    private List<SpriteRenderer> _mapCellsRenderer = new List<SpriteRenderer>();
+    MazeCell currentCell;
+    GameObject mapCurrentCell;
+    float distancePlayerCell;
     // MiniMap
     private RectTransform miniMapRectTransform;
     public float minDistanceMiniMap = 5;
     private List<GameObject> _miniMapCells = new List<GameObject>();
-    private List<SpriteRenderer> _miniMapCellsRenderer = new List<SpriteRenderer>(); 
+    private List<SpriteRenderer> _miniMapCellsRenderer = new List<SpriteRenderer>();
+    float miniMapRotationAngle;
+    Vector3 mazeCellPosition;
+    Vector3 playerCellVector;
+    GameObject miniMapCell;
 
 
-    private void Awake() {
+    private void Awake()
+    {
         Cursor.visible = false;
 
         // Variables instantiation
@@ -90,7 +98,8 @@ public class UiManager : MonoBehaviour {
         _infoPanel = _infoCanvas.transform.Find("InfoPanel").gameObject;
         _exitReachedCanvas = _mainCanvas.transform.Find("ExitReachedCanvas").gameObject;
         _batteryDeadCanvas = _mainCanvas.transform.Find("BatteryDeadCanvas").gameObject;
-        _exitReachedText = _exitReachedCanvas.transform.Find("ExitReachedText").gameObject.GetComponent<TextMeshProUGUI>();
+        _exitReachedText = _exitReachedCanvas.transform.Find("ExitReachedText").gameObject
+            .GetComponent<TextMeshProUGUI>();
         _exitReachedButtons = _exitReachedCanvas.transform.Find("ExitReachedButtons").gameObject;
         _nextLevelButton = _exitReachedButtons.transform.Find("NextLevelButton").GetComponent<Button>();
         _backToMenuButton = _exitReachedButtons.transform.Find("BackToMenuButton").GetComponent<Button>();
@@ -111,12 +120,13 @@ public class UiManager : MonoBehaviour {
         _batteryBarImage = _batteryBar.GetComponent<Image>();
     }
 
-    public void Instantiation() {
+    public void Instantiation()
+    {
         // Managers
         _mazeCellManager = GameObject.Find("MazeCellManager").GetComponent<MazeCellManager>();
         _gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         // Button listeners
-        _player = _gameManager.player.GetComponent<Player>();
+        _player = _gameManager.player;
         _mainCanvas.GetComponent<Canvas>().worldCamera = _player.transform.Find("PlayerCamera").GetComponent<Camera>();
         _mainCanvas.GetComponent<Canvas>().planeDistance = 0.1f;
         _retryButton.onClick.AddListener(_gameManager.Retry);
@@ -124,7 +134,8 @@ public class UiManager : MonoBehaviour {
         _pauseResumeButton.onClick.AddListener(ResumeGame);
         _pauseRetryButton.onClick.AddListener(_gameManager.Retry);
         _pauseBackButton.onClick.AddListener(_gameManager.GiveUp);
-
+        mazeCellPosition = new Vector3();
+        playerCellVector = new Vector3();
         InstantiateMap();
         InstantiateMiniMap();
         _tryCountText.text = $"Try number {_gameManager.levelData.tryCount} / {_gameManager.tryMax}";
@@ -134,31 +145,38 @@ public class UiManager : MonoBehaviour {
         _backToMenuButton.onClick.AddListener(_gameManager.BackToMenu);
     }
 
-    private void Update() {
+    private void Update()
+    {
         RotateMiniMap();
         UpdateMap();
         UpdateMiniMap();
-        _player.fuelCount = _player.fuelCount;
-        if (_player.fuelCount > 0) {
+        // _player.fuelCount = _player.fuelCount;
+        if (_player.fuelCount > 0)
+        {
             UpdateBatteryLevel();
-            if (_player.fuelCount > _gameManager.playerData.batteryMax * 0.5) {
+            if (_player.fuelCount > _gameManager.playerData.batteryMax * 0.5)
+            {
                 _batteryText.text = "";
             }
-            else if (_player.fuelCount > _gameManager.playerData.batteryMax * 0.2) {
+            else if (_player.fuelCount > _gameManager.playerData.batteryMax * 0.2)
+            {
                 _batteryText.text = "BATTERY LEVEL LOW";
                 if (!_batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel(0.5f));
             }
-            else {
+            else
+            {
                 _batteryText.text = "BATTERY LEVEL CRITICAL";
                 if (!_batteryLevelBlinking) StartCoroutine(BlinkBatteryLevel(0.25f));
             }
         }
-        else if (!_batteryDeadCanvas.activeSelf) {
+        else if (!_batteryDeadCanvas.activeSelf)
+        {
             Cursor.visible = true;
             _batteryLevelText.SetActive(false);
             StopCoroutine(nameof(BlinkBatteryLevel));
             _batteryDeadCanvas.SetActive(true);
-            if (_gameManager.levelData.tryCount >= _gameManager.tryMax) {
+            if (_gameManager.levelData.tryCount >= _gameManager.tryMax)
+            {
                 _batteryDeadText.fontSize = 18;
                 _batteryDeadText.text =
                     "Well, I told you, don't die too much...\n And one more map exploration lost forever...";
@@ -169,22 +187,36 @@ public class UiManager : MonoBehaviour {
     }
 
 
-    public void HideCanvas() {
+    public void HideCanvas()
+    {
         _mainCanvas.SetActive(false);
     }
 
-    private void RotateMiniMap() {
-        float angle = _player.transform.eulerAngles.y + 180;
-        while (angle > 360) {
-            angle -= 360;
+    private void RotateMiniMap()
+    {
+        try
+        {
+            miniMapRotationAngle = _player.transform.eulerAngles.y + 180;
+            while (miniMapRotationAngle > 360)
+            {
+                miniMapRotationAngle -= 360;
+            }
+
+            while (miniMapRotationAngle < 0)
+            {
+                miniMapRotationAngle += 360;
+            }
+
+            miniMapRectTransform.localRotation = Quaternion.Euler(0, 0, miniMapRotationAngle);
         }
-        while (angle < 0) {
-            angle += 360;
+        catch (Exception e)
+        {
+            Debug.LogError($"Error in RotateMiniMap: {e}");
         }
-        miniMapRectTransform.localRotation = Quaternion.Euler(0, 0, angle);
     }
 
-    private void UpdateBatteryLevel() {
+    private void UpdateBatteryLevel()
+    {
         // Update scale
         Vector3 localScale = _batteryBar.transform.localScale;
         localScale = new Vector3(
@@ -194,16 +226,19 @@ public class UiManager : MonoBehaviour {
         );
         _batteryBar.transform.localScale = localScale;
         // Update color
-        if (!batteryOnboardingBlinking) {
+        if (!batteryOnboardingBlinking)
+        {
             _batteryBarImage.color = _player.fuelCount > _gameManager.playerData.batteryMax / 2
-                ? new Color32((byte) (_gameManager.playerData.batteryMax - _player.fuelCount), 255, 0, 255)
-                : new Color32(255, (byte) _player.fuelCount, 0, 255);
+                ? new Color32((byte)(_gameManager.playerData.batteryMax - _player.fuelCount), 255, 0, 255)
+                : new Color32(255, (byte)_player.fuelCount, 0, 255);
         }
     }
 
-    public IEnumerator OnboardingBlinkBattery() {
+    public IEnumerator OnboardingBlinkBattery()
+    {
         batteryOnboardingBlinking = true;
-        while (_gameManager.onboardingStage == 2) {
+        while (_gameManager.onboardingStage == 2)
+        {
             _batteryBarImage.color = _batteryBarImage.color == Color.red ? Color.yellow : Color.red;
             yield return new WaitForSeconds(0.5f);
         }
@@ -212,7 +247,8 @@ public class UiManager : MonoBehaviour {
         yield return null;
     }
 
-    private void AddTileToMiniMap(MazeCell mazeCell) {
+    private void AddTileToMiniMap(MazeCell mazeCell)
+    {
         GameObject newMiniMapCell = new GameObject($"MiniMap_{mazeCell.name}");
 
         float distance = Vector3.Distance(
@@ -230,54 +266,75 @@ public class UiManager : MonoBehaviour {
         AddFloorSprite(mazeCell, newMiniMapCell.transform, "MiniMap");
         // Set the position of the new tile
         newMiniMapCell.transform.localPosition = new Vector3(
-            MazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[0] * 10,
-            MazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[1] * 10,
+            MazeCellManager.GetRelativePosition(_gameManager.player.gameObject, mazeCell)[0] * 10,
+            MazeCellManager.GetRelativePosition(_gameManager.player.gameObject, mazeCell)[1] * 10,
             0);
 
         newMiniMapCell.SetActive(true);
         AddWallSprites(mazeCell, newMiniMapCell.transform, "MiniMap");
 
         // TODO: Maybe just disabled then later replace + reenable ?
-        foreach (Transform child in newMiniMapCell.transform) {
+        foreach (Transform child in newMiniMapCell.transform)
+        {
             SpriteRenderer renderer = child.GetComponent<SpriteRenderer>();
             renderer.enabled = !(distance > minDistanceMiniMap) && mazeCell.revealedForCurrentRun;
             _miniMapCellsRenderer.Add(renderer);
         }
+
         _miniMapCells.Add(newMiniMapCell);
     }
 
-    private void UpdateMiniMap() {
-        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells) {
-            float distance = Vector3.Distance(
-                new Vector3(mazeCell.x, 0f, mazeCell.z),
-                _player.gameObject.transform.position
-            );
-            GameObject miniMapCell = _miniMapCells.Find(cell => cell.name == $"MiniMap_{mazeCell.name}");
-            miniMapCell.transform.localPosition = new Vector3(
-                MazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[0] * 10,
-                MazeCellManager.GetRelativePosition(_gameManager.player, mazeCell)[1] * 10,
-                0);
-            List<SpriteRenderer> cellRenderers =
-                _miniMapCellsRenderer.Where(cell => cell.transform.name.Contains(mazeCell.name)).ToList();
-            foreach (SpriteRenderer renderer in cellRenderers) {
-                renderer.enabled = !(distance > minDistanceMiniMap) && mazeCell.revealedForCurrentRun;
+    private void UpdateMiniMap()
+    {
+        // Checks which mazecell needs to be renderer or not
+        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells)
+        {
+            // We only need to render the ones that are revealed
+            if (!mazeCell.revealedForCurrentRun) continue;
+
+            mazeCellPosition.Set(mazeCell.x, 0f, mazeCell.z);
+            distancePlayerCell = Vector3.Distance(mazeCellPosition, _player.gameObject.transform.position);
+            miniMapCell = _miniMapCells.Find(cell => cell.name == $"MiniMap_{mazeCell.name}");
+
+            // Hide cells that are out of range
+            if (distancePlayerCell > minDistanceMiniMap)
+            {
+                SetCellRenderersState(mazeCell.name, false);
+                continue;
             }
+            // Adjust position and visibility of reachable cells
+            playerCellVector = MazeCellManager.GetRelativePosition(_gameManager.player.gameObject,mazeCell);
+            miniMapCell.transform.localPosition = playerCellVector;
+            SetCellRenderersState(mazeCell.name, true);
         }
     }
 
-    private void InstantiateMiniMap() {
-        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells) {
+    private void SetCellRenderersState(string cellName, bool state)
+    {
+        foreach (SpriteRenderer renderer in _miniMapCellsRenderer.Where(cell => cell.transform.name.Contains(cellName)).ToList())
+        {
+            renderer.enabled = state;
+        }
+    }
+
+    private void InstantiateMiniMap()
+    {
+        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells)
+        {
             AddTileToMiniMap(mazeCell);
         }
     }
 
-    private void InstantiateMap() {
-        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells) {
+    private void InstantiateMap()
+    {
+        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells)
+        {
             AddTileToMap(mazeCell);
         }
     }
 
-    private void AddTileToMap(MazeCell mazeCell) {
+    private void AddTileToMap(MazeCell mazeCell)
+    {
         GameObject newCellObject = new GameObject($"Map_{mazeCell.name}");
         newCellObject.transform.SetParent(_mapCanvas.transform);
         _mapCells.Add(newCellObject);
@@ -296,7 +353,8 @@ public class UiManager : MonoBehaviour {
         AddFloorSprite(mazeCell, newCellObject.transform, "Map");
         // Add walls sprites for each wall of the cell
         AddWallSprites(mazeCell, newCellObject.transform, "Map");
-        foreach (Transform child in newCellObject.transform) {
+        foreach (Transform child in newCellObject.transform)
+        {
             SpriteRenderer renderer = child.gameObject.GetComponent<SpriteRenderer>();
             renderer.enabled = mazeCell.permanentlyRevealed;
             _mapCellsRenderer.Add(renderer);
@@ -305,34 +363,40 @@ public class UiManager : MonoBehaviour {
         if (mazeCell == _gameManager.currentCell) AddPlayerSprite(newCellObject.transform);
     }
 
-    private void UpdateMap() {
+    private void UpdateMap()
+    {
         // Make sure all discovered cells' sprites are enabled
-        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells) {
-            if (mazeCell.permanentlyRevealed) {
-                List<SpriteRenderer> cellRenderers =
+        foreach (MazeCell mazeCell in _mazeCellManager.mazeCells)
+        {
+            if (mazeCell.permanentlyRevealed)
+            {
+                cellRenderers =
                     _mapCellsRenderer.Where(cell => cell.name.Contains(mazeCell.name)).ToList();
-                foreach (SpriteRenderer renderer in cellRenderers) {
+                foreach (SpriteRenderer renderer in cellRenderers)
+                {
                     renderer.enabled = true;
                 }
             }
         }
 
         // Make sure the player is on the right tile
-        MazeCell currentCell = _gameManager.currentCell;
-        GameObject mapCurrentCell = _mapCells.Find(cell => cell.name == $"Map_{currentCell.name}");
+        currentCell = _gameManager.currentCell;
+        mapCurrentCell = _mapCells.Find(cell => cell.name == $"Map_{currentCell.name}");
         MovePlayerSpriteToCell(mapCurrentCell.transform);
-
         UpdatePlayerSpritePositionRotation();
     }
 
-    public void DrawWholeMap() {
-        foreach (MazeCell cell in _mazeCellManager.mazeCells) {
+    public void DrawWholeMap()
+    {
+        foreach (MazeCell cell in _mazeCellManager.mazeCells)
+        {
             cell.permanentlyRevealed = true;
             UpdateMap();
         }
     }
 
-    private void AddPlayerSprite(Transform canvasCell) {
+    private void AddPlayerSprite(Transform canvasCell)
+    {
         _playerMapIcon = new GameObject("Map_Player");
         SpriteRenderer playerSpriteRenderer = _playerMapIcon.AddComponent<SpriteRenderer>();
         playerSpriteRenderer.sprite = playerSprite;
@@ -343,7 +407,8 @@ public class UiManager : MonoBehaviour {
         playerSpriteRenderer.sortingOrder = 2;
     }
 
-    private void AddFloorSprite(MazeCell mazeCell, Transform mapCell, string prefix) {
+    private void AddFloorSprite(MazeCell mazeCell, Transform mapCell, string prefix)
+    {
         // Add floor sprite
         GameObject floorSpriteObject = new GameObject($"{prefix}_{mazeCell.name}_Floor");
         SpriteRenderer floorRenderer = floorSpriteObject.AddComponent<SpriteRenderer>();
@@ -356,34 +421,40 @@ public class UiManager : MonoBehaviour {
         floorRenderer.sortingOrder = 1;
     }
 
-    private void MovePlayerSpriteToCell(Transform canvasCell) {
+    private void MovePlayerSpriteToCell(Transform canvasCell)
+    {
         _playerMapIcon.transform.SetParent(canvasCell);
         _playerMapIcon.transform.localPosition = new Vector3(0f, 0f, 0f);
     }
 
-    private void UpdatePlayerSpritePositionRotation() {
+    private void UpdatePlayerSpritePositionRotation()
+    {
         // Position
         // TODO: Get playing position relative to current tile
         // Rotation
         _playerMapIcon.transform.localRotation =
-            Quaternion.Euler(new Vector3(0f, 0f, -(player.transform.eulerAngles.y + 90)));
+            Quaternion.Euler(new Vector3(0f, 0f, -(_gameManager.player.gameObject.transform.eulerAngles.y + 90)));
     }
 
-    private void AddWallSprites(MazeCell mazeCell, Transform canvasCell, String prefix) {
+    private void AddWallSprites(MazeCell mazeCell, Transform canvasCell, String prefix)
+    {
         MazeCell northCell = _mazeCellManager.GetCellIfExists(mazeCell.x - 1, mazeCell.z);
         MazeCell southCell = _mazeCellManager.GetCellIfExists(mazeCell.x + 1, mazeCell.z);
         MazeCell eastCell = _mazeCellManager.GetCellIfExists(mazeCell.x, mazeCell.z + 1);
         MazeCell westCell = _mazeCellManager.GetCellIfExists(mazeCell.x, mazeCell.z - 1);
-        if (mazeCell.hasNorthWall || northCell != null && northCell.hasSouthWall) {
+        if (mazeCell.hasNorthWall || northCell != null && northCell.hasSouthWall)
+        {
             GameObject northWallObject = new GameObject($"{prefix}_{mazeCell.name}_North_Wall");
             northWallObject.transform.SetParent(canvasCell);
             SpriteRenderer northWallSprite = northWallObject.AddComponent<SpriteRenderer>();
             northWallSprite.sprite = wallSprite;
-            if (prefix == "MiniMap") {
+            if (prefix == "MiniMap")
+            {
                 northWallObject.transform.localPosition = new Vector3(5f, 0f, 0f);
                 northWallObject.transform.localRotation = Quaternion.identity;
             }
-            else {
+            else
+            {
                 northWallObject.transform.localPosition = new Vector3(0f, 5f, 0f);
                 northWallObject.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 90f));
             }
@@ -392,16 +463,19 @@ public class UiManager : MonoBehaviour {
             northWallSprite.sortingOrder = 1;
         }
 
-        if (mazeCell.hasSouthWall || southCell != null && southCell.hasNorthWall) {
+        if (mazeCell.hasSouthWall || southCell != null && southCell.hasNorthWall)
+        {
             GameObject southWallObject = new GameObject($"{prefix}_{mazeCell.name}_South_Wall");
             southWallObject.transform.SetParent(canvasCell);
             SpriteRenderer southWallSprite = southWallObject.AddComponent<SpriteRenderer>();
             southWallSprite.sprite = wallSprite;
-            if (prefix == "MiniMap") {
+            if (prefix == "MiniMap")
+            {
                 southWallObject.transform.localPosition = new Vector3(-5f, 0f, 0f);
                 southWallObject.transform.localRotation = Quaternion.identity;
             }
-            else {
+            else
+            {
                 southWallObject.transform.localPosition = new Vector3(0f, -5f, 0f);
                 southWallObject.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 90f));
             }
@@ -410,16 +484,19 @@ public class UiManager : MonoBehaviour {
             southWallSprite.sortingOrder = 1;
         }
 
-        if (mazeCell.hasEastWall || eastCell != null && eastCell.hasWestWall) {
+        if (mazeCell.hasEastWall || eastCell != null && eastCell.hasWestWall)
+        {
             GameObject eastWallObject = new GameObject($"{prefix}_{mazeCell.name}_East_Wall");
             eastWallObject.transform.SetParent(canvasCell);
             SpriteRenderer eastWallSprite = eastWallObject.AddComponent<SpriteRenderer>();
             eastWallSprite.sprite = wallSprite;
-            if (prefix == "MiniMap") {
+            if (prefix == "MiniMap")
+            {
                 eastWallObject.transform.localPosition = new Vector3(0f, -5f, 0f);
                 eastWallObject.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 90f));
             }
-            else {
+            else
+            {
                 eastWallObject.transform.localPosition = new Vector3(5f, 0f, 0f);
                 eastWallObject.transform.localRotation = Quaternion.identity;
             }
@@ -428,17 +505,20 @@ public class UiManager : MonoBehaviour {
             eastWallSprite.sortingOrder = 1;
         }
 
-        if (mazeCell.hasWestWall || westCell != null && westCell.hasEastWall) {
+        if (mazeCell.hasWestWall || westCell != null && westCell.hasEastWall)
+        {
             GameObject westWallObject = new GameObject($"{prefix}_{mazeCell.name}_West_Wall");
             westWallObject.transform.SetParent(canvasCell);
             SpriteRenderer westWallSprite = westWallObject.AddComponent<SpriteRenderer>();
             westWallSprite.sprite = wallSprite;
 
-            if (prefix == "MiniMap") {
+            if (prefix == "MiniMap")
+            {
                 westWallObject.transform.localPosition = new Vector3(0f, 5f, 0f);
                 westWallObject.transform.localRotation = Quaternion.Euler(new Vector3(0f, 0f, 90f));
             }
-            else {
+            else
+            {
                 westWallObject.transform.localPosition = new Vector3(-5f, 0f, 0f);
                 westWallObject.transform.localRotation = Quaternion.identity;
             }
@@ -448,7 +528,8 @@ public class UiManager : MonoBehaviour {
         }
     }
 
-    private IEnumerator BlinkBatteryLevel(float timeToWait) {
+    private IEnumerator BlinkBatteryLevel(float timeToWait)
+    {
         _batteryLevelBlinking = true;
         _batteryLevelText.SetActive(true);
         yield return new WaitForSeconds(timeToWait);
@@ -458,14 +539,16 @@ public class UiManager : MonoBehaviour {
     }
 
 
-    public void ShowPauseUi() {
+    public void ShowPauseUi()
+    {
         _pauseCanvas.SetActive(true);
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         _player.lockPlayer = true;
     }
 
-    private void ResumeGame() {
+    private void ResumeGame()
+    {
         _gameManager.gameIsPaused = false;
         _pauseCanvas.SetActive(false);
         Cursor.visible = false;
@@ -473,8 +556,9 @@ public class UiManager : MonoBehaviour {
         _player.lockPlayer = false;
     }
 
-    public void ShowExitUi() {
-        _exitReachedText.enabled=true;
+    public void ShowExitUi()
+    {
+        _exitReachedText.enabled = true;
         _exitReachedButtons.SetActive(true);
         // set posX of ack to menu to 0
         Cursor.visible = true;
@@ -486,19 +570,24 @@ public class UiManager : MonoBehaviour {
         _backToMenuButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
     }
 
-    public void UpdateDiscoveryText(int discoveredTiles, int mapSize) {
+    public void UpdateDiscoveryText(int discoveredTiles, int mapSize)
+    {
         _discoveryText.text = discoveredTiles > 0
-            ? $"Discovered {Math.Round((double) discoveredTiles / mapSize * 100)}%"
+            ? $"Discovered {Math.Round((double)discoveredTiles / mapSize * 100)}%"
             : "";
     }
 
-    public void AddInfoMessage(string message) {
+    public void AddInfoMessage(string message)
+    {
         //TODO: Just handle 5 text max, don't destroy but animate/hide them instead
         // Handle position of previous texts if any 
-        if (_infoPanel.transform.childCount > 0) {
-            foreach (Transform previousText in _infoPanel.transform) {
+        if (_infoPanel.transform.childCount > 0)
+        {
+            foreach (Transform previousText in _infoPanel.transform)
+            {
                 RectTransform rectTransform = previousText.GetComponent<RectTransform>();
-                if (rectTransform.anchoredPosition.y == 80) {
+                if (rectTransform.anchoredPosition.y == 80)
+                {
                     Destroy(previousText.gameObject);
                 }
 

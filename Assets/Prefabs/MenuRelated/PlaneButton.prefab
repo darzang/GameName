@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2895824905657853330}
   - component: {fileID: 2895824905657853341}
   - component: {fileID: 2895824905657853335}
-  - component: {fileID: 9090785708016141741}
+  - component: {fileID: 7683273369434989379}
   m_Layer: 0
   m_Name: PlaneButton
   m_TagString: MenuButton
@@ -63,6 +63,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -110,6 +111,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -219,7 +221,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 9.477424, y: 1.9486405, z: 0}
   m_Center: {x: -4.738712, y: -0.97432023, z: 0}
---- !u!114 &9090785708016141741
+--- !u!114 &7683273369434989379
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -228,9 +230,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2895824905657853340}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c6bafb2981fda947b81189942da0784, type: 3}
+  m_Script: {fileID: 11500000, guid: db8554c9127db664cb43b09a36efaa97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   defaultMaterial: {fileID: 2100000, guid: f13d4aa96293d5d449d3d51672b01947, type: 2}
   glowingMaterial: {fileID: 2100000, guid: f7bffc4a90b2d8b4d96add96802045f8, type: 2}
   menuManager: {fileID: 0}
+  levelNotAvailableMaterial: {fileID: 2100000, guid: 172b7247cd977854fa8d24c8dee72268,
+    type: 2}

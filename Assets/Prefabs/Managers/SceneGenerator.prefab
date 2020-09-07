@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4490981053337402425}
-  - component: {fileID: 4490981053337402424}
+  - component: {fileID: 2586420394415767596}
   m_Layer: 0
   m_Name: SceneGenerator
   m_TagString: Untagged
@@ -31,7 +31,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4490981053337402424
+--- !u!114 &2586420394415767596
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -40,7 +40,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 4490981053337402374}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35b62cdf8d4df8a46b3715e4cedfe2fb, type: 3}
+  m_Script: {fileID: 11500000, guid: 455ca9963e07e774886a76f4fe4d826e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   gameManagerPrefab: {fileID: 7978820328755584370, guid: 4e54f20615e79b14da2a55e0c1af87e4,

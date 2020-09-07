@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(AudioSource))]
-public class MenuManager : MonoBehaviour {
+public class MenuManager : MonoBehaviour
+{
     private TextMeshPro _text;
     public GameObject player;
     private Animation _anim;
@@ -19,25 +20,30 @@ public class MenuManager : MonoBehaviour {
     private AudioSource _playerSoundsAudioSource;
     public Material levelNotAvailableMaterial;
 
-    private void Start() {
+    private void Start()
+    {
         StartCoroutine(nameof(OpenEyes));
         InstantiatePlayerPrefs();
 
-        foreach (GameObject mazeCell in GameObject.FindGameObjectsWithTag("MazeCell")) {
+        foreach (GameObject mazeCell in GameObject.FindGameObjectsWithTag("MazeCell"))
+        {
             mazeCell.transform.Find("Ceiling").gameObject.SetActive(true);
         }
         _playerLamp = player.GetComponentInChildren<Light>();
         _playerSoundsAudioSource = player.transform.Find("SoundsAudioSource").GetComponent<AudioSource>();
         playerData = FileManager.LoadPlayerDataFile();
-        if (playerData == null || playerData.version == null || playerData.version != GameManager.CurrentVersion ) {
+        if (playerData == null || playerData.version == null || playerData.version != GameManager.CurrentVersion)
+        {
             playerData = new PlayerData();
             FileManager.SavePlayerDataFile(playerData);
-            // Cleanup all levelData
-            for (int i = 0; i < 10; i++) {
+            // Cleanup all levelData files
+            for (int i = 0; i < 10; i++)
+            {
                 FileManager.DeleteFile($"Level{i}");
             }
         }
-        else {
+        else
+        {
             _playerLamp.range *= playerData.lightMultiplier;
             _playerLamp.intensity *= playerData.lightMultiplier;
             _playerLamp.spotAngle *= playerData.lightMultiplier;
@@ -45,55 +51,66 @@ public class MenuManager : MonoBehaviour {
 
         _playerLamp.enabled = false;
         SetSkillsText();
-        Debug.Log(JsonUtility.ToJson(playerData, true));
         Cursor.visible = false;
         HandleAvailableLevels();
     }
 
-    private void HandleAvailableLevels() {
+    private void HandleAvailableLevels()
+    {
         int maxLevelAvailable = playerData.levelCompleted + 1;
         GameObject playMenu = GameObject.Find("PlayMenu").gameObject;
-        for (int i = 0; i < playMenu.transform.childCount; i++) {
+        for (int i = 0; i < playMenu.transform.childCount; i++)
+        {
             // Filter PlayTitle and PlayBackButton
             GameObject child = playMenu.transform.GetChild(i).gameObject;
             if (!child.name.Contains("Level")) continue;
             int.TryParse(child.name.Substring(child.name.Length - 1, 1), out int levelNumber);
-            if (levelNumber == 0) {
+            if (levelNumber == 0)
+            {
                 levelNumber = 10;
             }
 
-            if (levelNumber > maxLevelAvailable) {
+            if (levelNumber > maxLevelAvailable)
+            {
                 child.GetComponent<MeshRenderer>().material = levelNotAvailableMaterial;
             }
         }
     }
 
-    private void InstantiatePlayerPrefs() {
-        if (!PlayerPrefs.HasKey("EnableMusic")) {
+    private void InstantiatePlayerPrefs()
+    {
+        if (!PlayerPrefs.HasKey("EnableMusic"))
+        {
             PlayerPrefs.SetInt("EnableMusic", 1);
             PlayerPrefs.SetInt("EnableSounds", 1);
         }
-        else {
-            if (PlayerPrefs.GetInt("EnableSounds") == 1) {
+        else
+        {
+            if (PlayerPrefs.GetInt("EnableSounds") == 1)
+            {
                 GameObject.Find("OptionsSoundsButton").GetComponent<TextMeshPro>().text = "V";
             }
-            else {
+            else
+            {
                 GameObject.Find("OptionsSoundsButton").GetComponent<TextMeshPro>().text = "X";
                 player.transform.Find("SoundsAudioSource").GetComponent<AudioSource>().enabled = false;
                 SetFlickeringLightSoundEnable(false);
             }
 
-            if (PlayerPrefs.GetInt("EnableMusic") == 1) {
+            if (PlayerPrefs.GetInt("EnableMusic") == 1)
+            {
                 GameObject.Find("OptionsMusicButton").GetComponent<TextMeshPro>().text = "V";
             }
-            else {
+            else
+            {
                 GameObject.Find("OptionsMusicButton").GetComponent<TextMeshPro>().text = "X";
                 player.transform.Find("BackgroundAudioSource").GetComponent<AudioSource>().enabled = false;
             }
         }
     }
 
-    private IEnumerator OpenEyes() {
+    private IEnumerator OpenEyes()
+    {
         _anim = player.GetComponent<Animation>();
         _eyeLids = GameObject.Find("EyeLids").gameObject;
         _anim.Play("EyeLidOpen");
@@ -102,7 +119,8 @@ public class MenuManager : MonoBehaviour {
         _playerLamp.enabled = true;
     }
 
-    private IEnumerator CloseEyes(int levelNumber) {
+    private IEnumerator CloseEyes(int levelNumber)
+    {
         _eyeLids.SetActive(true);
         _playerLamp.enabled = false;
         _anim.Play("EyeLidClose");
@@ -111,8 +129,10 @@ public class MenuManager : MonoBehaviour {
         SceneManager.LoadScene($"Level{levelNumber}");
     }
 
-    private void SetSkillsText() {
-        switch (playerData.batteryMaxLevel) {
+    private void SetSkillsText()
+    {
+        switch (playerData.batteryMaxLevel)
+        {
             case 0:
                 batteryMaxText.GetComponent<TextMeshPro>().text = "[1][2][4]";
                 break;
@@ -124,12 +144,13 @@ public class MenuManager : MonoBehaviour {
                 break;
             case 3:
                 batteryMaxText.GetComponent<TextMeshPro>().text = "[v][v][v]";
-                GameObject.Find("BatteryMaxButton").GetComponent<TextMeshPro>().text = "MAXED";
-                GameObject.Find("BatteryMaxButton").GetComponent<BoxCollider>().enabled = false;
+                GameObject.Find("BatteryMaxUpgradeButton").GetComponent<TextMeshPro>().text = "MAXED";
+                GameObject.Find("BatteryMaxUpgradeButton").GetComponent<BoxCollider>().enabled = false;
                 break;
         }
 
-        switch (playerData.batteryUseLevel) {
+        switch (playerData.batteryUseLevel)
+        {
             case 0:
                 batteryUseText.GetComponent<TextMeshPro>().text = "[1][2][4]";
                 break;
@@ -141,12 +162,13 @@ public class MenuManager : MonoBehaviour {
                 break;
             case 3:
                 batteryUseText.GetComponent<TextMeshPro>().text = "[v][v][v]";
-                GameObject.Find("BatteryUseButton").GetComponent<TextMeshPro>().text = "MAXED";
-                GameObject.Find("BatteryUseButton").GetComponent<BoxCollider>().enabled = false;
+                GameObject.Find("BatteryUseUpgradeButton").GetComponent<TextMeshPro>().text = "MAXED";
+                GameObject.Find("BatteryUseUpgradeButton").GetComponent<BoxCollider>().enabled = false;
                 break;
         }
 
-        switch (playerData.lightLevel) {
+        switch (playerData.lightLevel)
+        {
             case 0:
                 lightText.GetComponent<TextMeshPro>().text = "[1][2][4]";
                 break;
@@ -158,16 +180,18 @@ public class MenuManager : MonoBehaviour {
                 break;
             case 3:
                 lightText.GetComponent<TextMeshPro>().text = "[v][v][v]";
-                GameObject.Find("LightButton").GetComponent<TextMeshPro>().text = "MAXED";
-                GameObject.Find("LightButton").GetComponent<BoxCollider>().enabled = false;
+                GameObject.Find("LightUpgradeButton").GetComponent<TextMeshPro>().text = "MAXED";
+                GameObject.Find("LightUpgradeButton").GetComponent<BoxCollider>().enabled = false;
                 break;
         }
 
         cashTexts.GetComponent<TextMeshPro>().text = $"COINS: {playerData.cash}";
     }
 
-    public void HandleClick(GameObject button) {
-        switch (button.name) {
+    public void HandleClick(GameObject button)
+    {
+        switch (button.name)
+        {
             case "OptionsButton":
                 _anim.Play("MainToOptions");
                 break;
@@ -217,12 +241,14 @@ public class MenuManager : MonoBehaviour {
                 HandleUpgrade("Light", playerData.lightLevel);
                 break;
             case "OptionsMusicButton":
-                if (PlayerPrefs.GetInt("EnableMusic") == 1) {
+                if (PlayerPrefs.GetInt("EnableMusic") == 1)
+                {
                     PlayerPrefs.SetInt("EnableMusic", 0);
                     button.GetComponent<TextMeshPro>().text = "X";
                     player.transform.Find("BackgroundAudioSource").GetComponent<AudioSource>().enabled = false;
                 }
-                else {
+                else
+                {
                     PlayerPrefs.SetInt("EnableMusic", 1);
                     button.GetComponent<TextMeshPro>().text = "V";
                     player.transform.Find("BackgroundAudioSource").GetComponent<AudioSource>().enabled = true;
@@ -230,13 +256,15 @@ public class MenuManager : MonoBehaviour {
 
                 break;
             case "OptionsSoundsButton":
-                if (PlayerPrefs.GetInt("EnableSounds") == 1) {
+                if (PlayerPrefs.GetInt("EnableSounds") == 1)
+                {
                     PlayerPrefs.SetInt("EnableSounds", 0);
                     button.GetComponent<TextMeshPro>().text = "X";
                     _playerSoundsAudioSource.enabled = false;
                     SetFlickeringLightSoundEnable(false);
                 }
-                else {
+                else
+                {
                     PlayerPrefs.SetInt("EnableSounds", 1);
                     button.GetComponent<TextMeshPro>().text = "V";
                     _playerSoundsAudioSource.enabled = true;
@@ -244,28 +272,29 @@ public class MenuManager : MonoBehaviour {
                 }
                 break;
             default:
-                if (button.name.Contains("Level")) {
+                if (button.name.Contains("Level"))
+                {
                     int.TryParse(button.name.Substring(button.name.Length - 1, 1), out int levelNumber);
-                    if (levelNumber == 0) {
+                    if (levelNumber == 0)
+                    {
                         levelNumber = 10;
                     }
-                    if (playerData.levelCompleted > levelNumber - 2) {
-                        Debug.Log($"Loading level {levelNumber}");
+                    if (playerData.levelCompleted > levelNumber - 2)
+                    {
                         _eyeLids.SetActive(true);
                         _anim.Play("EyeLidClose");
                         StartCoroutine(CloseEyes(levelNumber));
-                    }
-                    else {
-                        Debug.Log($"Can't load level {levelNumber}");
                     }
                 }
                 break;
         }
     }
 
-    private void HandleUpgrade(string skill, int currentLevel) {
+    private void HandleUpgrade(string skill, int currentLevel)
+    {
         int cost = 0;
-        switch (currentLevel) {
+        switch (currentLevel)
+        {
             case 0:
                 cost = 1;
                 break;
@@ -278,23 +307,26 @@ public class MenuManager : MonoBehaviour {
         }
 
         if (playerData.cash < cost) return;
-        Debug.Log($"Upgrade {skill} possible");
-        switch (skill) {
+        switch (skill)
+        {
             case "BatteryMax":
-                if (playerData.batteryMaxLevel < 3) {
+                if (playerData.batteryMaxLevel < 3)
+                {
                     // TODO: Make this clean
                     playerData.batteryMaxLevel += 1;
                     playerData.batteryMax += 100;
                 }
                 break;
             case "BatteryUse":
-                if (playerData.batteryUseLevel < 3) {
+                if (playerData.batteryUseLevel < 3)
+                {
                     playerData.batteryUseLevel += 1;
                     playerData.fuelConsumption -= 0.1f;
                 }
                 break;
             case "Light":
-                if (playerData.lightLevel < 3) {
+                if (playerData.lightLevel < 3)
+                {
                     playerData.lightLevel += 1;
                     playerData.lightMultiplier += 0.1f;
                     _playerLamp.range = playerData.baseLightRange * playerData.lightMultiplier;
@@ -309,9 +341,11 @@ public class MenuManager : MonoBehaviour {
         FileManager.SavePlayerDataFile(playerData);
     }
 
-    private static void SetFlickeringLightSoundEnable(bool state) {
+    private static void SetFlickeringLightSoundEnable(bool state)
+    {
         GameObject lights = GameObject.Find("Lights").gameObject;
-        foreach (AudioSource lightAudio in lights.transform.GetComponentsInChildren<AudioSource>()) {
+        foreach (AudioSource lightAudio in lights.transform.GetComponentsInChildren<AudioSource>())
+        {
             lightAudio.enabled = state;
         }
     }

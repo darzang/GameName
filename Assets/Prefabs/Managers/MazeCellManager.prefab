@@ -40,9 +40,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 3817444224504055257}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e96c64299a59884bad89f8487323fa4, type: 3}
+  m_Script: {fileID: 11500000, guid: fa48ceddf25db9f438a0ad5e47ff7b47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mazeCells: []
+  mazeRow: 10
+  mazeColumn: 10
   arrowPrefab: {fileID: 3571792468748946464, guid: 1b264faa0166ec340babe252fb9b46b7,
     type: 3}
   lightPrefab: {fileID: 6364061260219373835, guid: d11cf17e2c46ca949adee3ced91ae643,
